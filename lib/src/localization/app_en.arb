@@ -1,0 +1,6 @@
+{
+  "appTitle": "trashtrek_spm",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
