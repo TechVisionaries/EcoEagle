@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek_spm/src/user_management_feature/residentDashboard.dart';
 import 'package:trashtrek_spm/src/user_management_feature/signup.dart';
 import 'package:trashtrek_spm/src/user_management_feature/driverDashboard.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -29,8 +30,10 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<void> _loginUser() async {
+    final baseUrl = dotenv.env['BASE_URL'];
+
     final response = await http.post(
-      Uri.parse('http://localhost:8080/api/users/auth'),
+      Uri.parse('$baseUrl/users/auth'),
       body: {
         'email': _emailController.text,
         'password': _passwordController.text,

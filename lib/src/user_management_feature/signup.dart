@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -23,8 +24,10 @@ class _SignUpState extends State<SignUp> {
   String _userType = "Resident"; // Default userType
 
   Future<void> _registerUser() async {
+    final baseUrl = dotenv.env['BASE_URL'];
+
     final response = await http.post(
-      Uri.parse('http://localhost:8080/api/users/'),
+      Uri.parse('$baseUrl/users/'),
       body: {
         'firstName': _firstNameController.text,
         'lastName': _lastNameController.text,
