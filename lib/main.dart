@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
   final settingsController = SettingsController(SettingsService());
@@ -18,3 +20,25 @@ void main() async {
   // SettingsView.
   runApp(MyApp(settingsController: settingsController));
 }
+
+
+// import 'package:flutter/material.dart';
+// import 'package:trashtrek_spm/src/user_management_feature/signin.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// void main() async {
+//   await dotenv.load(fileName: ".env");
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return const MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: SignIn(),
+//     );
+//   }
+// }
