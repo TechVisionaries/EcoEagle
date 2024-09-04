@@ -48,7 +48,7 @@ class _SignInState extends State<SignIn> {
         if (data['userlogtype'] == "Resident") {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const Residentdashboard()),
+            MaterialPageRoute(builder: (context) => const ResidentDashboard()),
           );
         } else {
           Navigator.pushReplacement(
