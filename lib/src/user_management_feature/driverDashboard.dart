@@ -5,6 +5,9 @@ import 'package:trashtrek_spm/src/user_management_feature/userProfile.dart'; // 
 class DriverDashboard extends StatefulWidget {
   const DriverDashboard({super.key});
 
+  static const routeName = '/rewards';
+
+
   @override
   _DriverDashboardState createState() => _DriverDashboardState();
 }

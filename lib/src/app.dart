@@ -3,11 +3,17 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:trashtrek_spm/src/appointments_feature/screens/my_appointments_view.dart';
 
+import 'reward_management/screens/add_rating_view.dart';
+import 'reward_management/screens/admin_driver_profile.dart';
+import 'reward_management/screens/driver_profile.dart';
+import 'reward_management/screens/view_reviews.dart';
 import 'sample_feature/sample_item_details_view.dart';
 import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'user_management_feature/driverDashboard.dart';
 import 'appointments_feature/screens/schedule_appointment_view.dart';
+
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -78,6 +84,16 @@ class MyApp extends StatelessWidget {
                   case MyAppointmentsView.routeName:
                     return MyAppointmentsView();
                   case SampleItemListView.routeName:
+                  case RateDriverScreen.routeName:
+                    return const RateDriverScreen();
+                  case MyReviewsScreen.routeName:
+                    return const MyReviewsScreen();
+                  case AdminDriverProfile.routeName:
+                    return const AdminDriverProfile();
+                  case DriverDashboard.routeName:
+                    return const DriverDashboard();
+                  case DriverProfile.routeName:
+                    return const DriverProfile();
                   default:
                     return const SampleItemListView();
                 }
@@ -88,4 +104,17 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return MaterialApp(
+  //     debugShowCheckedModeBanner: false,
+  //     // home: ScheduleAppointmentView(),
+  //     // home: RateDriverScreen(),
+  //     // home : MyReviewsScreen(),
+  //     // home : AdminDriverProfile(),
+  //     // home: DriverDashboard(),
+  //     home: DriverProfile(),
+  //   );
+  // }
 }
