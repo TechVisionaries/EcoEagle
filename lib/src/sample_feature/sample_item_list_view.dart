@@ -1,70 +1,56 @@
 import 'package:flutter/material.dart';
 
 import '../settings/settings_view.dart';
-import 'sample_item.dart';
-import 'sample_item_details_view.dart';
+import '../appointments_feature/screens/schedule_appointment_view.dart'; // Import ScheduleAppointmentView
+import '../appointments_feature/screens/my_appointments_view.dart'; // Import MyAppointmentsView
 
-/// Displays a list of SampleItems.
+/// Displays a list of options for navigation.
 class SampleItemListView extends StatelessWidget {
-  const SampleItemListView({
-    super.key,
-    this.items = const [SampleItem(1), SampleItem(2), SampleItem(3)],
-  });
+  const SampleItemListView({super.key});
 
   static const routeName = '/';
-
-  final List<SampleItem> items;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sample Items'),
+        title: const Text('Options'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Navigate to the settings page. If the user leaves and returns
-              // to the app after it has been killed while running in the
-              // background, the navigation stack is restored.
+              // Navigate to the settings page.
               Navigator.restorablePushNamed(context, SettingsView.routeName);
             },
           ),
         ],
       ),
-
-      // To work with lists that may contain a large number of items, it’s best
-      // to use the ListView.builder constructor.
-      //
-      // In contrast to the default ListView constructor, which requires
-      // building all Widgets up front, the ListView.builder constructor lazily
-      // builds Widgets as they’re scrolled into view.
-      body: ListView.builder(
-        // Providing a restorationId allows the ListView to restore the
-        // scroll position when a user leaves and returns to the app after it
-        // has been killed while running in the background.
+      body: ListView(
         restorationId: 'sampleItemListView',
-        itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
-          final item = items[index];
-
-          return ListTile(
-            title: Text('SampleItem ${item.id}'),
-            leading: const CircleAvatar(
-              // Display the Flutter Logo image asset.
-              foregroundImage: AssetImage('assets/images/flutter_logo.png'),
-            ),
+        children: [
+          ListTile(
+            title: const Text('Schedule Appointment'),
+            leading: const Icon(Icons.schedule),
             onTap: () {
-              // Navigate to the details page. If the user leaves and returns to
-              // the app after it has been killed while running in the
-              // background, the navigation stack is restored.
+              // Navigate to the ScheduleAppointmentView.
               Navigator.restorablePushNamed(
                 context,
-                SampleItemDetailsView.routeName,
+                ScheduleAppointmentView.routeName,
               );
-            }
-          );
-        },
+            },
+          ),
+          ListTile(
+            title: const Text('My Appointments'),
+            leading: const Icon(Icons.assignment),
+            onTap: () {
+              // Navigate to the MyAppointmentsView.
+              Navigator.restorablePushNamed(
+                context,
+                MyAppointmentsView.routeName,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
