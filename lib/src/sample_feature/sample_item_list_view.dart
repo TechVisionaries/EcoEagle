@@ -13,7 +13,7 @@ import '../appointments_feature/screens/my_appointments_view.dart'; // Import My
 class SampleItemListView extends StatelessWidget {
   const SampleItemListView({super.key});
 
-  static const routeName = '/';
+  static const routeName = '/ddasad';
 
   @override
   Widget build(BuildContext context) {

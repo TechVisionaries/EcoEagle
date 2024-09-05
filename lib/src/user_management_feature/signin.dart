@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
-import 'package:trashtrek/src/user_management_feature/signup.dart';
-import 'package:trashtrek/src/user_management_feature/driverDashboard.dart';
+import 'package:trashtrek/common/constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SignIn extends StatefulWidget {
@@ -30,7 +28,7 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<void> _loginUser() async {
-    final baseUrl = dotenv.env['BASE_URL'];
+    final baseUrl = dotenv.env[Constants.baseURL];
 
     final response = await http.post(
       Uri.parse('$baseUrl/users/auth'),
@@ -46,14 +44,14 @@ class _SignInState extends State<SignIn> {
       // Ensure the widget is still mounted before navigating
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
-          Navigator.pushReplacement(
+          Navigator.restorablePushNamed(
             context,
-            MaterialPageRoute(builder: (context) => const ResidentDashboard()),
+            Constants.residentDashboardRoute,
           );
         } else {
-          Navigator.pushReplacement(
+          Navigator.restorablePushNamed(
             context,
-            MaterialPageRoute(builder: (context) => const DriverDashboard()),
+            Constants.driverDashboardRoute,
           );
         }
       }
@@ -69,9 +67,9 @@ class _SignInState extends State<SignIn> {
 
   void _navigateToSignUp() {
     if (mounted) {
-      Navigator.push(
+      Navigator.restorablePushNamed(
         context,
-        MaterialPageRoute(builder: (context) => SignUp()),
+        Constants.signUpRoute,
       );
     }
   }
