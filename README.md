@@ -1,4 +1,4 @@
-# TrashTrek_SPM
+# trashtrek
 
 Flutter Mobile App for SPM Module.
 

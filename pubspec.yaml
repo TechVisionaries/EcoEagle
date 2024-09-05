@@ -1,4 +1,4 @@
-name: trashtrek_spm
+name: trashtrek
 description: "Flutter Mobile App for SPM Module."
 
 # Prevent accidental publishing to pub.dev.

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "trashtrek_spm" "\0"
+            VALUE "CompanyName", "com.techvisionaries" "\0"
+            VALUE "FileDescription", "trashtrek" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "trashtrek_spm" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "trashtrek_spm.exe" "\0"
-            VALUE "ProductName", "trashtrek_spm" "\0"
+            VALUE "InternalName", "trashtrek" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.techvisionaries. All rights reserved." "\0"
+            VALUE "OriginalFilename", "trashtrek.exe" "\0"
+            VALUE "ProductName", "trashtrek" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

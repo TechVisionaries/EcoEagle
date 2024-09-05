@@ -1,6 +1,6 @@
 {
-    "name": "trashtrek_spm",
-    "short_name": "trashtrek_spm",
+    "name": "trashtrek",
+    "short_name": "trashtrek",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

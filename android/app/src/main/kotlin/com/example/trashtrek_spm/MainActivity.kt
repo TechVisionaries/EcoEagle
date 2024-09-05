@@ -1,4 +1,4 @@
-package com.techvisionaries.trashtrek_spm
+package com.techvisionaries.trashtrek
 
 import io.flutter.embedding.android.FlutterActivity
 

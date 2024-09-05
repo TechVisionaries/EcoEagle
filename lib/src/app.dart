@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:trashtrek_spm/src/appointments_feature/screens/my_appointments_view.dart';
+import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/src/appointments_feature/screens/my_appointments_view.dart';
 
 import 'reward_management/screens/add_rating_view.dart';
 import 'reward_management/screens/admin_driver_profile.dart';
@@ -78,7 +79,7 @@ class MyApp extends StatelessWidget {
                     return SettingsView(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
-                  case ScheduleAppointmentView.routeName:
+                  case Constants.appointmentsRoute:
                     return const ScheduleAppointmentView();
                   case MyAppointmentsView.routeName:
                     return MyAppointmentsView();

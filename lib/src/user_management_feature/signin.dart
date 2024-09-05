@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trashtrek_spm/src/user_management_feature/residentDashboard.dart';
-import 'package:trashtrek_spm/src/user_management_feature/signup.dart';
-import 'package:trashtrek_spm/src/user_management_feature/driverDashboard.dart';
+import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
+import 'package:trashtrek/src/user_management_feature/signup.dart';
+import 'package:trashtrek/src/user_management_feature/driverDashboard.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SignIn extends StatefulWidget {
