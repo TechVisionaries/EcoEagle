@@ -3,10 +3,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/screens/my_appointments_view.dart';
+import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
+import 'package:trashtrek/src/user_management_feature/signin.dart';
+import 'package:trashtrek/src/user_management_feature/signup.dart';
+import 'package:trashtrek/src/user_management_feature/userProfile.dart';
 
 import 'reward_management/screens/add_rating_view.dart';
 import 'reward_management/screens/admin_driver_profile.dart';
-import 'reward_management/screens/driver_profile.dart';
 import 'reward_management/screens/view_reviews.dart';
 import 'sample_feature/sample_item_details_view.dart';
 import 'sample_feature/sample_item_list_view.dart';
@@ -89,10 +92,16 @@ class MyApp extends StatelessWidget {
                     return const MyReviewsScreen();
                   case AdminDriverProfile.routeName:
                     return const AdminDriverProfile();
-                  case DriverDashboard.routeName:
+                  case Constants.driverDashboardRoute:
                     return const DriverDashboard();
-                  case DriverProfile.routeName:
-                    return const DriverProfile();
+                  case Constants.residentDashboardRoute:
+                    return const ResidentDashboard();
+                  case Constants.signInRoute:
+                    return const SignIn();
+                  case Constants.signUpRoute:
+                    return const SignUp();
+                  case Constants.userProfileRoute:
+                    return const UserProfile();
                   default:
                     return const SampleItemListView();
                 }

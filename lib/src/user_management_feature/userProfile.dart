@@ -23,6 +23,7 @@ class _UserProfileState extends State<UserProfile> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+
     final baseUrl =
         dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
     _username = prefs.getString('userID');
