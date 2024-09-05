@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trashtrek/src/sample_feature/sample_item_list_view.dart';
 import 'package:trashtrek/src/user_management_feature/userProfile.dart'; // Import the user profile page
 
 class DriverDashboard extends StatefulWidget {
@@ -35,6 +36,13 @@ class _DriverDashboardState extends State<DriverDashboard> {
     );
   }
 
+  void _navigateToHome() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SampleItemListView()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,9 +69,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
           children: <Widget>[
             IconButton(
               icon: const Icon(Icons.home),
-              onPressed: () {
-                // Home button action (optional)
-              },
+              onPressed: _navigateToHome,
             ),
             IconButton(
               icon: const Icon(Icons.account_circle),
