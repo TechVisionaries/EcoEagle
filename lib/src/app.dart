@@ -102,6 +102,8 @@ class MyApp extends StatelessWidget {
                     return const SignUp();
                   case Constants.userProfileRoute:
                     return const UserProfile();
+                  case Constants.homeRoute:
+                    return const SampleItemListView();
                   default:
                     return const SampleItemListView();
                 }
