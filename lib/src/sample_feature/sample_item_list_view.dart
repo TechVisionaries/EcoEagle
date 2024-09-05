@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../reward_management/screens/add_rating_view.dart';
+import '../reward_management/screens/admin_driver_dashboard.dart';
+import '../reward_management/screens/admin_driver_profile.dart';
+import '../reward_management/screens/driver_profile.dart';
+import '../reward_management/screens/view_reviews.dart';
 import '../settings/settings_view.dart';
 import '../appointments_feature/screens/schedule_appointment_view.dart'; // Import ScheduleAppointmentView
 import '../appointments_feature/screens/my_appointments_view.dart'; // Import MyAppointmentsView
@@ -59,6 +63,50 @@ class SampleItemListView extends StatelessWidget {
               Navigator.restorablePushNamed(
                 context,
                 RateDriverScreen.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('My Reviews'),
+            leading: const Icon(Icons.reviews),
+            onTap: () {
+              // Navigate to the MyReviewsScreen.
+              Navigator.restorablePushNamed(
+                context,
+                MyReviewsScreen.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Admin Driver Profile'),
+            leading: const Icon(Icons.person),
+            onTap: () {
+              // Navigate to the AdminDriverProfile.
+              Navigator.restorablePushNamed(
+                context,
+                AdminDriverProfile.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Driver Dashboard'),
+            leading: const Icon(Icons.dashboard),
+            onTap: () {
+              // Navigate to the DriverDashboard.
+              Navigator.restorablePushNamed(
+                context,
+                AdminDriverDashboard.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Driver Profile'),
+            leading: const Icon(Icons.account_circle),
+            onTap: () {
+              // Navigate to the DriverProfile.
+              Navigator.restorablePushNamed(
+                context,
+                DriverProfile.routeName,
               );
             },
           ),

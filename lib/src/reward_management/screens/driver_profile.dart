@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DriverProfile extends StatelessWidget {
   const DriverProfile({super.key});
 
-  static const routeName = '/rewards';
+  static const routeName = '/rewards_DriverProfile';
 
 
   @override
