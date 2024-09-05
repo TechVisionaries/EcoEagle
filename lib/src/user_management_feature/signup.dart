@@ -26,7 +26,6 @@ class _SignUpState extends State<SignUp> {
 
   Future<void> _registerUser() async {
     final baseUrl = dotenv.env[Constants.baseURL];
-
     final response = await http.post(
       Uri.parse('$baseUrl/users/'),
       body: {
@@ -56,83 +55,87 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: _firstNameController,
-              decoration: const InputDecoration(labelText: 'First Name'),
-            ),
-            TextField(
-              controller: _lastNameController,
-              decoration: const InputDecoration(labelText: 'Last Name'),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _phoneNoController,
-              decoration: const InputDecoration(labelText: 'Phone Number'),
-            ),
-            TextField(
-              controller: _houseNoController,
-              decoration: const InputDecoration(labelText: 'House No'),
-            ),
-            TextField(
-              controller: _cityController,
-              decoration: const InputDecoration(labelText: 'City'),
-            ),
-            TextField(
-              controller: _streetController,
-              decoration: const InputDecoration(labelText: 'Street'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(labelText: 'Confirm Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            Column(
-              children: <Widget>[
-                ListTile(
-                  title: const Text('Resident'),
-                  leading: Radio<String>(
-                    value: "Resident",
-                    groupValue: _userType,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _userType = value!;
-                      });
-                    },
+      body: SingleChildScrollView(
+        // Scrollable container to prevent overflow
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              TextField(
+                controller: _firstNameController,
+                decoration: const InputDecoration(labelText: 'First Name'),
+              ),
+              TextField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+              ),
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                controller: _phoneNoController,
+                decoration: const InputDecoration(labelText: 'Phone Number'),
+              ),
+              TextField(
+                controller: _houseNoController,
+                decoration: const InputDecoration(labelText: 'House No'),
+              ),
+              TextField(
+                controller: _cityController,
+                decoration: const InputDecoration(labelText: 'City'),
+              ),
+              TextField(
+                controller: _streetController,
+                decoration: const InputDecoration(labelText: 'Street'),
+              ),
+              TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+              TextField(
+                controller: _confirmPasswordController,
+                decoration:
+                    const InputDecoration(labelText: 'Confirm Password'),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              Column(
+                children: <Widget>[
+                  ListTile(
+                    title: const Text('Resident'),
+                    leading: Radio<String>(
+                      value: "Resident",
+                      groupValue: _userType,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _userType = value!;
+                        });
+                      },
+                    ),
                   ),
-                ),
-                ListTile(
-                  title: const Text('Driver'),
-                  leading: Radio<String>(
-                    value: "Driver",
-                    groupValue: _userType,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _userType = value!;
-                      });
-                    },
+                  ListTile(
+                    title: const Text('Driver'),
+                    leading: Radio<String>(
+                      value: "Driver",
+                      groupValue: _userType,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _userType = value!;
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _registerUser,
-              child: const Text('Sign Up'),
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _registerUser,
+                child: const Text('Sign Up'),
+              ),
+            ],
+          ),
         ),
       ),
     );
