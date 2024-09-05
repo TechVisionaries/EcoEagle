@@ -148,10 +148,6 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                     ),
                 ],
               ),
-              trailing: Icon(Icons.arrow_forward),
-              onTap: () {
-                // Navigate to detailed view if needed
-              },
             ),
           );
         },
