@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../reward_management/screens/add_rating_view.dart';
 import '../settings/settings_view.dart';
 import '../appointments_feature/screens/schedule_appointment_view.dart'; // Import ScheduleAppointmentView
 import '../appointments_feature/screens/my_appointments_view.dart'; // Import MyAppointmentsView
@@ -47,6 +48,17 @@ class SampleItemListView extends StatelessWidget {
               Navigator.restorablePushNamed(
                 context,
                 MyAppointmentsView.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Rate Driver'),
+            leading: const Icon(Icons.rate_review),
+            onTap: () {
+              // Navigate to the RateDriverScreen.
+              Navigator.restorablePushNamed(
+                context,
+                RateDriverScreen.routeName,
               );
             },
           ),
