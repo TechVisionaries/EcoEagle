@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class RateDriverScreen extends StatelessWidget {
   const RateDriverScreen({Key? key}) : super(key: key);
 
+  static const routeName = '/rewards';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

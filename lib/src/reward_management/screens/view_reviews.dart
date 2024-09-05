@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class MyReviewsScreen extends StatelessWidget {
   const MyReviewsScreen({Key? key}) : super(key: key);
 
+  static const routeName = '/rewards';
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

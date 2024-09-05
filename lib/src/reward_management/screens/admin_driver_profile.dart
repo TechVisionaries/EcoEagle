@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class AdminDriverProfile extends StatelessWidget {
   const AdminDriverProfile({super.key});
 
+  static const routeName = '/rewards';
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
