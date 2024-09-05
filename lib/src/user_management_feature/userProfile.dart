@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trashtrek/common/constants.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -23,7 +24,7 @@ class _UserProfileState extends State<UserProfile> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final baseUrl =
-        dotenv.env['BASE_URL']; // Get the base URL from the .env file
+        dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
     _username = prefs.getString('userID');
     final token = prefs.getString('token');
 
