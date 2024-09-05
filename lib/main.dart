@@ -21,7 +21,7 @@ void main() async {
 
 
 // import 'package:flutter/material.dart';
-// import 'package:trashtrek_spm/src/user_management_feature/signin.dart';
+// import 'package:trashtrek/src/user_management_feature/signin.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // void main() async {

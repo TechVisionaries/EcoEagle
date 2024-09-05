@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trashtrek_spm/src/user_management_feature/userProfile.dart'; // Import the user profile page
+import 'package:trashtrek/src/user_management_feature/userProfile.dart'; // Import the user profile page
 
 class DriverDashboard extends StatefulWidget {
   const DriverDashboard({super.key});
