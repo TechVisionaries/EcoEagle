@@ -1,4 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Constants {
   // .env
   static const baseURL = 'BASE_URL';
