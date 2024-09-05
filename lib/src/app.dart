@@ -14,7 +14,6 @@ import 'settings/settings_view.dart';
 import 'user_management_feature/driverDashboard.dart';
 import 'appointments_feature/screens/schedule_appointment_view.dart';
 
-
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
   const MyApp({
@@ -83,7 +82,6 @@ class MyApp extends StatelessWidget {
                     return const ScheduleAppointmentView();
                   case MyAppointmentsView.routeName:
                     return MyAppointmentsView();
-                  case SampleItemListView.routeName:
                   case RateDriverScreen.routeName:
                     return const RateDriverScreen();
                   case MyReviewsScreen.routeName:
