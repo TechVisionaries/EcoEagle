@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AdminDriverProfile extends StatelessWidget {
   const AdminDriverProfile({super.key});
 
-  static const routeName = '/rewards';
+  static const routeName = '/rewards_adminDriverProfile';
 
 
   @override
@@ -30,7 +30,7 @@ class AdminDriverProfile extends StatelessWidget {
               CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage(
-                    'assets/ramon.jpg'), // replace with actual image asset
+                    'assets/images/driver1.webp'), // replace with actual image asset
               ),
               SizedBox(height: 16),
               Text(

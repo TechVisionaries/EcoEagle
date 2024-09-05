@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-class DriverDashboard extends StatelessWidget {
-  const DriverDashboard({super.key});
+class AdminDriverDashboard extends StatelessWidget {
+  const AdminDriverDashboard({super.key});
+
+  static const routeName = '/rewards_driverDashboard';
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +44,14 @@ class DriverDashboard extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  buildDriverCard('1. Allen Smith', 200, 'assets/images/driver1.webp'),
                   buildDriverCard(
-                      '2. Laura Johnson', 180, 'assets/driver1.png'),
+                      '1. Allen Smith', 200, 'assets/images/driver1.webp'),
                   buildDriverCard(
-                      '3. Jaxson Williams', 150, 'assets/driver1.png'),
-                  buildDriverCard('4. Lila Brown', 140, 'assets/driver1.png'),
-                  buildDriverCard('5. Olivia Davis', 130, 'assets/driver1.png'),
+                      '2. Laura Johnson', 180, 'assets/images/driver1.webp'),
+                  buildDriverCard(
+                      '3. Jaxson Williams', 150, 'assets/images/driver1.webp'),
+                  buildDriverCard('4. Lila Brown', 140, 'assets/images/driver1.webp'),
+                  buildDriverCard('5. Olivia Davis', 130, 'assets/images/driver1.webp'),
                   const Divider(),
                   const Text(
                     'All Drivers',
@@ -58,12 +61,12 @@ class DriverDashboard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  buildDriverCard('6. Emma Miller', 100, 'assets/driver1.png'),
-                  buildDriverCard('7. Liam Wilson', 90, 'assets/driver1.png'),
-                  buildDriverCard('8. Ava Taylor', 80, 'assets/driver1.png'),
-                  buildDriverCard('9. Noah Lee', 70, 'assets/driver1.png'),
+                  buildDriverCard('6. Emma Miller', 100, 'assets/images/driver1.webp'),
+                  buildDriverCard('7. Liam Wilson', 90, 'assets/images/driver1.webp'),
+                  buildDriverCard('8. Ava Taylor', 80, 'assets/images/driver1.webp'),
+                  buildDriverCard('9. Noah Lee', 70, 'assets/images/driver1.webp'),
                   buildDriverCard(
-                      '10. James Martinez', 60, 'assets/driver1.png'),
+                      '10. James Martinez', 60, 'assets/images/driver1.webp'),
                 ],
               ),
             ),
@@ -96,4 +99,3 @@ class DriverDashboard extends StatelessWidget {
     );
   }
 }
-

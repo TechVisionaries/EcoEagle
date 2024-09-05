@@ -23,98 +23,103 @@ class RateDriverScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(
-                  'https://via.placeholder.com/150'), // Replace with actual image URL
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Ramon Watson',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+      body: SingleChildScrollView(
+        // Wrap content in SingleChildScrollView
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(
+                    'https://via.placeholder.com/150'), // Replace with actual image URL
               ),
-            ),
-            const Text(
-              'Driver',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                return Icon(
-                  index < 4 ? Icons.star : Icons.star_border,
-                  color: Colors.amber,
-                  size: 36,
-                );
-              }),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: 'Share your pickup experience',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+              const SizedBox(height: 16),
+              const Text(
+                'Ramon Watson',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
-                contentPadding: const EdgeInsets.all(16),
               ),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Handle skip action
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              const Text(
+                'Driver',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return Icon(
+                    index < 4 ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                    size: 36,
+                  );
+                }),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                maxLines: 5,
+                decoration: InputDecoration(
+                  hintText: 'Share your pickup experience',
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+              ),
+              const SizedBox(
+                  height: 24), // Added to prevent overflow for the buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle skip action
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Skip'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle submit action
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 5,
+                    ),
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  child: const Text('Skip'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Handle submit action
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ],
+                ],
+              ),
+              const SizedBox(
+                  height: 24), // Prevent the overflow by adding space
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
