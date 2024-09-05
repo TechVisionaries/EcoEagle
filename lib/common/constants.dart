@@ -3,7 +3,8 @@ class Constants {
   static const baseURL = 'BASE_URL';
 
   // Route Names
-  static const wasteMapRoute = '/wastemap';
+  static const wasteMapDriverRoute = '/wastemap/driver';
+  static const wasteMapResidentRoute = '/wastemap/resident';
   static const appointmentsRoute = '/appointments';
   static const myAppointmentsRoute = '/my_appointments';
   static const signInRoute = '/';
