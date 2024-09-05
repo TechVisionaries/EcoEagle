@@ -4,10 +4,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/screens/my_appointments_view.dart';
 
-import 'reward_management/screens/add_rating_view.dart';
-import 'reward_management/screens/admin_driver_profile.dart';
-import 'reward_management/screens/driver_profile.dart';
-import 'reward_management/screens/view_reviews.dart';
+import 'reward_management/add_rating_view.dart';
+import 'reward_management/admin_driver_profile.dart';
+import 'reward_management/driver_profile.dart';
+import 'reward_management/view_reviews.dart';
 import 'sample_feature/sample_item_details_view.dart';
 import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
