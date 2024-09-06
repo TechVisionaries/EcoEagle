@@ -1,141 +1,145 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'rating_model.dart';
+import 'view_reviews_service.dart';
 
-class MyReviewsScreen extends StatelessWidget {
+class MyReviewsScreen extends StatefulWidget {
   const MyReviewsScreen({Key? key}) : super(key: key);
 
-  static const routeName = '/view_rewards';
+  static const routeName = '/my-reviews';
 
+  @override
+  _ViewReviewsScreenState createState() => _ViewReviewsScreenState();
+}
+
+class _ViewReviewsScreenState extends State<MyReviewsScreen> {
+  final ViewReviewsService _viewReviewsService = ViewReviewsService();
+  late Future<List<Rating>> _reviewsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _reviewsFuture = _loadReviews();
+  }
+
+  Future<List<Rating>> _loadReviews() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      if (token.isEmpty) {
+        throw Exception('Token is empty');
+      }
+
+      final reviews = await _viewReviewsService.fetchUserReviews(token);
+      return reviews;
+    } catch (e) {
+      print('Error loading reviews: $e');
+      return [];
+    }
+  }
+
+  void _editReview(Rating review) {
+    // Implement the edit functionality here
+    print('Edit review: ${review.id}');
+  }
+
+  void _deleteReview(Rating review) {
+    // Implement the delete functionality here
+    print('Delete review: ${review.id}');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'My Reviews',
-          style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: true,
+        title: const Text('My Reviews'),
+        backgroundColor: Colors.blueAccent,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildReviewTile(context, 'Liam', 'Mar 2022', 5,
-                'Liam is a great driver. He always helps me take out my garbage.'),
-            const SizedBox(height: 24), // Space between reviews
-            _buildReviewTile(context, 'Ethan', 'Feb 2021', 4,
-                'Ethan is very professional. Always on time and never forgets to pick up the garbage.'),
-            const SizedBox(height: 24), // Space between reviews
-            _buildReviewTile(context, 'Sophia', 'Jan 2020', 5,
-                'Sophia is the best. She’s been our driver for years. We wouldn’t trade her for anyone.'),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Reviews',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          // Handle navigation based on the tapped item
+      body: FutureBuilder<List<Rating>>(
+        future: _reviewsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No reviews found.'));
+          } else {
+            final reviews = snapshot.data!;
+            return ListView.builder(
+              itemCount: reviews.length,
+              itemBuilder: (context, index) {
+                final review = reviews[index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Display review date in dd/MM/yy format
+                              Text(
+                                DateFormat('dd/MM/yy').format(review.createdAt),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Display rating with filled and unfilled stars
+                              RatingBarIndicator(
+                                rating: review.points.toDouble(),
+                                itemBuilder: (context, index) => Icon(
+                                  Icons.star,
+                                  color: index < review.points
+                                      ? Colors.amber
+                                      : Colors.grey,
+                                ),
+                                itemCount: 5,
+                                itemSize: 20.0,
+                                direction: Axis.horizontal,
+                              ),
+                              const SizedBox(height: 8),
+                              // Display review text
+                              Text(
+                                review.reviewText,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Edit button
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _editReview(review),
+                            ),
+                            // Delete button
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteReview(review),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }
         },
       ),
     );
-  }
-
-  Widget _buildReviewTile(BuildContext context, String name, String date,
-      int rating, String review) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  date,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.black),
-                  onPressed: () {
-                    // Handle the update action here
-                    _showSnackbar(context, 'Update clicked for $name');
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    // Handle the delete action here
-                    _showSnackbar(context, 'Delete clicked for $name');
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: List.generate(5, (index) {
-            return Icon(
-              index < rating ? Icons.star : Icons.star_border,
-              color: Colors.black,
-              size: 20,
-            );
-          }),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          review,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
-    );
-  }
-
-  void _showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
   }
 }
