@@ -3,9 +3,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:trashtrek/common/strings.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class WasteMapDriverView extends StatefulWidget {
-  const WasteMapDriverView({super.key});
+  final List<LatLng> appointments;
+  const WasteMapDriverView({
+    super.key,
+    this.appointments = const [LatLng(6.9264944, 79.9727031),LatLng(6.5358627, 80.264653),LatLng(7.4252148, 79.8310073),LatLng(5.9532294, 80.5476227),LatLng(6.9151983, 79.9730228),]
+  });
 
   @override
   WasteMapDriverViewState createState() => WasteMapDriverViewState();
@@ -13,14 +19,17 @@ class WasteMapDriverView extends StatefulWidget {
 
 class WasteMapDriverViewState extends State<WasteMapDriverView> {
   late GoogleMapController mapController;
-  Position? _currentPosition;
-  Set<Marker> _markers = {};
+  late double currentZoomLevel;
+  bool moveCamera = true;
+  final Set<Marker> _markers = {};
   LatLng _initialPosition = const LatLng(37.4219983, -122.084);
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
     super.initState();
     _requestLocationPermission();
+    _displayAppointments();
   }
 
   // Request location permission and get the user's location
@@ -89,51 +98,127 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 
   // Get the current location and start listening for location changes
   void _getUserLocation() async {
-    var currentLocation = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    var currentLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _initialPosition = LatLng(currentLocation.latitude, currentLocation.longitude);      
+      _loadRoute();
+    });
 
-    _currentPosition = currentLocation;
-    LatLng currentLatLng =
-        LatLng(currentLocation.latitude, currentLocation.longitude);
-
-    _addMarker(currentLatLng, "Driver");
-
-    // Update map position
-    mapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: currentLatLng,
-          zoom: 15.0,
-        ),
-      ),
-    );
-
-    // Listen to location changes and update map
-    Geolocator.getPositionStream().listen((Position position) {
-      setState(() {
-        _currentPosition = position;
-        LatLng newLatLng = LatLng(position.latitude, position.longitude);
-        _addMarker(newLatLng, "Driver");
+    Geolocator.getPositionStream().listen((Position position) async {
+      double zoomLevel = await mapController.getZoomLevel();
+      if(moveCamera){
         mapController.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
-              target: newLatLng,
-              zoom: 15.0,
+              target: LatLng(position.latitude, position.longitude),
+              zoom: zoomLevel,
             ),
           ),
         );
+      }
+
+      setState(() {
+        currentZoomLevel = zoomLevel;
+        moveCamera = false;
       });
     });
   }
 
+  void _displayAppointments() async {
+    for (LatLng appointment in widget.appointments) {
+      _addMarker(appointment, '');
+    }
+  }
+
+  String getDirectionsUrl(LatLng origin, List<LatLng> waypoints, LatLng destination) {
+    final waypointsString = waypoints.map((e) => '${e.latitude},${e.longitude}').join('|');
+    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=optimize:true|$waypointsString&key=YOUR_API_KEY';
+    return url;
+  }
+
+  Future<List<LatLng>> fetchRoute(LatLng origin, List<LatLng> waypoints, LatLng destination) async {
+    final url = getDirectionsUrl(origin, waypoints, destination);
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final route = data['routes'][0]['overview_polyline']['points'];
+      return decodePoly(route);
+    } else {
+      throw Exception('Failed to load directions');
+    }
+  }
+
+  List<LatLng> decodePoly(String encoded) {
+    var poly = <LatLng>[];
+    var index = 0;
+    var len = encoded.length;
+    var lat = 0;
+    var lng = 0;
+
+    while (index < len) {
+      int b;
+      var shift = 0;
+      var result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+      var p = LatLng((lat / 1E5).toDouble(), (lng / 1E5).toDouble());
+      poly.add(p);
+    }
+    return poly;
+  }
+
+  void _loadRoute() async {
+    try {
+      final routePoints = await fetchRoute(
+        _initialPosition,
+        widget.appointments,
+        _initialPosition, // Assuming the last stop is the final destination
+      );
+      setState(() {
+        _routePoints = routePoints;
+      });
+      mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            southwest: LatLng(
+              _routePoints.map((p) => p.latitude).reduce((a, b) => a < b ? a : b),
+              _routePoints.map((p) => p.longitude).reduce((a, b) => a < b ? a : b),
+            ),
+            northeast: LatLng(
+              _routePoints.map((p) => p.latitude).reduce((a, b) => a > b ? a : b),
+              _routePoints.map((p) => p.longitude).reduce((a, b) => a > b ? a : b),
+            ),
+          ),
+          50.0,
+        ),
+      );
+    } catch (e) {
+      // Handle errors
+      print(e);
+    }
+  }
   // Add a marker on the map
   void _addMarker(LatLng position, String label) {
     final marker = Marker(
       markerId: MarkerId(label),
       position: position,
       infoWindow: InfoWindow(title: label),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
     );
 
     setState(() {
@@ -158,8 +243,20 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           target: _initialPosition,
           zoom: 15.0,
         ),
+        polylines: _routePoints.isNotEmpty
+            ? {
+                Polyline(
+                  polylineId: const PolylineId('route'),
+                  color: Colors.blue,
+                  width: 5,
+                  points: _routePoints,
+                ),
+              }
+            : {},
         markers: _markers,
         myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        trafficEnabled: true,
       ),
     );
   }
