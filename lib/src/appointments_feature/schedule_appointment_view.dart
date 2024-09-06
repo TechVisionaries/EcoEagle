@@ -33,10 +33,13 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
   }
 
   Future<void> _selectDate() async {
+    DateTime now = DateTime.now();
+    DateTime tomorrow = now.add(Duration(days: 1));
+
     DateTime? selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: tomorrow,
+      firstDate: tomorrow,
       lastDate: DateTime(2101),
     );
 
@@ -49,7 +52,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
 
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final userId = await widget.apiService.getUserId();
       final appointment = Appointment(
+        userId: userId,
         date: _dateController.text,
         address: {
           'houseNo': _houseNoController.text,
@@ -59,6 +64,28 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
         status: _status,
       );
 
+      // Check if the user already has an appointment for the selected date
+      // try {
+      //   final hasAppointment =
+      //       await widget.apiService.hasAppointment(appointment.date);
+      //   if (hasAppointment) {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(
+      //         content: Text('You already have an appointment for this date'),
+      //       ),
+      //     );
+      //     return;
+      //   }
+      // } catch (e) {
+      //   // Show error message if the API call fails
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text('Failed to check appointment: $e'),
+      //     ),
+      //   );
+      //   return;
+      // }
+
       try {
         await widget.apiService.createAppointment(appointment);
         // Show success message only if the API call is successful
@@ -67,6 +94,24 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
             content: Text('Appointment Scheduled Successfully'),
           ),
         );
+
+        // After successfully creating an appointment, check if there are at least 3 appointments in the same city if then show status as approved
+        // try {
+        //   final appointments = await widget.apiService.fetchAppointments();
+        //   final cityAppointments = appointments
+        //       .where((appointment) =>
+        //           appointment.address['city'] == _cityController.text)
+        //       .toList();
+        //   if (cityAppointments.length >= 3) {
+        //     setState(() {
+        //       _status = 'approved';
+        //     });
+        //   }
+        // } catch (e) {
+        //   // Log the error or handle it appropriately
+        //   print('Failed to fetch appointments: $e');
+        // }
+
         // Optionally, navigate to another screen or reset form fields
         _formKey.currentState?.reset();
         _dateController.clear();

@@ -1,67 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
-
-class Appointment {
-  final String date;
-  final String houseNo;
-  final String street;
-  final String city;
-  String status; // Mutable to update the status
-
-  Appointment({
-    required this.date,
-    required this.houseNo,
-    required this.street,
-    required this.city,
-    required this.status,
-  });
-}
+import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
+import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 
 class MyAppointmentsView extends StatefulWidget {
   static const routeName = Constants.myAppointmentsRoute;
+
+  final ApiService apiService;
+
+  const MyAppointmentsView({Key? key, required this.apiService})
+      : super(key: key);
 
   @override
   _AppointmentsScreenState createState() => _AppointmentsScreenState();
 }
 
 class _AppointmentsScreenState extends State<MyAppointmentsView> {
-  final List<Appointment> appointments = [
-    Appointment(
-        date: "2024-09-01",
-        houseNo: "123",
-        street: "Main St",
-        city: "Colombo",
-        status: "Pending"),
-    Appointment(
-        date: "2024-09-02",
-        houseNo: "456",
-        street: "Second St",
-        city: "Kandy",
-        status: "Completed"),
-    Appointment(
-        date: "2024-09-03",
-        houseNo: "789",
-        street: "Third St",
-        city: "Galle",
-        status: "Cancelled"),
-    Appointment(
-        date: "2024-09-04",
-        houseNo: "101",
-        street: "Fourth St",
-        city: "Matara",
-        status: "Rejected"), // New Rejected status
-  ];
+  late Future<List<Appointment>> _appointmentsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _appointmentsFuture = _loadAppointments();
+  }
+
+  Future<List<Appointment>> _loadAppointments() async {
+    final userId = await widget.apiService.getUserId();
+    if (userId != null) {
+      return widget.apiService.fetchAppointments(userId);
+    } else {
+      return Future.error('User ID not found');
+    }
+  }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Pending':
+      case 'pending':
         return Colors.orange;
-      case 'Completed':
+      case 'completed':
         return Colors.green;
-      case 'Cancelled':
+      case 'cancelled':
         return Colors.red;
-      case 'Rejected':
-        return Colors.purple; // Different color for Rejected status
+      case 'rejected':
+        return Colors.purple;
       default:
         return Colors.grey;
     }
@@ -77,13 +59,13 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // Return false
+                Navigator.of(context).pop(false);
               },
               child: Text('No'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(true); // Return true
+                Navigator.of(context).pop(true);
               },
               child: Text('Yes'),
             ),
@@ -94,7 +76,10 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
 
     if (confirmed == true) {
       setState(() {
-        appointments[index].status = 'Cancelled';
+        _appointmentsFuture = _appointmentsFuture.then((appointments) {
+          appointments[index].status = 'Cancelled';
+          return appointments;
+        });
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -111,46 +96,84 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
       appBar: AppBar(
         title: Text('My Appointments'),
       ),
-      body: ListView.builder(
-        itemCount: appointments.length,
-        itemBuilder: (context, index) {
-          final appointment = appointments[index];
-          return Card(
-            margin: EdgeInsets.all(8),
-            child: ListTile(
-              title: Text('Appointment on ${appointment.date}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                      'Address: ${appointment.houseNo}, ${appointment.street}, ${appointment.city}'),
-                  SizedBox(height: 8),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(appointment.status),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      appointment.status,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+      body: FutureBuilder<List<Appointment>>(
+        future: _appointmentsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+                child: Text('Failed to load appointments: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No appointments found'));
+          } else {
+            final appointments = snapshot.data!;
+            return ListView.builder(
+              itemCount: appointments.length,
+              itemBuilder: (context, index) {
+                final appointment = appointments[index];
+
+                return Card(
+                  margin: EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text('Appointment on ${appointment.date}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (appointment.address.isNotEmpty) ...[
+                          Text(
+                            'Address:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          ...appointment.address.entries.map((entry) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                '${entry.key}: ${entry.value}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            );
+                          }).toList(),
+                        ] else
+                          Text(
+                            'Address: Not Available',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        SizedBox(height: 8),
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(appointment.status),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            appointment.status,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (appointment.status == 'pending')
+                          TextButton(
+                            onPressed: () => _cancelAppointment(index),
+                            child: Text(
+                              'Cancel Appointment',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  if (appointment.status == 'Pending')
-                    TextButton(
-                      onPressed: () => _cancelAppointment(index),
-                      child: Text(
-                        'Cancel Appointment',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          );
+                );
+              },
+            );
+          }
         },
       ),
     );
