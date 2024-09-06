@@ -132,7 +132,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 
   String getDirectionsUrl(LatLng origin, List<LatLng> waypoints, LatLng destination) {
     final waypointsString = waypoints.map((e) => '${e.latitude},${e.longitude}').join('|');
-    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=optimize:true|$waypointsString&key=YOUR_API_KEY';
+    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=optimize:true|$waypointsString&key=AIzaSyAF7z74_GI2uDrs1tJaar3fxmkwHAqI4SA';
     return url;
   }
 
@@ -148,6 +148,34 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       throw Exception('Failed to load directions');
     }
   }
+
+  String getSnapToRoadsUrl(List<LatLng> waypoints) {
+    final pathString = waypoints.map((e) => '${e.latitude},${e.longitude}').join('|');
+    
+    final url = 'https://roads.googleapis.com/v1/snapToRoads?path=$pathString&interpolate=true&key=AIzaSyAF7z74_GI2uDrs1tJaar3fxmkwHAqI4SA';
+    return url;
+  }
+
+
+  Future<List<LatLng>> fetchSnappedRoute(List<LatLng> waypoints) async {
+    final url = getSnapToRoadsUrl(waypoints);
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final snappedPoints = data['snappedPoints'] as List;
+
+      // Convert the snapped points to LatLng list
+      return snappedPoints.map<LatLng>((point) {
+        final location = point['location'];
+        return LatLng(location['latitude'], location['longitude']);
+      }).toList();
+    } else {
+      throw Exception('Failed to snap to roads');
+    }
+  }
+
+
 
   List<LatLng> decodePoly(String encoded) {
     var poly = <LatLng>[];
@@ -189,8 +217,11 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
         widget.appointments,
         _initialPosition, // Assuming the last stop is the final destination
       );
+      final snapPoints = await fetchSnappedRoute(
+        routePoints, // Assuming the last stop is the final destination
+      );
       setState(() {
-        _routePoints = routePoints;
+        _routePoints = snapPoints;
       });
       mapController.animateCamera(
         CameraUpdate.newLatLngBounds(
