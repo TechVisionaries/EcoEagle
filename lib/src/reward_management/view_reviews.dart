@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'rating_model.dart';
 import 'view_reviews_service.dart';
+import 'delete_review_service.dart'; // Import the delete review service
 
 class MyReviewsScreen extends StatefulWidget {
   const MyReviewsScreen({Key? key}) : super(key: key);
@@ -16,6 +17,8 @@ class MyReviewsScreen extends StatefulWidget {
 
 class _ViewReviewsScreenState extends State<MyReviewsScreen> {
   final ViewReviewsService _viewReviewsService = ViewReviewsService();
+  final DeleteReviewService _deleteReviewService =
+      DeleteReviewService(); // Initialize delete review service
   late Future<List<Rating>> _reviewsFuture;
 
   @override
@@ -46,9 +49,22 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
     print('Edit review: ${review.id}');
   }
 
-  void _deleteReview(Rating review) {
-    // Implement the delete functionality here
-    print('Delete review: ${review.id}');
+  Future<void> _deleteReview(Rating review) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      if (token.isEmpty) {
+        throw Exception('Token is empty');
+      }
+
+      await _deleteReviewService.deleteReview(review.id, token);
+      setState(() {
+        _reviewsFuture = _loadReviews(); // Refresh the reviews after deletion
+      });
+    } catch (e) {
+      print('Error deleting review: $e');
+    }
   }
 
   @override
