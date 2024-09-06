@@ -53,6 +53,168 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final email = _email;
+
+    final baseUrl =
+        dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/users/logout'),
+      headers: {
+        'authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Logout Successful'),
+            content: const Text('You have been logged out successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context)
+                      .pushReplacementNamed('/'); // Navigate to login page
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+
+      // Optionally clear user data
+      prefs.remove('userID');
+      prefs.remove('token');
+    } else {
+      // Handle error
+      print('Failed to logout');
+      // Optionally show an error dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Logout Failed'),
+            content: const Text('An error occurred while logging out.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _removeAccount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final username = _username;
+
+    final baseUrl =
+        dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/users/$username'),
+      headers: {
+        'authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Account Removed'),
+            content: const Text('Your account has been removed successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context)
+                      .pushReplacementNamed('/'); // Navigate to login page
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+
+      // Optionally clear user data
+      prefs.remove('userID');
+      prefs.remove('token');
+    } else {
+      // Handle error
+      print('Failed to remove account');
+      // Optionally show an error dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Account Removal Failed'),
+            content:
+                const Text('An error occurred while removing your account.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void _showRemoveAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Account Removal'),
+          content:
+              const Text('You are going to remove your account. Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _removeAccount(); // Call remove account method
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red, // Red color for the button
+              ),
+              child: const Text('Remove Account'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,52 +226,119 @@ class _UserProfileState extends State<UserProfile> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Profile'),
+        backgroundColor: Colors.grey[800],
+        foregroundColor: Colors.white,
       ),
+      backgroundColor: const Color(0xFFE8EC7B), // Background color
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_username != null)
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Profile Icon (centered)
                 const CircleAvatar(
                   radius: 50,
-                  child: Icon(Icons.person, size: 50),
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.person, size: 50, color: Colors.white),
                 ),
-              const SizedBox(height: 20),
-              if (_firstName != null && _lastName != null)
-                Text(
-                  'Name: $_firstName $_lastName',
-                  style: const TextStyle(fontSize: 18),
+                const SizedBox(height: 10),
+                // Edit Button (under the profile icon)
+                ElevatedButton(
+                  onPressed: () {
+                    // Edit profile logic
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    minimumSize: const Size(120, 30), // Smaller size
+                  ),
+                  child: const Text(
+                    "Edit Profile",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-              const SizedBox(height: 10),
-              if (_email != null)
-                Text(
-                  'Email: $_email',
-                  style: const TextStyle(fontSize: 18),
+                const SizedBox(height: 20),
+                // White box for user details and Remove Account Button
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildUserInfo("Name", "$_firstName $_lastName"),
+                      const SizedBox(height: 20),
+                      _buildUserInfo("Email", _email),
+                      const SizedBox(height: 20),
+                      _buildUserInfo("Phone Number", _phoneNo),
+                      const SizedBox(height: 20),
+                      _buildUserInfo("Address", _address),
+                      const SizedBox(height: 20),
+                      _buildUserInfo("User Type", _userType),
+                      const SizedBox(height: 30),
+                      // Remove Account Button
+                      ElevatedButton(
+                        onPressed: _showRemoveAccountDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFBB3A3A),
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        child: const Text(
+                          "Remove my account",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              const SizedBox(height: 10),
-              if (_phoneNo != null)
-                Text(
-                  'Phone: $_phoneNo',
-                  style: const TextStyle(fontSize: 18),
+                const SizedBox(height: 20),
+                // Logout Button
+                ElevatedButton(
+                  onPressed: _logout,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF273F71),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: const Text(
+                    "LOGOUT",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-              const SizedBox(height: 10),
-              if (_userType != null)
-                Text(
-                  'User Type: $_userType',
-                  style: const TextStyle(fontSize: 18),
-                ),
-              const SizedBox(height: 10),
-              if (_address != null)
-                Text(
-                  'Address: $_address',
-                  style: const TextStyle(fontSize: 18),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  // Helper widget to build user info
+  Widget _buildUserInfo(String label, String? value) {
+    return Column(
+      children: [
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF259E73),
+          ),
+        ),
+        const SizedBox(height: 5), // Adjust spacing if needed
+        Text(
+          value ?? '',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+          ),
+        ),
+      ],
     );
   }
 }

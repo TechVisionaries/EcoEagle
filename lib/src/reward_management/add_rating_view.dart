@@ -1,9 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'add_rating_service.dart';
+import 'rating_model.dart'; // Adjust the path as per your folder structure
 
-class RateDriverScreen extends StatelessWidget {
+class RateDriverScreen extends StatefulWidget {
   const RateDriverScreen({Key? key}) : super(key: key);
 
   static const routeName = '/rewards';
+
+  @override
+  _RateDriverScreenState createState() => _RateDriverScreenState();
+}
+
+class _RateDriverScreenState extends State<RateDriverScreen> {
+  int ratingPoints = 0;
+  final TextEditingController _reviewController = TextEditingController();
+  final RatingService ratingService = RatingService();
+
+  Future<void> _submitRating() async {
+    // Dummy IDs for driver and resident; replace with actual IDs from your app logic
+    final prefs = await SharedPreferences.getInstance();
+    final residentId = prefs.getString("userID") ?? 'defaultResidentId';
+    const String driverId = 'driver123';
+
+    Rating rating = Rating(
+      id: '', 
+      driverId: driverId,
+      residentId: residentId,
+      points: ratingPoints,
+      reviewText: _reviewController.text,
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      await ratingService.submitRating(rating);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Rating submitted successfully!')),
+      );
+      setState(() {
+        ratingPoints = 0;
+        _reviewController.clear();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit rating: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +67,6 @@ class RateDriverScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        // Wrap content in SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -32,8 +74,8 @@ class RateDriverScreen extends StatelessWidget {
             children: [
               const CircleAvatar(
                 radius: 50,
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), // Replace with actual image URL
+                backgroundImage:
+                    NetworkImage('https://via.placeholder.com/150'),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -55,15 +97,23 @@ class RateDriverScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (index) {
-                  return Icon(
-                    index < 4 ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 36,
+                  return IconButton(
+                    icon: Icon(
+                      index < ratingPoints ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 36,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        ratingPoints = index + 1;
+                      });
+                    },
                   );
                 }),
               ),
               const SizedBox(height: 24),
               TextField(
+                controller: _reviewController,
                 maxLines: 5,
                 decoration: InputDecoration(
                   hintText: 'Share your pickup experience',
@@ -76,14 +126,13 @@ class RateDriverScreen extends StatelessWidget {
                   contentPadding: const EdgeInsets.all(16),
                 ),
               ),
-              const SizedBox(
-                  height: 24), // Added to prevent overflow for the buttons
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Handle skip action
+                      Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[300],
@@ -97,9 +146,7 @@ class RateDriverScreen extends StatelessWidget {
                     child: const Text('Skip'),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      // Handle submit action
-                    },
+                    onPressed: _submitRating,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(
@@ -116,8 +163,7 @@ class RateDriverScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(
-                  height: 24), // Prevent the overflow by adding space
+              const SizedBox(height: 24),
             ],
           ),
         ),

@@ -117,21 +117,21 @@ class AdminDriverProfile extends StatelessWidget {
         "date": "Jan 31, 2023",
         "rating": 5,
         "review": "Great driver, very polite.",
-        "image": "assets/mia.jpg" // replace with actual image asset
+        "image": "assets/images/driver1.webp" // replace with actual image asset
       },
       {
         "name": "Noah White",
         "date": "Mar 12, 2023",
         "rating": 4,
         "review": "Very professional and on time.",
-        "image": "assets/noah.jpg" // replace with actual image asset
+        "image": "assets/images/driver1.webp" // replace with actual image asset
       },
       {
         "name": "Ava Moore",
         "date": "Apr 22, 2023",
         "rating": 5,
         "review": "Excellent service, will use again.",
-        "image": "assets/ava.jpg" // replace with actual image asset
+        "image": "assets/images/driver1.webp" // replace with actual image asset
       },
     ];
 
