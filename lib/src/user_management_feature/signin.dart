@@ -18,6 +18,21 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey =
+      GlobalKey<FormState>(); // Add a form key
+  bool _isPasswordVisible = false;
+
+  // Variable to hold email validation error
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Add listener to the email controller for real-time validation
+    _emailController.addListener(() {
+      _validateEmail();
+    });
+  }
 
   Future<void> _storeUserData(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
@@ -28,8 +43,10 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<void> _loginUser() async {
-    final baseUrl = dotenv.env[Constants.baseURL];
+    if (!_formKey.currentState!.validate())
+      return; // Ensure form validation before login
 
+    final baseUrl = dotenv.env[Constants.baseURL];
     final response = await http.post(
       Uri.parse('$baseUrl/users/auth'),
       body: {
@@ -63,6 +80,17 @@ class _SignInState extends State<SignIn> {
     }
   }
 
+  // Email validation logic
+  String? _validateEmail() {
+    final email = _emailController.text;
+    if (email.isEmpty ||
+        !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+            .hasMatch(email)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
   void _navigateToSignUp() {
     if (mounted) {
       Navigator.restorablePushNamed(
@@ -84,17 +112,17 @@ class _SignInState extends State<SignIn> {
               fit: BoxFit.cover,
             ),
           ),
-          // White box slightly lower on the screen
+          // White box with headline
           Column(
             children: [
-              const Spacer(flex: 9), // Pushes the content lower
+              const Spacer(flex: 15), // Pushes the content lower
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: Container(
                   height: 400, // Set height explicitly here
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(12.0),
                     boxShadow: const [
                       BoxShadow(
@@ -104,55 +132,97 @@ class _SignInState extends State<SignIn> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'User Name',
-                          prefixIcon: const Icon(Icons.person),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                  child: Form(
+                    // Add Form widget to group input fields
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode
+                        .onUserInteraction, // Real-time validation
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        // Headline with green background inside white box
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 4.0,
+                          ),
+                          child: Text(
+                            '-SIGN IN-',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.blue[700],
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 20),
+                        // Email TextFormField with real-time validation
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: const Icon(Icons.email),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            errorText:
+                                _validateEmail(), // Show validation message in real-time
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) => _validateEmail(),
+                        ),
+                        const SizedBox(height: 20),
+                        // Password TextFormField
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
+                              },
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          obscureText: !_isPasswordVisible,
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: _loginUser,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            backgroundColor:
+                                Colors.blue[700], // Blue color for button
+                          ),
+                          child: const Text(
+                            'Sign In',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
-                        obscureText: true,
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _loginUser,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 20),
+                        TextButton(
+                          onPressed: _navigateToSignUp,
+                          child: const Text(
+                            'Create New Account',
+                            style: TextStyle(fontSize: 16),
                           ),
                         ),
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextButton(
-                        onPressed: _navigateToSignUp,
-                        child: const Text(
-                          'Create New Account',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
