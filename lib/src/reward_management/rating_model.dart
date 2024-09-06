@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 class Rating {
-  final String id; // ID of the rating record
-  final String driverId; // ID of the driver being rated
-  final String residentId; // ID of the resident giving the rating
-  final int points; // Rating points given to the driver
-  final String reviewText; // Review text given by the resident
-  final DateTime createdAt; // Timestamp of when the review was created
+  final String id; 
+  final String driverId; 
+  final String residentId;
+  final int points; 
+  final String reviewText; 
+  final DateTime createdAt;
 
   Rating({
     required this.id,
@@ -20,16 +20,16 @@ class Rating {
   // Factory method to create a Rating instance from a JSON object
   factory Rating.fromJson(Map<String, dynamic> json) {
     return Rating(
-      id: json['_id'] ?? '', // Default to an empty string if not provided
+      id: json['_id'] ?? '',
       driverId:
-          json['driver'] ?? '', // Default to an empty string if not provided
+          json['driver'] ?? '', 
       residentId:
-          json['resident'] ?? '', // Default to an empty string if not provided
-      points: json['points'] ?? 0, // Default to 0 if not provided
+          json['resident'] ?? '', 
+      points: json['points'] ?? 0, 
       reviewText: json['reviewText'] ??
-          '', // Default to an empty string if not provided
+          '', 
       createdAt: DateTime.parse(json['createdAt'] ??
-          DateTime.now().toString()), // Parse date or use current time
+          DateTime.now().toString()), 
     );
   }
 

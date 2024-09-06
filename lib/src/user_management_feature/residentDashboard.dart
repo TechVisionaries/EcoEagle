@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../sample_feature/sample_item_list_view.dart';
 import 'userProfile.dart'; // Make sure to import your UserProfile page
 
 class ResidentDashboard extends StatefulWidget {
@@ -32,6 +33,13 @@ class _ResidentDashboardState extends State<ResidentDashboard> {
     );
   }
 
+  void _navigateToHome() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SampleItemListView()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,9 +65,7 @@ class _ResidentDashboardState extends State<ResidentDashboard> {
           children: <Widget>[
             IconButton(
               icon: const Icon(Icons.home),
-              onPressed: () {
-                // Handle home button press
-              },
+              onPressed: _navigateToHome,
             ),
             IconButton(
               icon: const Icon(Icons.person),
