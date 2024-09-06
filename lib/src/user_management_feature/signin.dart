@@ -7,9 +7,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SignIn extends StatefulWidget {
   @override
-  final Key? key; // Named key parameter
+  final Key? key;
 
-  const SignIn({this.key}) : super(key: key); // Named constructor parameter
+  const SignIn({this.key}) : super(key: key);
 
   @override
   _SignInState createState() => _SignInState();
@@ -41,7 +41,6 @@ class _SignInState extends State<SignIn> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       await _storeUserData(data);
-      // Ensure the widget is still mounted before navigating
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
           Navigator.restorablePushNamed(
@@ -56,7 +55,6 @@ class _SignInState extends State<SignIn> {
         }
       }
     } else {
-      // Handle login error (e.g., show a snackbar or dialog)
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login failed. Please try again.')),
@@ -77,31 +75,91 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign In')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+      body: Stack(
+        children: <Widget>[
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/loginbackground.webp',
+              fit: BoxFit.cover,
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _loginUser,
-              child: const Text('Sign In'),
-            ),
-            TextButton(
-              onPressed: _navigateToSignUp,
-              child: const Text('Create New Account'),
-            ),
-          ],
-        ),
+          ),
+          // White box slightly lower on the screen
+          Column(
+            children: [
+              const Spacer(flex: 9), // Pushes the content lower
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                child: Container(
+                  height: 400, // Set height explicitly here
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 4),
+                        blurRadius: 8.0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'User Name',
+                          prefixIcon: const Icon(Icons.person),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Icon(Icons.lock),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _loginUser,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Sign In',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: _navigateToSignUp,
+                        child: const Text(
+                          'Create New Account',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Spacer(flex: 2), // Adjusts the bottom space
+            ],
+          ),
+        ],
       ),
     );
   }
