@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/common/constants.dart';
 
 import '../reward_management/add_rating_view.dart';
 import '../reward_management/admin_driver_dashboard.dart';
@@ -107,6 +108,17 @@ class SampleItemListView extends StatelessWidget {
               Navigator.restorablePushNamed(
                 context,
                 DriverProfile.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Driver Map'),
+            leading: const Icon(Icons.map),
+            onTap: () {
+              // Navigate to the DriverProfile.
+              Navigator.restorablePushNamed(
+                context,
+                Constants.wasteMapDriverRoute,
               );
             },
           ),

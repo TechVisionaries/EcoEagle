@@ -7,6 +7,7 @@ import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/signin.dart';
 import 'package:trashtrek/src/user_management_feature/signup.dart';
 import 'package:trashtrek/src/user_management_feature/userProfile.dart';
+import 'package:trashtrek/src/waste_map_feature/waste_map_driver_view.dart';
 
 import 'reward_management/add_rating_view.dart';
 import 'reward_management/admin_driver_profile.dart';
@@ -104,6 +105,10 @@ class MyApp extends StatelessWidget {
                     return const SignUp();
                   case Constants.userProfileRoute:
                     return const UserProfile();
+                  case Constants.wasteMapDriverRoute:
+                    return const WasteMapDriverView();
+                  case Constants.wasteMapResidentRoute:
+                    return const WasteMapDriverView();
                   case Constants.homeRoute:
                     return const SampleItemListView();
                   default:
