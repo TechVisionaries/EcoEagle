@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class Rating {
   final String id;
-  final String driverId; // This field might be omitted if not used
+  final String? driverId; // Make driverId nullable if not always present
   final String residentId;
   final int points;
   final String reviewText;
@@ -10,7 +10,7 @@ class Rating {
 
   Rating({
     required this.id,
-    required this.driverId,
+    this.driverId, // Optional driverId
     required this.residentId,
     required this.points,
     required this.reviewText,
@@ -20,9 +20,8 @@ class Rating {
   factory Rating.fromJson(Map<String, dynamic> json) {
     return Rating(
       id: json['_id'] ?? '',
-      driverId:
-          json['driverId'] ?? '', // This field might be omitted if not used
-      residentId: json['userId']['_id'] ?? '', // Extracting from userId
+      driverId: json['driverId'], // Nullable
+      residentId: json['userId']?['_id'] ?? '', // Extracting from userId
       points: json['rating'] ?? 0,
       reviewText: json['comment'] ?? '',
       createdAt: DateTime.parse(json['date'] ?? DateTime.now().toString()),
@@ -32,8 +31,8 @@ class Rating {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'driverId': driverId,
-      'userId': {'_id': residentId}, // If needed
+      'driverId': driverId, // Nullable
+      'userId': {'_id': residentId}, // Assuming userId is an object
       'rating': points,
       'comment': reviewText,
       'date': createdAt.toIso8601String(),

@@ -23,7 +23,7 @@ class RatingService {
         },
         body: jsonEncode({
           'driverId': rating.driverId,
-          'rating': rating.points, 
+          'rating': rating.points,
           'comment': rating.reviewText,
           'date': rating.createdAt.toIso8601String(),
         }),
@@ -33,7 +33,14 @@ class RatingService {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
-        return Rating.fromJson(json.decode(response.body));
+        final data = json.decode(response.body);
+        // Check if 'reward' key exists and is not null
+        if (data['reward'] != null) {
+          return Rating.fromJson(
+              data['reward']); // Adjust based on actual structure
+        } else {
+          throw Exception('No reward data found in the response');
+        }
       } else {
         throw Exception(
             'Failed to submit rating. Status code: ${response.statusCode}. Response: ${response.body}');
@@ -43,4 +50,5 @@ class RatingService {
       rethrow;
     }
   }
+
 }
