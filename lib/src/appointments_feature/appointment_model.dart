@@ -1,22 +1,23 @@
 class Appointment {
-  final String id;
+  final String? id; // Optional, typically assigned by backend
   final String date;
-  final String description;
+  final Map<String, String> address; // Address field as a Map
   final String status;
 
   Appointment({
-    required this.id,
+    this.id,
     required this.date,
-    required this.description,
+    required this.address,
     required this.status,
   });
 
   // Method to convert JSON data to an Appointment object
   factory Appointment.fromJson(Map<String, dynamic> json) {
     return Appointment(
-      id: json['id'] as String,
+      id: json['id'] as String?,
       date: json['date'] as String,
-      description: json['description'] as String,
+      address: Map<String, String>.from(
+          json['address'] as Map), // Convert to Map<String, String>
       status: json['status'] as String,
     );
   }
@@ -26,13 +27,15 @@ class Appointment {
     return {
       'id': id,
       'date': date,
-      'description': description,
+      'address': address, // Convert Map<String, String> to JSON map
       'status': status,
     };
   }
 
   // Optionally, a method to create a list of appointments from JSON
   static List<Appointment> listFromJson(List<dynamic> jsonList) {
-    return jsonList.map((json) => Appointment.fromJson(json)).toList();
+    return jsonList
+        .map((json) => Appointment.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 }

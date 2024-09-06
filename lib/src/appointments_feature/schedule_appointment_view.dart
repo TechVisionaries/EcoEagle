@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
+import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 
 class ScheduleAppointmentView extends StatefulWidget {
-  const ScheduleAppointmentView({Key? key}) : super(key: key);
+  final ApiService apiService;
+  const ScheduleAppointmentView({Key? key, required this.apiService})
+      : super(key: key);
 
-  static const routeName = '/appointments';
+  static const routeName = Constants.appointmentsRoute;
 
   @override
   _ScheduleAppointmentViewState createState() =>
@@ -35,42 +40,47 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
       lastDate: DateTime(2101),
     );
 
-    if (selectedDate != null && selectedDate != DateTime.now()) {
+    if (selectedDate != null) {
       setState(() {
         _dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
       });
     }
   }
 
-  void _submitAppointment() {
+  Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final appointment = {
-        'date': _dateController.text,
-        'address': {
+      final appointment = Appointment(
+        date: _dateController.text,
+        address: {
           'houseNo': _houseNoController.text,
           'street': _streetController.text,
           'city': _cityController.text,
         },
-        'status': _status,
-      };
-
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Appointment Scheduled'),
-            content: Text('Appointment details:\n${appointment.toString()}'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
+        status: _status,
       );
+
+      try {
+        await widget.apiService.createAppointment(appointment);
+        // Show success message only if the API call is successful
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Appointment Scheduled Successfully'),
+          ),
+        );
+        // Optionally, navigate to another screen or reset form fields
+        _formKey.currentState?.reset();
+        _dateController.clear();
+        _houseNoController.clear();
+        _streetController.clear();
+        _cityController.clear();
+      } catch (e) {
+        // Show error message if the API call fails
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to Schedule Appointment: $e'),
+          ),
+        );
+      }
     }
   }
 
@@ -79,6 +89,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Schedule Appointment'),
+        backgroundColor: Color.fromARGB(255, 94, 189, 149),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -105,20 +116,23 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                         icon: Icon(Icons.calendar_today),
                         onPressed: _selectDate,
                       ),
+                      border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.datetime,
+                    readOnly: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the date';
                       }
                       return null;
                     },
-                    readOnly: true, // Prevent manual input
                   ),
                   SizedBox(height: 16),
                   TextFormField(
                     controller: _houseNoController,
-                    decoration: InputDecoration(labelText: 'House No'),
+                    decoration: InputDecoration(
+                      labelText: 'House No',
+                      border: OutlineInputBorder(),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the house number';
@@ -129,7 +143,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                   SizedBox(height: 16),
                   TextFormField(
                     controller: _streetController,
-                    decoration: InputDecoration(labelText: 'Street'),
+                    decoration: InputDecoration(
+                      labelText: 'Street',
+                      border: OutlineInputBorder(),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the street';
@@ -140,7 +157,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                   SizedBox(height: 16),
                   TextFormField(
                     controller: _cityController,
-                    decoration: InputDecoration(labelText: 'City'),
+                    decoration: InputDecoration(
+                      labelText: 'City',
+                      border: OutlineInputBorder(),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the city';
@@ -155,9 +175,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 94, 189, 149),
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      foregroundColor: Colors.white,
                       textStyle: TextStyle(
                         fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

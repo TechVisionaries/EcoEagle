@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/common/constants.dart';
 
 class Appointment {
   final String date;
@@ -17,7 +18,7 @@ class Appointment {
 }
 
 class MyAppointmentsView extends StatefulWidget {
-  static const routeName = '/my_appointments';
+  static const routeName = Constants.myAppointmentsRoute;
 
   @override
   _AppointmentsScreenState createState() => _AppointmentsScreenState();

@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:trashtrek/common/constants.dart';
 
 import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
+import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 
 import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/signin.dart';
@@ -88,7 +89,7 @@ class MyApp extends StatelessWidget {
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case Constants.appointmentsRoute:
-                    return const ScheduleAppointmentView();
+                    return ScheduleAppointmentView(apiService: ApiService());
                   case MyAppointmentsView.routeName:
                     return MyAppointmentsView();
                   case RateDriverScreen.routeName:
