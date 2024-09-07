@@ -12,9 +12,9 @@ import 'package:trashtrek/src/user_management_feature/signup.dart';
 import 'package:trashtrek/src/user_management_feature/userProfile.dart';
 import 'package:trashtrek/src/waste_map_feature/waste_map_driver_view.dart';
 
-import 'reward_management/screens/add_rating_view.dart';
-import 'reward_management/screens/admin_driver_profile.dart';
-import 'reward_management/screens/view_reviews.dart';
+import 'reward_management/add_rating_view.dart';
+import 'reward_management/admin_driver_profile.dart';
+import 'reward_management/view_reviews.dart';
 import 'sample_feature/sample_item_details_view.dart';
 import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';

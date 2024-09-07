@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/common/constants.dart';
 
-import '../reward_management/screens/add_rating_view.dart';
-import '../reward_management/screens/admin_driver_dashboard.dart';
-import '../reward_management/screens/admin_driver_profile.dart';
-import '../reward_management/screens/driver_profile.dart';
-import '../reward_management/screens/view_reviews.dart';
+import '../reward_management/add_rating_view.dart';
+import '../reward_management/admin_driver_dashboard.dart';
+import '../reward_management/admin_driver_profile.dart';
+import '../reward_management/driver_profile.dart';
+import '../reward_management/view_reviews.dart';
 import '../settings/settings_view.dart';
 import '../appointments_feature/schedule_appointment_view.dart'; // Import ScheduleAppointmentView
 import '../appointments_feature/my_appointments_view.dart'; // Import MyAppointmentsView
@@ -107,6 +108,17 @@ class SampleItemListView extends StatelessWidget {
               Navigator.restorablePushNamed(
                 context,
                 DriverProfile.routeName,
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Driver Map'),
+            leading: const Icon(Icons.map),
+            onTap: () {
+              // Navigate to the DriverProfile.
+              Navigator.restorablePushNamed(
+                context,
+                Constants.wasteMapDriverRoute,
               );
             },
           ),
