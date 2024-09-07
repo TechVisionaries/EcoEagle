@@ -6,19 +6,47 @@ import '../reward_management/view_reviews.dart';
 import '../settings/settings_view.dart';
 import '../appointments_feature/schedule_appointment_view.dart';
 import '../appointments_feature/my_appointments_view.dart';
+import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
 
 /// Displays a list of options for navigation with a beautified UI.
-class SampleItemListView extends StatelessWidget {
+class SampleItemListView extends StatefulWidget {
   const SampleItemListView({super.key});
 
   static const routeName = '/options';
+
+  @override
+  _SampleItemListViewState createState() => _SampleItemListViewState();
+}
+
+class _SampleItemListViewState extends State<SampleItemListView> {
+  int _selectedIndex = 0; // Track the selected index
+
+  void _navigateToProfile(BuildContext context) {
+    setState(() {
+      _selectedIndex = 1; // Set the index for profile
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UserProfile()),
+    );
+  }
+
+  void _navigateToHome(BuildContext context) {
+    setState(() {
+      _selectedIndex = 0; // Set the index for home
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SampleItemListView()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Options'),
-        backgroundColor: Color.fromARGB(255, 65, 168, 125),
+        backgroundColor: const Color.fromARGB(255, 65, 168, 125),
         elevation: 0,
         actions: [
           IconButton(
@@ -31,11 +59,11 @@ class SampleItemListView extends StatelessWidget {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color.fromARGB(255, 133, 224, 125),
-              const Color.fromARGB(255, 187, 251, 201)
+              Color.fromARGB(255, 187, 251, 201),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -50,7 +78,6 @@ class SampleItemListView extends StatelessWidget {
               icon: Icons.schedule,
               color: Colors.purple,
               routeName: ScheduleAppointmentView.routeName,
-              // Navigate to the ScheduleAppointmentView.
             ),
             _buildNavigationTile(
               context,
@@ -58,7 +85,6 @@ class SampleItemListView extends StatelessWidget {
               icon: Icons.assignment,
               color: Colors.green,
               routeName: MyAppointmentsView.routeName,
-              // Navigate to the MyAppointmentsView.
             ),
             _buildNavigationTile(
               context,
@@ -66,7 +92,6 @@ class SampleItemListView extends StatelessWidget {
               icon: Icons.rate_review,
               color: Colors.orange,
               routeName: RateDriverScreen.routeName,
-              // Navigate to the RateDriverScreen.
             ),
             _buildNavigationTile(
               context,
@@ -74,40 +99,46 @@ class SampleItemListView extends StatelessWidget {
               icon: Icons.reviews,
               color: Colors.redAccent,
               routeName: MyReviewsScreen.routeName,
-              // Navigate to the MyReviewsScreen.
             ),
-            // Uncomment and update routes for these options if needed.
-            // _buildNavigationTile(
-            //   context,
-            //   title: 'Admin Driver Profile',
-            //   icon: Icons.person,
-            //   color: Colors.blue,
-            //   routeName: AdminDriverProfile.routeName,
-            //   // Navigate to the AdminDriverProfile.
-            // ),
-            // _buildNavigationTile(
-            //   context,
-            //   title: 'Driver Dashboard',
-            //   icon: Icons.dashboard,
-            //   color: Colors.indigo,
-            //   routeName: AdminDriverDashboard.routeName,
-            //   // Navigate to the DriverDashboard.
-            // ),
-            // _buildNavigationTile(
-            //   context,
-            //   title: 'Driver Profile',
-            //   icon: Icons.account_circle,
-            //   color: Colors.deepPurple,
-            //   routeName: DriverProfile.routeName,
-            //   // Navigate to the DriverProfile.
-            // ),
             _buildNavigationTile(
               context,
               title: 'Driver Map',
               icon: Icons.map,
               color: Colors.teal,
               routeName: Constants.wasteMapDriverRoute,
-              // Navigate to the DriverProfile.
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 6.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.home,
+                color: _selectedIndex == 0
+                    ? Colors.blue // Highlight if selected
+                    : Colors.grey,
+              ),
+              onPressed: () => _navigateToHome(context),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.person,
+                color: _selectedIndex == 1
+                    ? Colors.blue // Highlight if selected
+                    : Colors.grey,
+              ),
+              onPressed: () => _navigateToProfile(context),
+            ),
+            IconButton(
+              icon: const Icon(Icons.location_on),
+              onPressed: () {
+                // Handle location button press
+              },
             ),
           ],
         ),
@@ -132,7 +163,7 @@ class SampleItemListView extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.black87,

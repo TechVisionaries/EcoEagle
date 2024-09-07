@@ -219,8 +219,9 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('    Register to TrashTrek'),
-        backgroundColor: Colors.grey[800], // Gray color for AppBar
-        foregroundColor: Colors.white,
+        backgroundColor:
+            const Color.fromARGB(255, 65, 168, 125), // Gray color for AppBar
+        foregroundColor: Colors.black,
       ),
       body: Stack(
         children: <Widget>[
