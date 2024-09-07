@@ -6,31 +6,48 @@ import '../reward_management/view_reviews.dart';
 import '../settings/settings_view.dart';
 import '../appointments_feature/schedule_appointment_view.dart';
 import '../appointments_feature/my_appointments_view.dart';
+import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
 
 /// Displays a list of options for navigation with a beautified UI.
-class SampleItemListView extends StatelessWidget {
+class SampleItemListView extends StatefulWidget {
   const SampleItemListView({super.key});
 
   static const routeName = '/options';
 
   @override
+  _SampleItemListViewState createState() => _SampleItemListViewState();
+}
+
+class _SampleItemListViewState extends State<SampleItemListView> {
+  int _selectedIndex = 0; // Track the selected index
+
+  void _navigateToProfile(BuildContext context) {
+    setState(() {
+      _selectedIndex = 1; // Set the index for profile
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UserProfile()),
+    );
+  }
+
+  void _navigateToHome(BuildContext context) {
+    setState(() {
+      _selectedIndex = 0; // Set the index for home
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SampleItemListView()),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Home Page',
-          style: TextStyle(
-            fontWeight: FontWeight.bold, // Bold text
-            color: Colors.white, // White text color
-          ),
-        ),
-        centerTitle: true, // Center the title in the AppBar
-        backgroundColor:
-            const Color.fromARGB(255, 38, 175, 118), // Header color
+        title: const Text('Options'),
+        backgroundColor: const Color.fromARGB(255, 65, 168, 125),
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.white, // White color for the back icon
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -45,8 +62,8 @@ class SampleItemListView extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 133, 224, 125), // Light green top
-              Color.fromARGB(255, 187, 251, 201) // Light green bottom
+              Color.fromARGB(255, 133, 224, 125),
+              Color.fromARGB(255, 187, 251, 201),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -93,51 +110,70 @@ class SampleItemListView extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 6.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.home,
+                color: _selectedIndex == 0
+                    ? Colors.blue // Highlight if selected
+                    : Colors.grey,
+              ),
+              onPressed: () => _navigateToHome(context),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.person,
+                color: _selectedIndex == 1
+                    ? Colors.blue // Highlight if selected
+                    : Colors.grey,
+              ),
+              onPressed: () => _navigateToProfile(context),
+            ),
+            IconButton(
+              icon: const Icon(Icons.location_on),
+              onPressed: () {
+                // Handle location button press
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   /// Builds a navigation tile with custom styling and animations.
-  Widget _buildNavigationTile(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    required Color color,
-    required String routeName,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: InkWell(
+  Widget _buildNavigationTile(BuildContext context,
+      {required String title,
+      required IconData icon,
+      required Color color,
+      required String routeName}) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      elevation: 5,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.2),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
         onTap: () {
           // Navigate to the specified route.
           Navigator.restorablePushNamed(context, routeName);
         },
-        splashColor: color.withOpacity(0.3), // Splash effect on tap
-        borderRadius: BorderRadius.circular(12.0),
-        child: Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-          elevation: 6,
-          shadowColor: color.withOpacity(0.4), // Subtle shadow color
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            leading: CircleAvatar(
-              backgroundColor: color.withOpacity(0.2),
-              child: Icon(icon, color: color),
-            ),
-            title: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-                letterSpacing: 0.5, // Slight spacing for better readability
-              ),
-            ),
-            trailing:
-                Icon(Icons.arrow_forward_ios, color: color.withOpacity(0.6)),
-          ),
-        ),
       ),
     );
   }
