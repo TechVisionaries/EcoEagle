@@ -1,10 +1,12 @@
+// view_review.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'rating_model.dart';
 import 'view_reviews_service.dart';
-import 'delete_review_service.dart'; // Import the delete review service
+import 'delete_review_service.dart';
+import 'update_review_service.dart'; // Import the update review service
 
 class MyReviewsScreen extends StatefulWidget {
   const MyReviewsScreen({Key? key}) : super(key: key);
@@ -17,8 +19,9 @@ class MyReviewsScreen extends StatefulWidget {
 
 class _ViewReviewsScreenState extends State<MyReviewsScreen> {
   final ViewReviewsService _viewReviewsService = ViewReviewsService();
-  final DeleteReviewService _deleteReviewService =
-      DeleteReviewService(); // Initialize delete review service
+  final DeleteReviewService _deleteReviewService = DeleteReviewService();
+  final UpdateReviewService _updateReviewService =
+      UpdateReviewService(); // Initialize update review service
   late Future<List<Rating>> _reviewsFuture;
 
   @override
@@ -44,9 +47,80 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
     }
   }
 
-  void _editReview(Rating review) {
-    // Implement the edit functionality here
-    print('Edit review: ${review.id}');
+  void _editReviewDialog(Rating review) {
+    final _ratingController =
+        TextEditingController(text: review.points.toString());
+    final _commentController = TextEditingController(text: review.reviewText);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Review'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RatingBar.builder(
+              initialRating: review.points.toDouble(),
+              minRating: 1,
+              direction: Axis.horizontal,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemBuilder: (context, _) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (rating) {
+                _ratingController.text = rating.toInt().toString();
+              },
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _commentController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Comment',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final rating = int.parse(_ratingController.text);
+              final comment = _commentController.text;
+
+              try {
+                final prefs = await SharedPreferences.getInstance();
+                final token = prefs.getString('token') ?? '';
+
+                if (token.isEmpty) {
+                  throw Exception('Token is empty');
+                }
+
+                await _updateReviewService.updateReview(
+                    review.id, rating, comment, token);
+                Navigator.pop(context);
+                setState(() {
+                  _reviewsFuture =
+                      _loadReviews(); // Refresh reviews after update
+                });
+              } catch (e) {
+                print('Error updating review: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to update review: $e')),
+                );
+              }
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _deleteReview(Rating review) async {
@@ -101,16 +175,12 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Display review date in dd/MM/yy format
                               Text(
                                 DateFormat('dd/MM/yy').format(review.createdAt),
                                 style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.green,
-                                ),
+                                    fontSize: 14, color: Colors.green),
                               ),
                               const SizedBox(height: 4),
-                              // Display rating with filled and unfilled stars
                               RatingBarIndicator(
                                 rating: review.points.toDouble(),
                                 itemBuilder: (context, index) => Icon(
@@ -124,7 +194,6 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                                 direction: Axis.horizontal,
                               ),
                               const SizedBox(height: 8),
-                              // Display review text
                               Text(
                                 review.reviewText,
                                 style: const TextStyle(fontSize: 14),
@@ -135,12 +204,10 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Edit button
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () => _editReview(review),
+                              onPressed: () => _editReviewDialog(review),
                             ),
-                            // Delete button
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => _deleteReview(review),
