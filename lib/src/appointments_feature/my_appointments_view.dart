@@ -146,61 +146,58 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Appointment on ${appointment.date}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            if (appointment.address.isNotEmpty) ...[
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                'Address:',
+                                'Appointment on ${appointment.date}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 16,
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              ...appointment.address.entries.map((entry) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 4),
-                                  child: Text(
-                                    '${entry.key}: ${entry.value}',
-                                    style: TextStyle(fontSize: 14),
+                              SizedBox(height: 8),
+                              if (appointment.address.isNotEmpty) ...[
+                                Text(
+                                  'Address:',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
                                   ),
-                                );
-                              }).toList(),
-                            ] else
-                              Text(
-                                'Address: Not Available',
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.grey),
-                              ),
-                            SizedBox(height: 16),
-                            if (appointment.status == 'pending')
-                              TextButton(
-                                onPressed: () => _cancelAppointment(index),
-                                child: Text(
-                                  'Cancel Appointment',
-                                  style: TextStyle(color: Colors.red),
                                 ),
-                              ),
-                          ],
+                                SizedBox(height: 4),
+                                Text(
+                                  appointment.address.entries
+                                      .map((entry) => '${entry.value}')
+                                      .join(', '),
+                                  style: TextStyle(fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ] else
+                                Text(
+                                  'Address: Not Available',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.grey),
+                                ),
+                              SizedBox(height: 16),
+                              if (appointment.status == 'pending')
+                                TextButton(
+                                  onPressed: () => _cancelAppointment(index),
+                                  child: Text(
+                                    'Cancel Appointment',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: Container(
+                        Container(
                           padding:
                               EdgeInsets.symmetric(vertical: 6, horizontal: 12),
                           decoration: BoxDecoration(
@@ -216,8 +213,8 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

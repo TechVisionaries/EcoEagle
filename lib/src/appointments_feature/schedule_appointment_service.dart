@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'appointment_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trashtrek/common/constants.dart';
 
 class ApiService {
-  final String baseUrl =
-      'http://10.0.2.2:8080/api'; // Consider moving this to a config file
+  final baseUrl =
+      dotenv.env[Constants.baseURL]; // Consider moving this to a config file
 
   Future<List<Appointment>> fetchAppointments(String userId) async {
     final response = await http.get(Uri.parse('$baseUrl/appointments/$userId'));
