@@ -145,8 +145,11 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Reviews'),
-        backgroundColor: Colors.blueAccent,
+        title: const Text(
+          'My Reviews',
+          style: TextStyle(color: Colors.white), // Set text color to white
+        ),
+        backgroundColor: Colors.green,
       ),
       body: FutureBuilder<List<Rating>>(
         future: _reviewsFuture,
