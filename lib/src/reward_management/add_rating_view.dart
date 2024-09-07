@@ -18,13 +18,12 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
   final RatingService ratingService = RatingService();
 
   Future<void> _submitRating() async {
-    // Dummy IDs for driver and resident; replace with actual IDs from your app logic
     final prefs = await SharedPreferences.getInstance();
     final residentId = prefs.getString("userID") ?? 'defaultResidentId';
     const String driverId = 'driver123';
 
     Rating rating = Rating(
-      id: '', 
+      id: '',
       driverId: driverId,
       residentId: residentId,
       points: ratingPoints,
@@ -35,7 +34,29 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
     try {
       await ratingService.submitRating(rating);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Rating submitted successfully!')),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 24),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Rating submitted successfully!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
       );
       setState(() {
         ratingPoints = 0;
@@ -43,7 +64,29 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit rating: $e')),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white, size: 24),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Failed to submit rating: $e',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -52,17 +95,17 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green, // Set header background to green
         elevation: 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         title: const Text(
           'Rate Your Driver',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white), // Set text color to white
         ),
         centerTitle: true,
       ),

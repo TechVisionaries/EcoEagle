@@ -47,6 +47,27 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
     }
   }
 
+  // Function to show a beautiful success message
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void _editReviewDialog(Rating review) {
     final _ratingController =
         TextEditingController(text: review.points.toString());
@@ -109,10 +130,16 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                   _reviewsFuture =
                       _loadReviews(); // Refresh reviews after update
                 });
+
+                // Show success message
+                _showSuccessMessage('Review updated successfully!');
               } catch (e) {
                 print('Error updating review: $e');
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to update review: $e')),
+                  SnackBar(
+                    content: Text('Failed to update review: $e'),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             },
@@ -136,8 +163,17 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
       setState(() {
         _reviewsFuture = _loadReviews(); // Refresh the reviews after deletion
       });
+
+      // Show success message
+      _showSuccessMessage('Review deleted successfully!');
     } catch (e) {
       print('Error deleting review: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete review: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -145,8 +181,11 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Reviews'),
-        backgroundColor: Colors.blueAccent,
+        title: const Text(
+          'My Reviews',
+          style: TextStyle(color: Colors.white), // Set text color to white
+        ),
+        backgroundColor: Colors.green,
       ),
       body: FutureBuilder<List<Rating>>(
         future: _reviewsFuture,
