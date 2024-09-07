@@ -22,8 +22,8 @@ class WasteMapDriverView extends StatefulWidget {
 }
 
 class WasteMapDriverViewState extends State<WasteMapDriverView> {
-  late StreamSubscription<Position> _positionStreamSubscription;
-  late StreamSubscription<CompassEvent> _headingStreamSubscription;
+  StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<CompassEvent>? _headingStreamSubscription;
   GoogleMapController? mapController;
   late double currentZoomLevel;
   final List _instructions = [];
@@ -49,8 +49,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   @override
   void dispose() {
     // Cancel the position stream subscription when the widget is disposed
-    _positionStreamSubscription.cancel();
-    _headingStreamSubscription.cancel();
+    _positionStreamSubscription?.cancel();
+    _headingStreamSubscription?.cancel();
     super.dispose();
   }
 
@@ -122,11 +122,13 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   void _getUserLocation() async {
     var currentLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     // final icondescriptor = await BitmapDescriptor.asset(ImageConfiguration.empty, 'assets/truck.png');
+    if (mounted) {
     setState(() {
       _initialPosition = LatLng(currentLocation.latitude, currentLocation.longitude); 
       _loadRoute();
       // icon = icondescriptor;
     });
+    }
 
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -397,7 +399,15 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Route'),
+        title: const Text(
+          'My Route',
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // Bold text
+            color: Colors.white, // White text color
+          ),
+        ),
+        backgroundColor: Color.fromARGB(255, 94, 189, 149),
+        elevation: 0,
       ),
       body: Stack(
         children: [
