@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
@@ -75,18 +74,38 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
     );
 
     if (confirmed == true) {
-      setState(() {
-        _appointmentsFuture = _appointmentsFuture.then((appointments) {
-          appointments[index].status = 'Cancelled';
-          return appointments;
-        });
-      });
+      final appointments = await _appointmentsFuture;
+      final appointment = appointments[index];
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Appointment cancelled successfully.'),
-        ),
-      );
+      // Check if appointment.id is not null
+      if (appointment.id != null) {
+        try {
+          await widget.apiService.cancelAppointment(appointment.id!);
+
+          setState(() {
+            appointments[index].status = 'cancelled';
+            _appointmentsFuture = Future.value(appointments);
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Appointment cancelled successfully.'),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to cancel the appointment: $e'),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Appointment ID is missing.'),
+          ),
+        );
+      }
     }
   }
 
@@ -115,36 +134,55 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
 
                 return Card(
                   margin: EdgeInsets.all(8),
-                  child: ListTile(
-                    title: Text('Appointment on ${appointment.date}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (appointment.address.isNotEmpty) ...[
-                          Text(
-                            'Address:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          ...appointment.address.entries.map((entry) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Text(
-                                '${entry.key}: ${entry.value}',
-                                style: TextStyle(fontSize: 14),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Appointment on ${appointment.date}'),
+                            SizedBox(height: 8),
+                            if (appointment.address.isNotEmpty) ...[
+                              Text(
+                                'Address:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            );
-                          }).toList(),
-                        ] else
-                          Text(
-                            'Address: Not Available',
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
-                        SizedBox(height: 8),
-                        Container(
+                              SizedBox(height: 4),
+                              ...appointment.address.entries.map((entry) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Text(
+                                    '${entry.key}: ${entry.value}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                );
+                              }).toList(),
+                            ] else
+                              Text(
+                                'Address: Not Available',
+                                style:
+                                    TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                            SizedBox(height: 8),
+                            if (appointment.status == 'pending')
+                              TextButton(
+                                onPressed: () => _cancelAppointment(index),
+                                child: Text(
+                                  'Cancel Appointment',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
                           padding:
                               EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                           decoration: BoxDecoration(
@@ -159,16 +197,8 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                             ),
                           ),
                         ),
-                        if (appointment.status == 'pending')
-                          TextButton(
-                            onPressed: () => _cancelAppointment(index),
-                            child: Text(
-                              'Cancel Appointment',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },
