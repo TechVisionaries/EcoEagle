@@ -1,4 +1,3 @@
-// view_review.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +46,7 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
     }
   }
 
-  // Function to show a beautiful success message
+  // Function to show a success message
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -183,7 +182,14 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
       appBar: AppBar(
         title: const Text(
           'My Reviews',
-          style: TextStyle(color: Colors.white), // Set text color to white
+          style: TextStyle(
+            color: Colors.white, // Set text color to white
+            fontWeight: FontWeight.bold, // Make the text bold
+          ),
+        ),
+        centerTitle: true, // Center the title
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Set arrow icon color to white
         ),
         backgroundColor: Colors.green,
       ),
@@ -205,6 +211,10 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
@@ -217,7 +227,10 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                               Text(
                                 DateFormat('dd/MM/yy').format(review.createdAt),
                                 style: const TextStyle(
-                                    fontSize: 14, color: Colors.green),
+                                  fontSize: 14,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               RatingBarIndicator(
@@ -235,7 +248,10 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 review.reviewText,
-                                style: const TextStyle(fontSize: 14),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ],
                           ),

@@ -39,7 +39,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
             children: [
               const Icon(Icons.check_circle, color: Colors.white, size: 24),
               const SizedBox(width: 10),
-              Expanded(
+              const Expanded(
                 child: Text(
                   'Rating submitted successfully!',
                   style: TextStyle(
@@ -72,7 +72,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
               Expanded(
                 child: Text(
                   'Failed to submit rating: $e',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -95,7 +95,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green, // Set header background to green
+        backgroundColor: Colors.green,
         elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -105,20 +105,19 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
         ),
         title: const Text(
           'Rate Your Driver',
-          style: TextStyle(color: Colors.white), // Set text color to white
+          style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const CircleAvatar(
                 radius: 50,
-                backgroundImage:
-                    NetworkImage('https://via.placeholder.com/150'),
+                backgroundImage: AssetImage('assets/images/profile.png'),
               ),
               const SizedBox(height: 16),
               const Text(
