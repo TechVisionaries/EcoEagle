@@ -8,7 +8,6 @@ class DriverDashboard extends StatefulWidget {
 
   static const routeName = '/rewards';
 
-
   @override
   _DriverDashboardState createState() => _DriverDashboardState();
 }

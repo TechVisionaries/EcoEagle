@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:trashtrek/common/constants.dart';
-import 'package:trashtrek/src/appointments_feature/screens/my_appointments_view.dart';
+
+import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
+import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+
 import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/signin.dart';
 import 'package:trashtrek/src/user_management_feature/signup.dart';
@@ -17,7 +20,7 @@ import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'user_management_feature/driverDashboard.dart';
-import 'appointments_feature/screens/schedule_appointment_view.dart';
+import 'appointments_feature/schedule_appointment_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -86,9 +89,9 @@ class MyApp extends StatelessWidget {
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case Constants.appointmentsRoute:
-                    return const ScheduleAppointmentView();
+                    return ScheduleAppointmentView(apiService: ApiService());
                   case MyAppointmentsView.routeName:
-                    return MyAppointmentsView();
+                    return MyAppointmentsView(apiService: ApiService());
                   case RateDriverScreen.routeName:
                     return const RateDriverScreen();
                   case MyReviewsScreen.routeName:
