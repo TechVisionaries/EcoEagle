@@ -143,7 +143,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Skip'),
+                    child: const Text('Back'),
                   ),
                   ElevatedButton(
                     onPressed: _submitRating,
