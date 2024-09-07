@@ -92,7 +92,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Appointment Scheduled Successfully'),
-            backgroundColor: Colors.green,
           ),
         );
 
