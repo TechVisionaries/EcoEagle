@@ -36,13 +36,13 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return Colors.orangeAccent;
       case 'completed':
-        return Colors.green;
+        return Colors.greenAccent;
       case 'cancelled':
-        return Colors.red;
+        return Colors.redAccent;
       case 'rejected':
-        return Colors.purple;
+        return Colors.purpleAccent;
       default:
         return Colors.grey;
     }
@@ -53,20 +53,21 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Cancel Appointment'),
+          title: Text('Cancel Appointment',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           content: Text('Are you sure you want to cancel this appointment?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text('No'),
+              child: Text('No', style: TextStyle(color: Colors.red)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: Text('Yes'),
+              child: Text('Yes', style: TextStyle(color: Colors.green)),
             ),
           ],
         );
@@ -77,7 +78,6 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
       final appointments = await _appointmentsFuture;
       final appointment = appointments[index];
 
-      // Check if appointment.id is not null
       if (appointment.id != null) {
         try {
           await widget.apiService.cancelAppointment(appointment.id!);
@@ -90,12 +90,14 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Appointment cancelled successfully.'),
+              backgroundColor: Colors.green,
             ),
           );
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to cancel the appointment: $e'),
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -103,6 +105,7 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Appointment ID is missing.'),
+            backgroundColor: Colors.orange,
           ),
         );
       }
@@ -113,7 +116,9 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Appointments'),
+        title: Text('My Appointments',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.teal,
       ),
       body: FutureBuilder<List<Appointment>>(
         future: _appointmentsFuture,
@@ -122,9 +127,12 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-                child: Text('Failed to load appointments: ${snapshot.error}'));
+                child: Text('Failed to load appointments: ${snapshot.error}',
+                    style: TextStyle(color: Colors.red)));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No appointments found'));
+            return Center(
+                child: Text('No appointments found',
+                    style: TextStyle(color: Colors.grey)));
           } else {
             final appointments = snapshot.data!;
             return ListView.builder(
@@ -133,22 +141,32 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                 final appointment = appointments[index];
 
                 return Card(
-                  margin: EdgeInsets.all(8),
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Appointment on ${appointment.date}'),
+                            Text(
+                              'Appointment on ${appointment.date}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                             SizedBox(height: 8),
                             if (appointment.address.isNotEmpty) ...[
                               Text(
                                 'Address:',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                               ),
                               SizedBox(height: 4),
@@ -167,7 +185,7 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                                 style:
                                     TextStyle(fontSize: 14, color: Colors.grey),
                               ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 16),
                             if (appointment.status == 'pending')
                               TextButton(
                                 onPressed: () => _cancelAppointment(index),
@@ -180,20 +198,21 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                         ),
                       ),
                       Positioned(
-                        top: 8,
-                        right: 8,
+                        top: 16,
+                        right: 16,
                         child: Container(
                           padding:
-                              EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                              EdgeInsets.symmetric(vertical: 6, horizontal: 12),
                           decoration: BoxDecoration(
                             color: _getStatusColor(appointment.status),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            appointment.status,
+                            appointment.status.toUpperCase(),
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              fontSize: 12,
                             ),
                           ),
                         ),
