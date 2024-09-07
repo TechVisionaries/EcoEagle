@@ -16,7 +16,7 @@ class _ResidentDashboardState extends State<ResidentDashboard> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username = prefs.getString('userID');
+      _username = prefs.getString('userID') ?? 'User';
     });
   }
 
@@ -44,16 +44,36 @@ class _ResidentDashboardState extends State<ResidentDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text('Resident Portal'),
+        backgroundColor: Colors.teal,
+        elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Welcome, $_username!'),
-            const SizedBox(height: 10),
-            const Text('Resident dashboard'),
+            _buildWelcomeMessage(),
+            const SizedBox(height: 20),
+            _buildActionButton(
+              icon: Icons.home,
+              title: 'Home',
+              onTap: _navigateToHome,
+            ),
+            const SizedBox(height: 15),
+            _buildActionButton(
+              icon: Icons.person,
+              title: 'Profile',
+              onTap: _navigateToProfile,
+            ),
+            const SizedBox(height: 15),
+            _buildActionButton(
+              icon: Icons.location_on,
+              title: 'Location',
+              onTap: () {
+                // Handle location button press
+              },
+            ),
           ],
         ),
       ),
@@ -69,7 +89,7 @@ class _ResidentDashboardState extends State<ResidentDashboard> {
             ),
             IconButton(
               icon: const Icon(Icons.person),
-              onPressed: _navigateToProfile, // Navigate to UserProfile
+              onPressed: _navigateToProfile,
             ),
             IconButton(
               icon: const Icon(Icons.location_on),
@@ -79,6 +99,53 @@ class _ResidentDashboardState extends State<ResidentDashboard> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeMessage() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Welcome, $_username!',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+            color: Colors.teal.shade700,
+          ),
+        ),
+        const SizedBox(height: 5),
+        const Text(
+          'We’re glad to have you back!',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: Colors.teal,
+            child: Icon(icon, color: Colors.white),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
