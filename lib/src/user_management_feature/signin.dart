@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trashtrek/src/sample_feature/sample_item_list_view.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -22,13 +23,20 @@ class _SignInState extends State<SignIn> {
 
   bool _isPasswordVisible = false;
   bool _emailFieldTapped = false; // Track if email field is tapped
+  String? _emailError; // Track email validation errors
 
   @override
   void initState() {
     super.initState();
-    _emailController.addListener(() {
-      _validateEmail();
-    });
+    _emailController.addListener(_validateEmailInRealTime);
+  }
+
+  @override
+  void dispose() {
+    _emailController.removeListener(_validateEmailInRealTime);
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   Future<void> _storeUserData(Map<String, dynamic> data) async {
@@ -56,9 +64,9 @@ class _SignInState extends State<SignIn> {
       await _storeUserData(data);
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
-          Navigator.restorablePushNamed(
+          Navigator.push(
             context,
-            Constants.residentDashboardRoute,
+            MaterialPageRoute(builder: (context) => const SampleItemListView()),
           );
         } else {
           Navigator.restorablePushNamed(
@@ -76,14 +84,17 @@ class _SignInState extends State<SignIn> {
     }
   }
 
-  String? _validateEmail() {
+  void _validateEmailInRealTime() {
     final email = _emailController.text;
-    if (email.isEmpty ||
-        !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-            .hasMatch(email)) {
-      return 'Please enter a valid email address';
-    }
-    return null;
+    setState(() {
+      if (email.isNotEmpty &&
+          !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+              .hasMatch(email)) {
+        _emailError = 'Please enter a valid email address';
+      } else {
+        _emailError = null; // Clear the error if valid
+      }
+    });
   }
 
   void _navigateToSignUp() {
@@ -130,7 +141,7 @@ class _SignInState extends State<SignIn> {
                       key: _formKey,
                       autovalidateMode: _emailFieldTapped
                           ? AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled, // Conditionally validate
+                          : AutovalidateMode.disabled,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
@@ -150,7 +161,7 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          // Email TextFormField with interaction tracking
+                          // Email TextFormField with real-time validation
                           Focus(
                             onFocusChange: (hasFocus) {
                               if (hasFocus && !_emailFieldTapped) {
@@ -168,10 +179,9 @@ class _SignInState extends State<SignIn> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 errorText:
-                                    _emailFieldTapped ? _validateEmail() : null,
+                                    _emailError, // Show error dynamically
                               ),
                               keyboardType: TextInputType.emailAddress,
-                              validator: (value) => _validateEmail(),
                             ),
                           ),
                           const SizedBox(height: 20),
