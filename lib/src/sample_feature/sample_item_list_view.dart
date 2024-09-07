@@ -7,8 +7,8 @@ import '../reward_management/admin_driver_profile.dart';
 import '../reward_management/driver_profile.dart';
 import '../reward_management/view_reviews.dart';
 import '../settings/settings_view.dart';
-import '../appointments_feature/screens/schedule_appointment_view.dart'; // Import ScheduleAppointmentView
-import '../appointments_feature/screens/my_appointments_view.dart'; // Import MyAppointmentsView
+import '../appointments_feature/schedule_appointment_view.dart'; // Import ScheduleAppointmentView
+import '../appointments_feature/my_appointments_view.dart'; // Import MyAppointmentsView
 
 /// Displays a list of options for navigation.
 class SampleItemListView extends StatelessWidget {
