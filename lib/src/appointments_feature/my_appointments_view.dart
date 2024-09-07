@@ -12,16 +12,19 @@ class MyAppointmentsView extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AppointmentsScreenState createState() => _AppointmentsScreenState();
+  _MyAppointmentsViewState createState() => _MyAppointmentsViewState();
 }
 
-class _AppointmentsScreenState extends State<MyAppointmentsView> {
+class _MyAppointmentsViewState extends State<MyAppointmentsView>
+    with SingleTickerProviderStateMixin {
   late Future<List<Appointment>> _appointmentsFuture;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _appointmentsFuture = _loadAppointments();
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   Future<List<Appointment>> _loadAppointments() async {
@@ -119,6 +122,14 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
         title: Text('My Appointments',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal,
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: 'Pending'),
+            Tab(text: 'Cancelled'),
+            Tab(text: 'Rejected'),
+          ],
+        ),
       ),
       body: FutureBuilder<List<Appointment>>(
         future: _appointmentsFuture,
@@ -135,93 +146,113 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                     style: TextStyle(color: Colors.grey)));
           } else {
             final appointments = snapshot.data!;
-            return ListView.builder(
-              itemCount: appointments.length,
-              itemBuilder: (context, index) {
-                final appointment = appointments[index];
+            final pendingAppointments =
+                appointments.where((a) => a.status == 'pending').toList();
+            final cancelledAppointments =
+                appointments.where((a) => a.status == 'cancelled').toList();
+            final rejectedAppointments =
+                appointments.where((a) => a.status == 'rejected').toList();
 
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Appointment on ${appointment.date}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              if (appointment.address.isNotEmpty) ...[
-                                Text(
-                                  'Address:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  appointment.address.entries
-                                      .map((entry) => '${entry.value}')
-                                      .join(', '),
-                                  style: TextStyle(fontSize: 14),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ] else
-                                Text(
-                                  'Address: Not Available',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.grey),
-                                ),
-                              SizedBox(height: 16),
-                              if (appointment.status == 'pending')
-                                TextButton(
-                                  onPressed: () => _cancelAppointment(index),
-                                  child: Text(
-                                    'Cancel Appointment',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(appointment.status),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            appointment.status.toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            return TabBarView(
+              controller: _tabController,
+              children: [
+                _buildAppointmentList(pendingAppointments),
+                _buildAppointmentList(cancelledAppointments),
+                _buildAppointmentList(rejectedAppointments),
+              ],
             );
           }
         },
       ),
     );
+  }
+
+  Widget _buildAppointmentList(List<Appointment> appointments) {
+    if (appointments.isEmpty) {
+      return Center(child: Text('No appointments found'));
+    } else {
+      return ListView.builder(
+        itemCount: appointments.length,
+        itemBuilder: (context, index) {
+          final appointment = appointments[index];
+
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Appointment on ${appointment.date}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        if (appointment.address.isNotEmpty) ...[
+                          Text(
+                            'Address:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            appointment.address.entries
+                                .map((entry) => '${entry.value}')
+                                .join(', '),
+                            style: TextStyle(fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ] else
+                          Text(
+                            'Address: Not Available',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        SizedBox(height: 16),
+                        if (appointment.status == 'pending')
+                          TextButton(
+                            onPressed: () => _cancelAppointment(index),
+                            child: Text(
+                              'Cancel Appointment',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(appointment.status),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      appointment.status.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 }
