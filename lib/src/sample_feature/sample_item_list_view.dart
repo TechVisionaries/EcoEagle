@@ -45,9 +45,20 @@ class _SampleItemListViewState extends State<SampleItemListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Options'),
-        backgroundColor: const Color.fromARGB(255, 65, 168, 125),
+        title: const Text(
+          'Home Page',
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // Bold text
+            color: Colors.white, // White text color
+          ),
+        ),
+        centerTitle: true, // Center the title in the AppBar
+        backgroundColor:
+            const Color.fromARGB(255, 65, 168, 125), // Header color
         elevation: 0,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // White color for the back icon
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -70,7 +81,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
           ),
         ),
         child: ListView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
           children: [
             _buildNavigationTile(
               context,
@@ -112,7 +123,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 6.0,
+        notchMargin: 8.0, // Increased notch margin for better aesthetics
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -147,29 +158,36 @@ class _SampleItemListViewState extends State<SampleItemListView> {
   }
 
   /// Builds a navigation tile with custom styling and animations.
-  Widget _buildNavigationTile(BuildContext context,
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required String routeName}) {
+  Widget _buildNavigationTile(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required String routeName,
+  }) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      elevation: 5,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0)), // Rounded corners
+      elevation: 4, // Slightly lighter elevation
+      shadowColor: Colors.black.withOpacity(0.2), // Subtle shadow color
+      margin: const EdgeInsets.symmetric(vertical: 8.0), // Margin between cards
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16.0, vertical: 12.0), // Padding inside ListTile
         leading: CircleAvatar(
           backgroundColor: color.withOpacity(0.2),
           child: Icon(icon, color: color),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+        trailing: Icon(Icons.arrow_forward_ios,
+            color: Colors.grey[600]), // Slightly darker grey
         onTap: () {
           // Navigate to the specified route.
           Navigator.restorablePushNamed(context, routeName);

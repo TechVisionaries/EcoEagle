@@ -116,9 +116,8 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Appointments',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
+        title: Text('My Appointments'),
+        backgroundColor: Color.fromARGB(255, 94, 189, 149),
       ),
       body: FutureBuilder<List<Appointment>>(
         future: _appointmentsFuture,

@@ -64,12 +64,12 @@ class _SignInState extends State<SignIn> {
       await _storeUserData(data);
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
-          Navigator.push(
+          Navigator.pushReplacementNamed(
             context,
-            MaterialPageRoute(builder: (context) => const SampleItemListView()),
+            Constants.homeRoute,
           );
         } else {
-          Navigator.restorablePushNamed(
+          Navigator.pushReplacementNamed(
             context,
             Constants.driverDashboardRoute,
           );
