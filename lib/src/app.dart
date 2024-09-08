@@ -5,6 +5,7 @@ import 'package:trashtrek/common/constants.dart';
 
 import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/user_management_feature/editUserProfile.dart';
 
 import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/signin.dart';
@@ -108,6 +109,8 @@ class MyApp extends StatelessWidget {
                     return const SignUp();
                   case Constants.userProfileRoute:
                     return const UserProfile();
+                  case Constants.edtuserProfileRoute:
+                    return EditUserProfile();
                   case Constants.wasteMapDriverRoute:
                     return const WasteMapDriverView();
                   case Constants.wasteMapResidentRoute:

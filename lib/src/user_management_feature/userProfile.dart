@@ -257,7 +257,7 @@ class _UserProfileState extends State<UserProfile> {
                   // Edit Button (under the profile icon)
                   ElevatedButton(
                     onPressed: () {
-                      // Edit profile logic
+                      Navigator.of(context).pushNamed('/editProfile');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,

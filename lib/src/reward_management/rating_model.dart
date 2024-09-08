@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class Rating {
   final String id;
   final String? driverId; // Make driverId nullable if not always present

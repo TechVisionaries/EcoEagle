@@ -10,6 +10,7 @@ class Constants {
   static const signInRoute = '/';
   static const signUpRoute = '/signup';
   static const userProfileRoute = '/user_profile';
+  static const edtuserProfileRoute = '/editProfile';
   static const driverDashboardRoute = '/driver_dashboard';
   static const residentDashboardRoute = '/resident_dashboard';
   static const homeRoute = '/home';
