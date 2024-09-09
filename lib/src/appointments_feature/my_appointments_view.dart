@@ -16,6 +16,8 @@ class MyAppointmentsView extends StatefulWidget {
 
 class _AppointmentsScreenState extends State<MyAppointmentsView> {
   late Future<List<Appointment>> _appointmentsFuture;
+  bool _isLoading = false;
+  int? _loadingIndex;
 
   @override
   void initState() {
@@ -47,7 +49,7 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
     }
   }
 
-  void _cancelAppointment(int index) async {
+  Future<void> _cancelAppointment(int index) async {
     bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -75,6 +77,11 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
     );
 
     if (confirmed == true) {
+      setState(() {
+        _isLoading = true;
+        _loadingIndex = index;
+      });
+
       final appointments = await _appointmentsFuture;
       final appointment = appointments[index];
 
@@ -83,8 +90,10 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
           await widget.apiService.cancelAppointment(appointment.id!);
 
           setState(() {
-            appointments[index].status = 'cancelled';
+            appointment.status = 'cancelled';
             _appointmentsFuture = Future.value(appointments);
+            _isLoading = false;
+            _loadingIndex = null;
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -94,6 +103,11 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
             ),
           );
         } catch (e) {
+          setState(() {
+            _isLoading = false;
+            _loadingIndex = null;
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to cancel the appointment: $e'),
@@ -102,6 +116,11 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
           );
         }
       } else {
+        setState(() {
+          _isLoading = false;
+          _loadingIndex = null;
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Appointment ID is missing.'),
@@ -146,75 +165,91 @@ class _AppointmentsScreenState extends State<MyAppointmentsView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Appointment on ${appointment.date}',
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Appointment on ${appointment.date}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  if (appointment.address.isNotEmpty) ...[
+                                    const Text(
+                                      'Address:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      appointment.address.entries
+                                          .map((entry) => entry.value)
+                                          .join(', '),
+                                      style: const TextStyle(fontSize: 14),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ] else
+                                    const Text(
+                                      'Address: Not Available',
+                                      style: TextStyle(
+                                          fontSize: 14, color: Colors.grey),
+                                    ),
+                                  const SizedBox(height: 16),
+                                  if (appointment.status == 'pending')
+                                    GestureDetector(
+                                      onTap:
+                                          _isLoading && _loadingIndex == index
+                                              ? null
+                                              : () => _cancelAppointment(index),
+                                      child: Text(
+                                        _isLoading && _loadingIndex == index
+                                            ? 'Canceling...'
+                                            : 'Cancel Appointment',
+                                        style: TextStyle(
+                                          color: _isLoading &&
+                                                  _loadingIndex == index
+                                              ? Colors.grey
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: _getStatusColor(appointment.status),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                appointment.status.toUpperCase(),
                                 style: const TextStyle(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: 12,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              if (appointment.address.isNotEmpty) ...[
-                                const Text(
-                                  'Address:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  appointment.address.entries
-                                      .map((entry) => entry.value)
-                                      .join(', '),
-                                  style: const TextStyle(fontSize: 14),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ] else
-                                const Text(
-                                  'Address: Not Available',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.grey),
-                                ),
-                              const SizedBox(height: 16),
-                              if (appointment.status == 'pending')
-                                TextButton(
-                                  onPressed: () => _cancelAppointment(index),
-                                  child: const Text(
-                                    'Cancel Appointment',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(appointment.status),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            appointment.status.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },
