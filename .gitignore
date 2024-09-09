@@ -44,4 +44,3 @@ app.*.map.json
 pubspec.lock
 android/app/build.gradle
 assets/.env
-assets/.env
