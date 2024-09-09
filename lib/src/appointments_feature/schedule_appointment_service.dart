@@ -42,28 +42,25 @@ class ApiService {
     }
   }
 
-  Future<bool> hasAppointment(String date) async {
-    try {
-      final response = await http
-          .get(Uri.parse('$baseUrl/appointments?date=$date'))
-          .timeout(Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        List jsonResponse = json.decode(response.body);
-        return jsonResponse.isNotEmpty;
-      } else {
-        throw Exception(
-            'Failed to check appointment. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to check appointment: $e');
-    }
-  }
-
   Future<String?> getUserId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userID');
     return userId;
+  }
+
+  Future<bool> hasAppointment(String date) async {
+    final userId = await getUserId();
+    final response =
+        await http.get(Uri.parse('$baseUrl/appointments/$userId?date=$date'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      List<Appointment> appointments = Appointment.listFromJson(data);
+
+      return appointments.any((appointment) => appointment.date == date);
+    } else {
+      throw Exception('Failed to load appointments');
+    }
   }
 
   Future<void> cancelAppointment(String appointmentId) async {

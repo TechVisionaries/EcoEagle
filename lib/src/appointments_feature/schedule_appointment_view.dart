@@ -70,6 +70,21 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
       );
 
       try {
+// Check if the user has already scheduled an appointment for the selected date
+        final hasAppointment =
+            await widget.apiService.hasAppointment(appointment.date);
+
+        if (hasAppointment) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'You have already scheduled an appointment for this date'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
         await widget.apiService.createAppointment(appointment);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -87,6 +102,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to Schedule Appointment: $e'),
+            backgroundColor: Colors.red,
           ),
         );
       } finally {
