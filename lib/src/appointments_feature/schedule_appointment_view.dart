@@ -22,6 +22,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
   final _streetController = TextEditingController();
   final _cityController = TextEditingController();
   String _status = 'pending';
+  bool _isLoading = false; // Loading state variable
 
   @override
   void dispose() {
@@ -52,6 +53,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
 
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        _isLoading = true; // Set loading state to true
+      });
+
       final userId = await widget.apiService.getUserId();
       final appointment = Appointment(
         userId: userId,
@@ -64,31 +69,23 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
         status: _status,
       );
 
-      // Check if the user already has an appointment for the selected date
-      // try {
-      //   final hasAppointment =
-      //       await widget.apiService.hasAppointment(appointment.date);
-      //   if (hasAppointment) {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(
-      //         content: Text('You already have an appointment for this date'),
-      //       ),
-      //     );
-      //     return;
-      //   }
-      // } catch (e) {
-      //   // Show error message if the API call fails
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Text('Failed to check appointment: $e'),
-      //     ),
-      //   );
-      //   return;
-      // }
-
       try {
+// Check if the user has already scheduled an appointment for the selected date
+        final hasAppointment =
+            await widget.apiService.hasAppointment(appointment.date);
+
+        if (hasAppointment) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'You have already scheduled an appointment for this date'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
         await widget.apiService.createAppointment(appointment);
-        // Show success message only if the API call is successful
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Appointment Scheduled Successfully'),
@@ -96,36 +93,22 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
           ),
         );
 
-        // After successfully creating an appointment, check if there are at least 3 appointments in the same city if then show status as approved
-        // try {
-        //   final appointments = await widget.apiService.fetchAppointments();
-        //   final cityAppointments = appointments
-        //       .where((appointment) =>
-        //           appointment.address['city'] == _cityController.text)
-        //       .toList();
-        //   if (cityAppointments.length >= 3) {
-        //     setState(() {
-        //       _status = 'approved';
-        //     });
-        //   }
-        // } catch (e) {
-        //   // Log the error or handle it appropriately
-        //   print('Failed to fetch appointments: $e');
-        // }
-
-        // Optionally, navigate to another screen or reset form fields
         _formKey.currentState?.reset();
         _dateController.clear();
         _houseNoController.clear();
         _streetController.clear();
         _cityController.clear();
       } catch (e) {
-        // Show error message if the API call fails
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to Schedule Appointment: $e'),
+            backgroundColor: Colors.red,
           ),
         );
+      } finally {
+        setState(() {
+          _isLoading = false; // Set loading state to false
+        });
       }
     }
   }
@@ -142,7 +125,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // Image at the top
             Image.asset(
               'assets/images/appointments.webp',
               height: 200,
@@ -216,8 +198,16 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                   ),
                   SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _submitAppointment,
-                    child: Text('Schedule Appointment'),
+                    onPressed: _isLoading
+                        ? null
+                        : _submitAppointment, // Disable button if loading
+                    child: _isLoading
+                        ? CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                        : Text('Schedule Appointment'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 94, 189, 149),
                       padding: EdgeInsets.symmetric(vertical: 16),
