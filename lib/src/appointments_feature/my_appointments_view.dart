@@ -59,8 +59,10 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
     });
     try {
       await widget.apiService.cancelAppointment(appointmentId);
-      // Reload appointments after cancellation
-      _appointmentsFuture = _loadAppointments();
+      setState(() {
+        // Reload appointments after cancellation
+        _appointmentsFuture = _loadAppointments();
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -91,9 +93,8 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
         backgroundColor: const Color.fromARGB(255, 94, 189, 149),
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true, // Make tabs scrollable
-          labelPadding: const EdgeInsets.symmetric(
-              horizontal: 16.0), // Increase padding around tab labels
+          isScrollable: true,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 16.0),
           tabs: const [
             Tab(text: 'Pending'),
             Tab(text: 'Completed'),
@@ -109,8 +110,22 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-                child: Text('Failed to load appointments: ${snapshot.error}',
-                    style: const TextStyle(color: Colors.red)));
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Failed to load appointments: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _appointmentsFuture = _loadAppointments();
+                        });
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
                 child: Text('No appointments found',
@@ -157,7 +172,6 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Row for Appointment Date and Status
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -177,7 +191,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                             style: const TextStyle(
                               fontSize: 16,
                             ),
-                            overflow: TextOverflow.ellipsis, // Handle overflow
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -202,27 +216,25 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                 ),
                 const SizedBox(height: 8),
                 // Address section with location icon
-
                 const SizedBox(height: 16),
-                // Cancel Button at bottom left
                 if (appointment.status == 'pending')
                   Align(
                     alignment: Alignment.bottomLeft,
                     child: _isLoading && _loadingIndex == index
                         ? const CircularProgressIndicator()
                         : TextButton(
-                            onPressed: () {
-                              _showCancelConfirmationDialog(
-                                  index, appointment.id ?? '');
-                            },
-                            child: const Text(
-                              'Cancel Appointment',
-                              style: TextStyle(
-                                color: Colors.red, // Red text for cancel
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                      onPressed: () {
+                        _showCancelConfirmationDialog(
+                            index, appointment.id ?? '');
+                      },
+                      child: const Text(
+                        'Cancel Appointment',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -237,27 +249,26 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content:
-            const Text('Are you sure you want to cancel this appointment?'),
+        content: const Text('Are you sure you want to cancel this appointment?'),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop();
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.green,
-              backgroundColor: Colors.white, // Background color
+              backgroundColor: Colors.white,
             ),
             child: const Text('No'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-              _cancelAppointment(index, appointmentId); // Proceed to cancel
+              Navigator.of(context).pop();
+              _cancelAppointment(index, appointmentId);
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
-              backgroundColor: Colors.red, // Background color
+              backgroundColor: Colors.red,
             ),
             child: const Text('Yes'),
           ),
