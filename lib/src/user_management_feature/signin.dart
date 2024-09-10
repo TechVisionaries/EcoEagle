@@ -68,14 +68,20 @@ class _SignInState extends State<SignIn> {
       await _storeUserData(data);
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
-          Navigator.pushReplacementNamed(
-            context,
+          Navigator.of(context).pushNamedAndRemoveUntil(
             Constants.homeRoute,
+            (route) => false, // Removes all previous routes
+          );
+        } else if (data['userlogtype'] == "Admin" ||
+            data['userlogtype'] == "admin") {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            Constants.adminDashboardRoute,
+            (route) => false,
           );
         } else {
-          Navigator.pushReplacementNamed(
-            context,
+          Navigator.of(context).pushNamedAndRemoveUntil(
             Constants.driverDashboardRoute,
+            (route) => false,
           );
         }
       }
