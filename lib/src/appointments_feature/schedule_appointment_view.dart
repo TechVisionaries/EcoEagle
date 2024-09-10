@@ -5,8 +5,7 @@ import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.
 
 class ScheduleAppointmentView extends StatefulWidget {
   final ApiService apiService;
-  const ScheduleAppointmentView({Key? key, required this.apiService})
-      : super(key: key);
+  const ScheduleAppointmentView({super.key, required this.apiService});
 
   static const routeName = Constants.appointmentsRoute;
 
@@ -21,7 +20,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
   final _houseNoController = TextEditingController();
   final _streetController = TextEditingController();
   final _cityController = TextEditingController();
-  String _status = 'pending';
+  final String _status = 'pending';
   bool _isLoading = false; // Loading state variable
 
   @override
@@ -35,7 +34,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
 
   Future<void> _selectDate() async {
     DateTime now = DateTime.now();
-    DateTime tomorrow = now.add(Duration(days: 1));
+    DateTime tomorrow = now.add(const Duration(days: 1));
 
     DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -76,7 +75,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
 
         if (hasAppointment) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text(
                   'You have already scheduled an appointment for this date'),
               backgroundColor: Colors.red,
@@ -87,7 +86,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
 
         await widget.apiService.createAppointment(appointment);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Appointment Scheduled Successfully'),
             backgroundColor: Colors.green,
           ),
@@ -117,8 +116,8 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Schedule Appointment'),
-        backgroundColor: Color.fromARGB(255, 94, 189, 149),
+        title: const Text('Schedule Appointment'),
+        backgroundColor: const Color.fromARGB(255, 94, 189, 149),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -130,7 +129,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
               height: 200,
               fit: BoxFit.cover,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Form(
               key: _formKey,
               child: Column(
@@ -141,10 +140,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                     decoration: InputDecoration(
                       labelText: 'Schedule Date',
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                         onPressed: _selectDate,
                       ),
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                     readOnly: true,
                     validator: (value) {
@@ -154,10 +153,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _houseNoController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'House No',
                       border: OutlineInputBorder(),
                     ),
@@ -168,10 +167,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _streetController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Street',
                       border: OutlineInputBorder(),
                     ),
@@ -182,10 +181,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _cityController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'City',
                       border: OutlineInputBorder(),
                     ),
@@ -196,11 +195,17 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : _submitAppointment, // Disable button if loading
+                    onPressed: _isLoading ? null : _submitAppointment,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 94, 189, 149),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      textStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ), // Disable button if loading
                     child: _isLoading
                         ? CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
@@ -208,14 +213,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                             ),
                           )
                         : Text('Schedule Appointment'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 94, 189, 149),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ),
                 ],
               ),
