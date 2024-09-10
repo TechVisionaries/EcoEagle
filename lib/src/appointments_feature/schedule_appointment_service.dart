@@ -31,13 +31,13 @@ class ApiService {
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 201) {
+        // Handle success
         return Appointment.fromJson(json.decode(response.body));
       } else {
         throw Exception(
             'Failed to create appointment. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      // Log the error or handle it appropriately
       throw Exception('Failed to create appointment: $e');
     }
   }
