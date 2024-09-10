@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget {
                   case Constants.userProfileRoute:
                     return const UserProfile();
                   case Constants.edtuserProfileRoute:
-                    return EditUserProfile();
+                    return const EditUserProfile();
                   case Constants.wasteMapDriverRoute:
                     return const WasteMapDriverView();
                   case Constants.wasteMapResidentRoute:

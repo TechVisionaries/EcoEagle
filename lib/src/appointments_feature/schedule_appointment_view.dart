@@ -20,6 +20,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
+
   bool _isLoading = false;
   LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
 
@@ -32,6 +33,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       _checkPermissions();
     });
   }
+
 
   @override
   void dispose() {
@@ -96,7 +98,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   // Function to select a date for the appointment
   Future<void> _selectDate() async {
     DateTime now = DateTime.now();
-    DateTime tomorrow = now.add(Duration(days: 1));
+    DateTime tomorrow = now.add(const Duration(days: 1));
 
     DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -212,6 +214,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                     },
                   ),
                   const SizedBox(height: 16),
+
                   SizedBox(
                     height: 300,
                     child: GoogleMap(
@@ -236,11 +239,13 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                     onPressed: _isLoading ? null : _submitAppointment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 94, 189, 149),
+
                       minimumSize: const Size(double.infinity, 50),
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator()
                         : const Text('Submit Appointment'),
+
                   ),
                 ],
               ),

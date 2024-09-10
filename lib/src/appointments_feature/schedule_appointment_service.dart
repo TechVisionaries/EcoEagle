@@ -28,7 +28,7 @@ class ApiService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode(appointment.toJson()),
           )
-          .timeout(Duration(seconds: 10));
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 201) {
         // Handle success
@@ -71,7 +71,7 @@ class ApiService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'status': 'cancelled'}),
           )
-          .timeout(Duration(seconds: 10));
+          .timeout(const Duration(seconds: 10));
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
