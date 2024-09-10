@@ -28,6 +28,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
   String? _houseNo;
   String? _street;
   String? _city;
+  bool _isLoading = false; // Add this variable to track loading state
 
   @override
   void initState() {
@@ -73,6 +74,10 @@ class _EditUserProfileState extends State<EditUserProfile> {
   }
 
   Future<void> _saveUserData() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
     final prefs = await SharedPreferences.getInstance();
     final baseUrl = dotenv.env[Constants.baseURL];
     final token = prefs.getString('token');
@@ -95,6 +100,10 @@ class _EditUserProfileState extends State<EditUserProfile> {
         },
       }),
     );
+
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
 
     if (response.statusCode == 200) {
       // Successfully updated
@@ -218,21 +227,24 @@ class _EditUserProfileState extends State<EditUserProfile> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      ElevatedButton(
-                        onPressed: _saveUserData,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          backgroundColor:
-                              const Color.fromARGB(255, 65, 168, 125),
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ),
+                      _isLoading // Show progress indicator if loading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: _saveUserData,
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 65, 168, 125),
+                              ),
+                              child: const Text(
+                                'Save',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
+                              ),
+                            ),
                     ],
                   ),
                 ),
