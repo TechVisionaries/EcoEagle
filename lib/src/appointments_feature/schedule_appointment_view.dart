@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ScheduleAppointmentView extends StatefulWidget {
   final ApiService apiService;
@@ -14,24 +16,86 @@ class ScheduleAppointmentView extends StatefulWidget {
       _ScheduleAppointmentViewState();
 }
 
-class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
+class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
-  final _houseNoController = TextEditingController();
-  final _streetController = TextEditingController();
-  final _cityController = TextEditingController();
-  final String _status = 'pending';
-  bool _isLoading = false; // Loading state variable
+
+  bool _isLoading = false;
+  LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
+
+  late GoogleMapController _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPermissions();
+    });
+  }
+
 
   @override
   void dispose() {
     _dateController.dispose();
-    _houseNoController.dispose();
-    _streetController.dispose();
-    _cityController.dispose();
     super.dispose();
   }
 
+  // Function to check and request location permissions
+  Future<void> _checkPermissions() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _showPermissionError('Location permissions are denied.');
+        return;
+      }
+    }
+
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showPermissionError('Location services are disabled.');
+      return;
+    }
+
+    await _getUserLocation();
+  }
+
+  // Helper function to show error messages for permissions
+  void _showPermissionError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+    Navigator.pushNamed(context, '/options');
+  }
+
+  // Function to get the current user location
+  Future<void> _getUserLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _selectedLocation = LatLng(position.latitude, position.longitude);
+        _mapController.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to get location: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Function to select a date for the appointment
   Future<void> _selectDate() async {
     DateTime now = DateTime.now();
     DateTime tomorrow = now.add(const Duration(days: 1));
@@ -50,26 +114,25 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
     }
   }
 
+  // Function to submit the appointment data to the API
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
-        _isLoading = true; // Set loading state to true
+        _isLoading = true;
       });
 
       final userId = await widget.apiService.getUserId();
       final appointment = Appointment(
         userId: userId,
         date: _dateController.text,
-        address: {
-          'houseNo': _houseNoController.text,
-          'street': _streetController.text,
-          'city': _cityController.text,
-        },
-        status: _status,
+        status: 'pending',
+        location: Location(
+          latitude: _selectedLocation.latitude,
+          longitude: _selectedLocation.longitude,
+        ),
       );
 
       try {
-// Check if the user has already scheduled an appointment for the selected date
         final hasAppointment =
             await widget.apiService.hasAppointment(appointment.date);
 
@@ -94,9 +157,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
 
         _formKey.currentState?.reset();
         _dateController.clear();
-        _houseNoController.clear();
-        _streetController.clear();
-        _cityController.clear();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -106,7 +166,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
         );
       } finally {
         setState(() {
-          _isLoading = false; // Set loading state to false
+          _isLoading = false;
         });
       }
     }
@@ -154,65 +214,38 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _houseNoController,
-                    decoration: const InputDecoration(
-                      labelText: 'House No',
-                      border: OutlineInputBorder(),
+
+                  SizedBox(
+                    height: 300,
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: _selectedLocation,
+                        zoom: 14.0,
+                      ),
+                      onMapCreated: (GoogleMapController controller) {
+                        _mapController = controller;
+                        _getUserLocation();
+                      },
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId('userLocation'),
+                          position: _selectedLocation,
+                        ),
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the house number';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _streetController,
-                    decoration: const InputDecoration(
-                      labelText: 'Street',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the street';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _cityController,
-                    decoration: const InputDecoration(
-                      labelText: 'City',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the city';
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _submitAppointment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 94, 189, 149),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      textStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ), // Disable button if loading
+
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
                     child: _isLoading
-                        ? CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          )
-                        : Text('Schedule Appointment'),
+                        ? const CircularProgressIndicator()
+                        : const Text('Submit Appointment'),
+
                   ),
                 ],
               ),
