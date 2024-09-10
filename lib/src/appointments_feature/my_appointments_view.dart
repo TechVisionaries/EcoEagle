@@ -201,23 +201,27 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Address section
+                // Address section with location icon
                 if (appointment.address.isNotEmpty) ...[
-                  const Text(
-                    'Address:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    appointment.address.entries
-                        .map((entry) => entry.value)
-                        .join(', '),
-                    style: const TextStyle(fontSize: 14),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          appointment.address.entries
+                              .map((entry) => entry.value)
+                              .join(', '),
+                          style: const TextStyle(fontSize: 14),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
                   ),
                 ] else
                   const Text(
@@ -265,6 +269,10 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
             onPressed: () {
               Navigator.of(context).pop(); // Close the dialog
             },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.green,
+              backgroundColor: Colors.white, // Background color
+            ),
             child: const Text('No'),
           ),
           TextButton(
@@ -272,6 +280,10 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
               Navigator.of(context).pop(); // Close the dialog
               _cancelAppointment(index, appointmentId); // Proceed to cancel
             },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.red, // Background color
+            ),
             child: const Text('Yes'),
           ),
         ],
