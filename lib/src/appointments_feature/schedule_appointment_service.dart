@@ -21,10 +21,6 @@ class ApiService {
   }
 
   Future<Appointment> createAppointment(Appointment appointment) async {
-    if (appointment.latitude == null || appointment.longitude == null) {
-      throw Exception('Latitude and longitude must not be null');
-    }
-
     try {
       final response = await http
           .post(
@@ -35,13 +31,13 @@ class ApiService {
           .timeout(Duration(seconds: 10));
 
       if (response.statusCode == 201) {
+        // Handle success
         return Appointment.fromJson(json.decode(response.body));
       } else {
         throw Exception(
             'Failed to create appointment. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      // Log the error or handle it appropriately
       throw Exception('Failed to create appointment: $e');
     }
   }

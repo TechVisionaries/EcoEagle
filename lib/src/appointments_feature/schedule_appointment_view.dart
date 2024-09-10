@@ -20,12 +20,8 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
-  final _houseNoController = TextEditingController();
-  final _streetController = TextEditingController();
-  final _cityController = TextEditingController();
-  String _status = 'pending';
   bool _isLoading = false;
-  LatLng _selectedLocation = LatLng(0, 0);
+  LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
 
   late GoogleMapController _mapController;
 
@@ -40,84 +36,44 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   @override
   void dispose() {
     _dateController.dispose();
-    _houseNoController.dispose();
-    _streetController.dispose();
-    _cityController.dispose();
     super.dispose();
   }
 
+  // Function to check and request location permissions
   Future<void> _checkPermissions() async {
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location permissions are denied.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        Navigator.pushNamed(context, '/options');
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _showPermissionError('Location permissions are denied.');
         return;
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Location permissions are permanently denied. Please enable them in settings.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      Navigator.pushNamed(context, '/options');
-      return;
-    }
-
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Location services are disabled. Please enable them in settings.'),
-          backgroundColor: Colors.red,
-          action: SnackBarAction(
-            label: 'Settings',
-            onPressed: () {
-              Geolocator.openLocationSettings();
-            },
-          ),
-        ),
-      );
-      Navigator.pushNamed(context, '/options');
+      _showPermissionError('Location services are disabled.');
       return;
     }
 
     await _getUserLocation();
   }
 
-  Future<void> _getUserLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Notify user and prompt them to enable location services
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Location services are disabled. Please enable them in settings.'),
-          backgroundColor: Colors.red,
-          action: SnackBarAction(
-            label: 'Settings',
-            onPressed: () {
-              Geolocator.openLocationSettings();
-            },
-          ),
-        ),
-      );
-      return;
-    }
+  // Helper function to show error messages for permissions
+  void _showPermissionError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+    Navigator.pushNamed(context, '/options');
+  }
 
+  // Function to get the current user location
+  Future<void> _getUserLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -128,7 +84,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
         _mapController.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
       });
     } catch (e) {
-      // Handle other exceptions such as permission denied
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to get location: $e'),
@@ -138,6 +93,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     }
   }
 
+  // Function to select a date for the appointment
   Future<void> _selectDate() async {
     DateTime now = DateTime.now();
     DateTime tomorrow = now.add(Duration(days: 1));
@@ -156,6 +112,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     }
   }
 
+  // Function to submit the appointment data to the API
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -166,9 +123,11 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       final appointment = Appointment(
         userId: userId,
         date: _dateController.text,
-        status: _status,
-        latitude: _selectedLocation.latitude,
-        longitude: _selectedLocation.longitude,
+        status: 'pending',
+        location: Location(
+          latitude: _selectedLocation.latitude,
+          longitude: _selectedLocation.longitude,
+        ),
       );
 
       try {
@@ -266,7 +225,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                       },
                       markers: {
                         Marker(
-                          markerId: MarkerId('userLocation'),
+                          markerId: const MarkerId('userLocation'),
                           position: _selectedLocation,
                         ),
                       },
