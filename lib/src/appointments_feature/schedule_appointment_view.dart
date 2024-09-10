@@ -20,7 +20,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
-
   bool _isLoading = false;
   LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
 
@@ -34,14 +33,12 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     });
   }
 
-
   @override
   void dispose() {
     _dateController.dispose();
     super.dispose();
   }
 
-  // Function to check and request location permissions
   Future<void> _checkPermissions() async {
     LocationPermission permission = await Geolocator.checkPermission();
 
@@ -63,7 +60,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     await _getUserLocation();
   }
 
-  // Helper function to show error messages for permissions
   void _showPermissionError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -74,7 +70,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     Navigator.pushNamed(context, '/options');
   }
 
-  // Function to get the current user location
   Future<void> _getUserLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -95,10 +90,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     }
   }
 
-  // Function to select a date for the appointment
   Future<void> _selectDate() async {
     DateTime now = DateTime.now();
-    DateTime tomorrow = now.add(const Duration(days: 1));
+    DateTime tomorrow = now.add(Duration(days: 1));
 
     DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -114,7 +108,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     }
   }
 
-  // Function to submit the appointment data to the API
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -134,13 +127,12 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
 
       try {
         final hasAppointment =
-            await widget.apiService.hasAppointment(appointment.date);
+        await widget.apiService.hasAppointment(appointment.date);
 
         if (hasAppointment) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                  'You have already scheduled an appointment for this date'),
+              content: Text('You have already scheduled an appointment for this date'),
               backgroundColor: Colors.red,
             ),
           );
@@ -214,7 +206,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                     },
                   ),
                   const SizedBox(height: 16),
-
                   SizedBox(
                     height: 300,
                     child: GoogleMap(
@@ -239,13 +230,11 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                     onPressed: _isLoading ? null : _submitAppointment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 94, 189, 149),
-
                       minimumSize: const Size(double.infinity, 50),
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator()
                         : const Text('Submit Appointment'),
-
                   ),
                 ],
               ),
