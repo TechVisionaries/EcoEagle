@@ -165,9 +165,9 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Appointment on',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
