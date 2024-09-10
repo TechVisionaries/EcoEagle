@@ -20,10 +20,10 @@ class _UserProfileState extends State<UserProfile> {
   String? _phoneNo;
   String? _userType;
   String? _address;
+  bool _isLoading = false; // Add this variable to track loading state
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-
     final baseUrl =
         dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
     _username = prefs.getString('userID');
@@ -54,6 +54,10 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Future<void> _logout() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final email = _email;
@@ -69,6 +73,10 @@ class _UserProfileState extends State<UserProfile> {
       },
       body: jsonEncode({'email': email}),
     );
+
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
 
     if (response.statusCode == 200) {
       // Show success dialog
@@ -307,17 +315,19 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                   const SizedBox(height: 20),
                   // Logout Button
-                  ElevatedButton(
-                    onPressed: _logout,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF273F71),
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: const Text(
-                      "LOGOUT",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+                  _isLoading // Show progress indicator if loading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: _logout,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF273F71),
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          child: const Text(
+                            "LOGOUT",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                 ],
               ),
             ),

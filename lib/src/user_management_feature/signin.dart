@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-//import 'package:trashtrek/src/sample_feature/sample_item_list_view.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -23,6 +22,7 @@ class _SignInState extends State<SignIn> {
 
   bool _isPasswordVisible = false;
   bool _emailFieldTapped = false; // Track if email field is tapped
+  bool _isLoading = false; // Track if login is loading
   String? _emailError; // Track email validation errors
 
   @override
@@ -49,6 +49,10 @@ class _SignInState extends State<SignIn> {
 
   Future<void> _loginUser() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
 
     final baseUrl = dotenv.env[Constants.baseURL];
     final response = await http.post(
@@ -82,6 +86,10 @@ class _SignInState extends State<SignIn> {
         );
       }
     }
+
+    setState(() {
+      _isLoading = false; // Hide loading indicator
+    });
   }
 
   void _validateEmailInRealTime() {
@@ -210,8 +218,11 @@ class _SignInState extends State<SignIn> {
                             obscureText: !_isPasswordVisible,
                           ),
                           const SizedBox(height: 20),
+                          // Sign-in button with loading indicator
                           ElevatedButton(
-                            onPressed: _loginUser,
+                            onPressed: _isLoading
+                                ? null
+                                : _loginUser, // Disable button when loading
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 50),
                               shape: RoundedRectangleBorder(
@@ -219,11 +230,17 @@ class _SignInState extends State<SignIn> {
                               ),
                               backgroundColor: Colors.blue[700],
                             ),
-                            child: const Text(
-                              'Sign In',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                            ),
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : const Text(
+                                    'Sign In',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ),
                           const SizedBox(height: 20),
                           TextButton(
