@@ -166,12 +166,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       final appointment = Appointment(
         userId: userId,
         date: _dateController.text,
-        address: {
-          'houseNo': _houseNoController.text,
-          'street': _streetController.text,
-          'city': _cityController.text,
-        },
         status: _status,
+        latitude: _selectedLocation.latitude,
+        longitude: _selectedLocation.longitude,
       );
 
       try {
@@ -199,9 +196,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
 
         _formKey.currentState?.reset();
         _dateController.clear();
-        _houseNoController.clear();
-        _streetController.clear();
-        _cityController.clear();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

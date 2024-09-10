@@ -2,14 +2,16 @@ class Appointment {
   final String? id; // Optional, typically assigned by backend
   final String? userId; // Optional, typically assigned by backend
   final String date;
-  final Map<String, String> address; // Address field as a Map
+  final double latitude; // Added latitude field
+  final double longitude; // Added longitude field
   String status;
 
   Appointment({
     this.id,
     required this.userId,
     required this.date,
-    required this.address,
+    required this.latitude,
+    required this.longitude,
     required this.status,
   });
 
@@ -19,9 +21,8 @@ class Appointment {
       id: json['_id'] as String?, // Use '_id' instead of 'id'
       userId: json['userId'] as String?,
       date: json['date'] as String,
-      address: json['address'] != null
-          ? Map<String, String>.from(json['address'] as Map)
-          : {},
+      latitude: json['latitude'] as double, // Parse latitude
+      longitude: json['longitude'] as double, // Parse longitude
       status: json['status'] as String,
     );
   }
@@ -32,7 +33,8 @@ class Appointment {
       'id': id,
       'userId': userId,
       'date': date,
-      'address': address, // Convert Map<String, String> to JSON map
+      'latitude': latitude, // Convert latitude to JSON
+      'longitude': longitude, // Convert longitude to JSON
       'status': status,
     };
   }

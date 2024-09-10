@@ -202,32 +202,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                 ),
                 const SizedBox(height: 8),
                 // Address section with location icon
-                if (appointment.address.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: Colors.blue,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          appointment.address.entries
-                              .map((entry) => entry.value)
-                              .join(', '),
-                          style: const TextStyle(fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ] else
-                  const Text(
-                    'Address: Not Available',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
+
                 const SizedBox(height: 16),
                 // Cancel Button at bottom left
                 if (appointment.status == 'pending')

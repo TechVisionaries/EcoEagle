@@ -21,6 +21,10 @@ class ApiService {
   }
 
   Future<Appointment> createAppointment(Appointment appointment) async {
+    if (appointment.latitude == null || appointment.longitude == null) {
+      throw Exception('Latitude and longitude must not be null');
+    }
+
     try {
       final response = await http
           .post(
