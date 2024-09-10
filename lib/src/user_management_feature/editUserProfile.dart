@@ -38,11 +38,11 @@ class _EditUserProfileState extends State<EditUserProfile> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final baseUrl = dotenv.env[Constants.baseURL];
-    final _username = prefs.getString('userID');
+    final username = prefs.getString('userID');
     final token = prefs.getString('token');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/users/profile/$_username'),
+      Uri.parse('$baseUrl/users/profile/$username'),
       headers: {
         'authorization': 'Bearer $token',
       },

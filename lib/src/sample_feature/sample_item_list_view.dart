@@ -180,7 +180,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
         ),
         title: Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.black87,

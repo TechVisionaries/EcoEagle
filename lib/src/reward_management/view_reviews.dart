@@ -8,7 +8,7 @@ import 'delete_review_service.dart';
 import 'update_review_service.dart'; // Import the update review service
 
 class MyReviewsScreen extends StatefulWidget {
-  const MyReviewsScreen({Key? key}) : super(key: key);
+  const MyReviewsScreen({super.key});
 
   static const routeName = '/my-reviews';
 
@@ -68,9 +68,9 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
   }
 
   void _editReviewDialog(Rating review) {
-    final _ratingController =
+    final ratingController =
         TextEditingController(text: review.points.toString());
-    final _commentController = TextEditingController(text: review.reviewText);
+    final commentController = TextEditingController(text: review.reviewText);
 
     showDialog(
       context: context,
@@ -90,12 +90,12 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                 color: Colors.amber,
               ),
               onRatingUpdate: (rating) {
-                _ratingController.text = rating.toInt().toString();
+                ratingController.text = rating.toInt().toString();
               },
             ),
             const SizedBox(height: 8),
             TextField(
-              controller: _commentController,
+              controller: commentController,
               maxLines: 3,
               decoration: const InputDecoration(
                 labelText: 'Comment',
@@ -111,8 +111,8 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final rating = int.parse(_ratingController.text);
-              final comment = _commentController.text;
+              final rating = int.parse(ratingController.text);
+              final comment = commentController.text;
 
               try {
                 final prefs = await SharedPreferences.getInstance();
