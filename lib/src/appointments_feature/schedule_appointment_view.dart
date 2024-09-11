@@ -21,6 +21,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   bool _isLoading = false;
+  bool _isMapLoading = true; // Flag for map loading state
   LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
 
   late GoogleMapController _mapController;
@@ -79,6 +80,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       setState(() {
         _selectedLocation = LatLng(position.latitude, position.longitude);
         _mapController.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
+        _isMapLoading = false; // Stop map loading spinner
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,12 +89,15 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           backgroundColor: Colors.red,
         ),
       );
+      setState(() {
+        _isMapLoading = false; // Stop map loading spinner even if error
+      });
     }
   }
 
   Future<void> _selectDate() async {
     DateTime now = DateTime.now();
-    DateTime tomorrow = now.add(Duration(days: 1));
+    DateTime tomorrow = now.add(const Duration(days: 1));
 
     DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -146,6 +151,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
             backgroundColor: Colors.green,
           ),
         );
+
+        // Navigate to appointment list or confirmation screen after success
+        Navigator.pushNamed(context, '/my_appointments');
 
         _formKey.currentState?.reset();
         _dateController.clear();
@@ -208,26 +216,34 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                   const SizedBox(height: 16),
                   SizedBox(
                     height: 300,
-                    child: GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: _selectedLocation,
-                        zoom: 14.0,
-                      ),
-                      onMapCreated: (GoogleMapController controller) {
-                        _mapController = controller;
-                        _getUserLocation();
-                      },
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId('userLocation'),
-                          position: _selectedLocation,
+                    child: Stack(
+                      children: [
+                        GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: _selectedLocation,
+                            zoom: 14.0,
+                          ),
+                          onMapCreated: (GoogleMapController controller) {
+                            _mapController = controller;
+                            _getUserLocation();
+                          },
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('userLocation'),
+                              position: _selectedLocation,
+                            ),
+                          },
                         ),
-                      },
+                        if (_isMapLoading)
+                          const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _isLoading ? null : _submitAppointment,
+                    onPressed: (_isLoading || _isMapLoading) ? null : _submitAppointment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 94, 189, 149),
                       minimumSize: const Size(double.infinity, 50),
@@ -236,6 +252,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                         ? const CircularProgressIndicator()
                         : const Text('Submit Appointment'),
                   ),
+
                 ],
               ),
             ),
