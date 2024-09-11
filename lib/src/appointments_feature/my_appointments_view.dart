@@ -25,7 +25,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
   void initState() {
     super.initState();
     _appointmentsFuture = _loadAppointments();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 2, vsync: this); // Updated length
   }
 
   Future<List<Appointment>> _loadAppointments() async {
@@ -43,10 +43,6 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
         return Colors.orangeAccent;
       case 'completed':
         return Colors.greenAccent;
-      case 'cancelled':
-        return Colors.redAccent;
-      case 'rejected':
-        return Colors.purpleAccent;
       default:
         return Colors.grey;
     }
@@ -93,14 +89,12 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
         backgroundColor: const Color.fromARGB(255, 94, 189, 149),
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+          isScrollable: false, // Changed to false to distribute tabs evenly
           tabs: const [
             Tab(text: 'Pending'),
             Tab(text: 'Completed'),
-            Tab(text: 'Cancelled'),
-            Tab(text: 'Rejected'),
           ],
+          labelPadding: const EdgeInsets.symmetric(horizontal: 24.0), // Adjust if needed
         ),
       ),
       body: FutureBuilder<List<Appointment>>(
@@ -139,10 +133,6 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                     _filterAppointmentsByStatus(appointments, 'pending')),
                 _buildAppointmentList(
                     _filterAppointmentsByStatus(appointments, 'completed')),
-                _buildAppointmentList(
-                    _filterAppointmentsByStatus(appointments, 'cancelled')),
-                _buildAppointmentList(
-                    _filterAppointmentsByStatus(appointments, 'rejected')),
               ],
             );
           }
@@ -249,7 +239,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content: const Text('Are you sure you want to cancel this appointment?'),
+        content: const Text("Ones you cancel the appointment, You can not reschedule appointment for the same date. Are you sure you want to cancel the appointment?"),
         actions: [
           TextButton(
             onPressed: () {

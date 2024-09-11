@@ -26,13 +26,48 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
 
   late GoogleMapController _mapController;
 
+  List<DateTime> _availableDates = [];
+
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _generateAvailableDates();
       _checkPermissions();
     });
   }
+  void _generateAvailableDates() {
+    final now = DateTime.now();
+    final startDate = now.add(Duration(days: 1)); // Start from the day after the current date
+    final endDate = startDate.add(Duration(days: 7)); // End one week from startDate
+
+    setState(() {
+      _availableDates = [];
+
+      DateTime current = startDate;
+
+      // Loop through the week and add dates only if they are Sunday or Wednesday
+      while (current.isBefore(endDate)) {
+        if (current.weekday == DateTime.sunday || current.weekday == DateTime.wednesday) {
+          _availableDates.add(current);
+        }
+        current = current.add(Duration(days: 1)); // Move to the next day
+      }
+
+      // Ensure we have exactly 3 dates
+      if (_availableDates.length > 3) {
+        _availableDates = _availableDates.take(3).toList();
+      }
+
+      print('Generated Dates: $_availableDates'); // Debugging
+    });
+  }
+
+
+
+
+
 
   @override
   void dispose() {
@@ -96,22 +131,50 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   }
 
   Future<void> _selectDate() async {
-    DateTime now = DateTime.now();
-    DateTime tomorrow = now.add(const Duration(days: 1));
-
-    DateTime? selectedDate = await showDatePicker(
+    showDialog(
       context: context,
-      initialDate: tomorrow,
-      firstDate: tomorrow,
-      lastDate: DateTime(2101),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          title: const Text(
+            'Available Dates',
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _availableDates.map((date) {
+                return Column(
+                  children: [
+                    ListTile(
+                      contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                      title: Text(
+                        "${date.toLocal()}".split(' ')[0],
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      leading: Icon(Icons.calendar_today, color: Colors.blue),
+                      onTap: () {
+                        setState(() {
+                          _dateController.text = "${date.toLocal()}".split(' ')[0];
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Divider(thickness: 1.0, color: Colors.grey[300]),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
     );
-
-    if (selectedDate != null) {
-      setState(() {
-        _dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
-      });
-    }
   }
+
+
+
 
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
