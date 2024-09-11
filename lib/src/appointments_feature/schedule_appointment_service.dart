@@ -28,35 +28,17 @@ class ApiService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode(appointment.toJson()),
           )
-          .timeout(Duration(seconds: 10));
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 201) {
+        // Handle success
         return Appointment.fromJson(json.decode(response.body));
       } else {
         throw Exception(
             'Failed to create appointment. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      // Log the error or handle it appropriately
       throw Exception('Failed to create appointment: $e');
-    }
-  }
-
-  Future<bool> hasAppointment(String date) async {
-    try {
-      final response = await http
-          .get(Uri.parse('$baseUrl/appointments?date=$date'))
-          .timeout(Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        List jsonResponse = json.decode(response.body);
-        return jsonResponse.isNotEmpty;
-      } else {
-        throw Exception(
-            'Failed to check appointment. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to check appointment: $e');
     }
   }
 
@@ -64,6 +46,21 @@ class ApiService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userID');
     return userId;
+  }
+
+  Future<bool> hasAppointment(String date) async {
+    final userId = await getUserId();
+    final response =
+        await http.get(Uri.parse('$baseUrl/appointments/$userId?date=$date'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      List<Appointment> appointments = Appointment.listFromJson(data);
+
+      return appointments.any((appointment) => appointment.date == date);
+    } else {
+      throw Exception('Failed to load appointments');
+    }
   }
 
   Future<void> cancelAppointment(String appointmentId) async {
@@ -74,7 +71,7 @@ class ApiService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'status': 'cancelled'}),
           )
-          .timeout(Duration(seconds: 10));
+          .timeout(const Duration(seconds: 10));
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');

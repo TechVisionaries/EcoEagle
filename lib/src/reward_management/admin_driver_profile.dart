@@ -5,17 +5,16 @@ class AdminDriverProfile extends StatelessWidget {
 
   static const routeName = '/rewards_adminDriverProfile';
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Driver Profile'),
+        title: const Text('Driver Profile'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -27,44 +26,44 @@ class AdminDriverProfile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage(
                     'assets/images/driver1.webp'), // replace with actual image asset
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "Ramon Watson",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 "Driver",
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Ranking: 1st, Points: 1234',
                 style: TextStyle(fontSize: 16, color: Colors.green),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   // Handle assign action
                 },
-                child: Text('Assign'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green, // Replaces `primary`
                   foregroundColor: Colors.white, // Replaces `onPrimary`
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
+                child: Text('Assign'),
               ),
-
-              SizedBox(height: 24),
-              Align(
+              const SizedBox(height: 24),
+              const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Reviews',
@@ -74,7 +73,7 @@ class AdminDriverProfile extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _buildReviewList(),
             ],
           ),
@@ -85,7 +84,7 @@ class AdminDriverProfile extends StatelessWidget {
         onTap: (index) {
           // Handle navigation
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Dashboard',
@@ -147,16 +146,16 @@ class AdminDriverProfile extends StatelessWidget {
             ),
             title: Text(
               review['name'],
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   review['date'],
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Row(
                   children: List.generate(5, (index) {
                     return Icon(
@@ -166,7 +165,7 @@ class AdminDriverProfile extends StatelessWidget {
                     );
                   }),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(review['review']),
               ],
             ),

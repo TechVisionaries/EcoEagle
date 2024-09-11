@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
-
-import '../reward_management/add_rating_view.dart';
-import '../reward_management/view_reviews.dart';
 import '../settings/settings_view.dart';
 import '../appointments_feature/schedule_appointment_view.dart';
-import '../appointments_feature/my_appointments_view.dart';
 import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
 
-/// Displays a list of options for navigation with a beautified UI.
-class SampleItemListView extends StatefulWidget {
-  const SampleItemListView({super.key});
+/// Displays a list of options for navigation with a beautified UI for the admin dashboard.
+class AdminDashboard extends StatefulWidget {
+  const AdminDashboard({super.key});
 
-  static const routeName = '/options';
+  static const routeName = Constants.adminDashboardRoute;
 
   @override
-  _SampleItemListViewState createState() => _SampleItemListViewState();
+  _AdminDashboardState createState() => _AdminDashboardState();
 }
 
-class _SampleItemListViewState extends State<SampleItemListView> {
+class _AdminDashboardState extends State<AdminDashboard> {
   int _selectedIndex = 0; // Track the selected index
 
   void _navigateToProfile(BuildContext context) {
@@ -37,7 +33,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
     });
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SampleItemListView()),
+      MaterialPageRoute(builder: (context) => const AdminDashboard()),
     );
   }
 
@@ -46,7 +42,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Home Page',
+          'Admin Dashboard',
           style: TextStyle(
             fontWeight: FontWeight.bold, // Bold text
             color: Colors.white, // White text color
@@ -85,38 +81,10 @@ class _SampleItemListViewState extends State<SampleItemListView> {
           children: [
             _buildNavigationTile(
               context,
-              title: 'Schedule Appointment',
-              icon: Icons.schedule,
+              title: 'Reports Generation',
+              icon: Icons.report,
               color: Colors.purple,
               routeName: ScheduleAppointmentView.routeName,
-            ),
-            _buildNavigationTile(
-              context,
-              title: 'My Appointments',
-              icon: Icons.assignment,
-              color: Colors.green,
-              routeName: MyAppointmentsView.routeName,
-            ),
-            _buildNavigationTile(
-              context,
-              title: 'Rate Driver',
-              icon: Icons.rate_review,
-              color: Colors.orange,
-              routeName: RateDriverScreen.routeName,
-            ),
-            _buildNavigationTile(
-              context,
-              title: 'My Reviews',
-              icon: Icons.reviews,
-              color: Colors.redAccent,
-              routeName: MyReviewsScreen.routeName,
-            ),
-            _buildNavigationTile(
-              context,
-              title: 'Driver Map',
-              icon: Icons.map,
-              color: Colors.teal,
-              routeName: Constants.wasteMapDriverRoute,
             ),
           ],
         ),

@@ -16,7 +16,6 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNoController = TextEditingController();
   final TextEditingController _houseNoController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -24,6 +23,7 @@ class _SignUpState extends State<SignUp> {
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false; // Track loading state
 
   // Validation error messages
   String? _firstNameError;
@@ -35,6 +35,36 @@ class _SignUpState extends State<SignUp> {
   String? _streetError;
   String? _passwordError;
   String? _confirmPasswordError;
+
+  String? _selectedCity;
+
+  // List of cities in ascending order
+  final List<String> _cities = [
+    "Athurugiriya",
+    "Badulla",
+    "Bentota",
+    "Colombo",
+    "Galle",
+    "Gampaha",
+    "Jaffna",
+    "Kalmunai",
+    "Kalutara",
+    "Kandy",
+    "Kesbewa",
+    "Kolonnawa",
+    "Kurunegala",
+    "Maharagama",
+    "Mannar",
+    "Matara",
+    "Moratuwa",
+    "Mount Lavinia",
+    "Negombo",
+    "Puttalam",
+    "Ratnapura",
+    "Sri Jayewardenepura Kotte",
+    "Trincomalee",
+    "Weligama"
+  ];
 
   @override
   void initState() {
@@ -55,9 +85,6 @@ class _SignUpState extends State<SignUp> {
     });
     _houseNoController.addListener(() {
       _validateHouseNo();
-    });
-    _cityController.addListener(() {
-      _validateCity();
     });
     _streetController.addListener(() {
       _validateStreet();
@@ -126,16 +153,6 @@ class _SignUpState extends State<SignUp> {
     });
   }
 
-  void _validateCity() {
-    setState(() {
-      if (_cityController.text.isEmpty) {
-        _cityError = 'City is required';
-      } else {
-        _cityError = null;
-      }
-    });
-  }
-
   void _validateStreet() {
     setState(() {
       if (_streetController.text.isEmpty) {
@@ -168,8 +185,22 @@ class _SignUpState extends State<SignUp> {
     });
   }
 
+  void _validateCity() {
+    setState(() {
+      if (_selectedCity == null || _selectedCity!.isEmpty) {
+        _cityError = 'City is required';
+      } else {
+        _cityError = null;
+      }
+    });
+  }
+
   Future<void> _registerUser() async {
     if (!_validateForm()) return;
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
 
     final baseUrl = dotenv.env[Constants.baseURL];
     final response = await http.post(
@@ -180,7 +211,7 @@ class _SignUpState extends State<SignUp> {
         'email': _emailController.text,
         'phoneNo': _phoneNoController.text,
         'houseNo': _houseNoController.text,
-        'city': _cityController.text,
+        'city': _selectedCity,
         'street': _streetController.text,
         'password': _passwordController.text,
         'confirmPassword': _confirmPasswordController.text,
@@ -188,11 +219,16 @@ class _SignUpState extends State<SignUp> {
       },
     );
 
+    setState(() {
+      _isLoading = false; // Hide loading indicator
+    });
+
     if (response.statusCode == 201) {
       // Handle success
       Navigator.pop(context); // Return to the sign-in page
     } else {
       // Handle error
+      // You might want to show an error message here
     }
   }
 
@@ -306,12 +342,25 @@ class _SignUpState extends State<SignUp> {
                           errorText: _houseNoError,
                         ),
                       ),
-                      TextField(
-                        controller: _cityController,
+                      DropdownButtonFormField<String>(
+                        value: _selectedCity,
                         decoration: InputDecoration(
                           labelText: 'City',
                           errorText: _cityError,
                         ),
+                        items: _cities
+                            .map<DropdownMenuItem<String>>((String city) {
+                          return DropdownMenuItem<String>(
+                            value: city,
+                            child: Text(city),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedCity = newValue;
+                            _validateCity();
+                          });
+                        },
                       ),
                       TextField(
                         controller: _streetController,
@@ -363,7 +412,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: _registerUser,
+                        onPressed: _isLoading ? null : _registerUser,
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
@@ -372,10 +421,21 @@ class _SignUpState extends State<SignUp> {
                           backgroundColor: const Color.fromARGB(
                               255, 79, 102, 124), // Blue color for button
                         ),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
+                        child: _isLoading
+                            ? const Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
+                              ),
                       ),
                       const SizedBox(height: 20),
                     ],

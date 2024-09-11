@@ -5,7 +5,6 @@ class DriverProfile extends StatelessWidget {
 
   static const routeName = '/rewards_DriverProfile';
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +20,7 @@ class DriverProfile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: AssetImage(
                   'assets/images/driver1.webp'), // Add the correct path to the profile image
               radius: 50,
@@ -111,4 +110,3 @@ class DriverProfile extends StatelessWidget {
     );
   }
 }
-
