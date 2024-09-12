@@ -4,6 +4,7 @@ import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleAppointmentView extends StatefulWidget {
   final ApiService apiService;
@@ -23,11 +24,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   bool _isLoading = false;
   bool _isMapLoading = true; // Flag for map loading state
   LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
-
   late GoogleMapController _mapController;
-
   List<DateTime> _availableDates = [];
-
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -37,6 +36,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       _checkPermissions();
     });
   }
+
   void _generateAvailableDates() {
     final now = DateTime.now();
     final startDate = now.add(Duration(days: 1)); // Start from the day after the current date
@@ -63,11 +63,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       print('Generated Dates: $_availableDates'); // Debugging
     });
   }
-
-
-
-
-
 
   @override
   void dispose() {
@@ -130,51 +125,12 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
     }
   }
 
-  Future<void> _selectDate() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: const Text(
-            'Available Dates',
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _availableDates.map((date) {
-                return Column(
-                  children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                      title: Text(
-                        "${date.toLocal()}".split(' ')[0],
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      leading: Icon(Icons.calendar_today, color: Colors.blue),
-                      onTap: () {
-                        setState(() {
-                          _dateController.text = "${date.toLocal()}".split(' ')[0];
-                        });
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    Divider(thickness: 1.0, color: Colors.grey[300]),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    );
+  Future<void> _selectDate(DateTime selectedDate) async {
+    setState(() {
+      _selectedDate = selectedDate;
+      _dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
+    });
   }
-
-
-
 
   Future<void> _submitAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -247,10 +203,27 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Image.asset(
-              'assets/images/appointments.webp',
-              height: 200,
-              fit: BoxFit.cover,
+            TableCalendar(
+              focusedDay: _selectedDate,
+              selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
+              onDaySelected: (selectedDay, focusedDay) {
+                _selectDate(selectedDay);
+              },
+              firstDay: DateTime.now().subtract(Duration(days: 365)),
+              lastDay: DateTime.now().add(Duration(days: 365)),
+              calendarStyle: CalendarStyle(
+                selectedDecoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+              ),
             ),
             const SizedBox(height: 16),
             Form(
@@ -264,7 +237,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                       labelText: 'Schedule Date',
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.calendar_today),
-                        onPressed: _selectDate,
+                        onPressed: () {
+                          // You can trigger the calendar view here if needed
+                        },
                       ),
                       border: const OutlineInputBorder(),
                     ),
@@ -315,7 +290,6 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                         ? const CircularProgressIndicator()
                         : const Text('Submit Appointment'),
                   ),
-
                 ],
               ),
             ),
