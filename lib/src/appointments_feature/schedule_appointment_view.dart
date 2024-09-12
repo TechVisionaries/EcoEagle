@@ -23,44 +23,15 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   final _dateController = TextEditingController();
   bool _isLoading = false;
   bool _isMapLoading = true; // Flag for map loading state
-  LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
+  LatLng _selectedLocation = const LatLng(0, 0); // Default to a neutral location
   late GoogleMapController _mapController;
-  List<DateTime> _availableDates = [];
   DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _generateAvailableDates();
       _checkPermissions();
-    });
-  }
-
-  void _generateAvailableDates() {
-    final now = DateTime.now();
-    final startDate = now.add(Duration(days: 1)); // Start from the day after the current date
-    final endDate = startDate.add(Duration(days: 7)); // End one week from startDate
-
-    setState(() {
-      _availableDates = [];
-
-      DateTime current = startDate;
-
-      // Loop through the week and add dates only if they are Sunday or Wednesday
-      while (current.isBefore(endDate)) {
-        if (current.weekday == DateTime.sunday || current.weekday == DateTime.wednesday) {
-          _availableDates.add(current);
-        }
-        current = current.add(Duration(days: 1)); // Move to the next day
-      }
-
-      // Ensure we have exactly 3 dates
-      if (_availableDates.length > 3) {
-        _availableDates = _availableDates.take(3).toList();
-      }
-
-      print('Generated Dates: $_availableDates'); // Debugging
     });
   }
 
@@ -204,24 +175,20 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             TableCalendar(
-              focusedDay: _selectedDate,
+              focusedDay: _selectedDate.isAfter(DateTime.now())
+                  ? _selectedDate
+                  : DateTime.now().add(const Duration(days: 1)), // Ensure focusedDay is a future date
               selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
               onDaySelected: (selectedDay, focusedDay) {
                 _selectDate(selectedDay);
               },
-              firstDay: DateTime.now().subtract(Duration(days: 365)),
-              lastDay: DateTime.now().add(Duration(days: 365)),
-              calendarStyle: CalendarStyle(
-                selectedDecoration: BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              headerStyle: HeaderStyle(
+              firstDay: DateTime.now().add(const Duration(days: 1)), // Start from tomorrow
+              lastDay: DateTime.now().add(const Duration(days: 365)), // Allows selection up to one year in the future
+              enabledDayPredicate: (day) {
+                // Only allow future dates
+                return day.isAfter(DateTime.now());
+              },
+              headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
               ),
             ),
