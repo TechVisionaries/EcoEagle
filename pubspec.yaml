@@ -1,3 +1,4 @@
+
 name: trashtrek
 description: "Flutter Mobile App for SPM Module."
 
@@ -24,6 +25,11 @@ dependencies:
   flutter_rating_bar: ^4.0.0
   flutter_compass: ^0.8.0
   flutter_tts: ^4.0.2
+  flutter_plugin_android_lifecycle: ^2.0.22
+  path_provider: ^2.1.4
+  pdf: ^3.11.1
+  lottie: ^3.1.2
+  animated_splash_screen: ^1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -42,3 +48,4 @@ flutter:
     - assets/images/profile.png
     - assets/images/
     - assets/.env
+    - assets/animations/splashAnimation.json
