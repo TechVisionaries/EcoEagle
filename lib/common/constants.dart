@@ -7,7 +7,8 @@ class Constants {
   static const wasteMapResidentRoute = '/wastemap/resident';
   static const appointmentsRoute = '/appointments';
   static const myAppointmentsRoute = '/my_appointments';
-  static const signInRoute = '/';
+  static const spashScreenRoute = '/';
+  static const signInRoute = '/signIn';
   static const signUpRoute = '/signup';
   static const userProfileRoute = '/user_profile';
   static const edtuserProfileRoute = '/editProfile';

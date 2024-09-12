@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/user_management_feature/adminReports.dart';
 import '../settings/settings_view.dart';
-import '../appointments_feature/schedule_appointment_view.dart';
 import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
 
 /// Displays a list of options for navigation with a beautified UI for the admin dashboard.
