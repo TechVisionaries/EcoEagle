@@ -15,12 +15,12 @@ void main() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   NotificationSettings settings = await messaging.requestPermission();
 
-  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    await Firebase.initializeApp();
-    print('Received background message: ${message.notification?.title}');
-  }
+  // Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  //   await Firebase.initializeApp();
+  //   print('Received background message: ${message.notification?.title}');
+  // }
 
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.

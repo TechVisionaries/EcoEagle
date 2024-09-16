@@ -4,41 +4,50 @@ class Appointment {
   final String? id;
   final String? userId;
   final String date;
-  final LatLng location;  // Updated field
+  final LatLng location; // Correct field
   String status;
-  String? driver; // Updated field
+  String? driver; // Correct field
 
   Appointment({
     this.id,
     required this.userId,
     required this.date,
-    required this.location, // Updated field
+    required this.location, // Correct field
     required this.status,
-    this.driver, // Updated field
+    this.driver, // Correct field
   });
 
+  // Factory method to convert JSON into an Appointment object
   factory Appointment.fromJson(Map<String, dynamic> json) {
     return Appointment(
       id: json['_id'] as String?,
       userId: json['userId'] as String?,
       date: json['date'] as String,
-      location: json['location'] as LatLng, // Updated field
+      location: LatLng(
+        json['location']['latitude'] as double,
+        json['location']['longitude'] as double,
+      ), // Corrected field for LatLng parsing
       status: json['status'] as String,
       driver: json['driver'] as String?,
     );
   }
 
+  // Method to convert an Appointment object into JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'userId': userId,
       'date': date,
-      'location': location, // Updated field
+      'location': {
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+      }, // Corrected field for LatLng conversion
       'status': status,
-      'driver': driver, // Updated field
+      'driver': driver,
     };
   }
 
+  // Static method to create a list of Appointment objects from a JSON list
   static List<Appointment> listFromJson(List<dynamic> jsonList) {
     return jsonList
         .map((json) => Appointment.fromJson(json as Map<String, dynamic>))

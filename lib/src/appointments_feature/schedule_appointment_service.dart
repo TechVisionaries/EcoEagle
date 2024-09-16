@@ -84,4 +84,36 @@ class ApiService {
       throw Exception('Failed to cancel appointment: $e');
     }
   }
+
+  Future<List<Appointment>> fetchDriverAppointments(String userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/appointments/driver/$userId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return Appointment.listFromJson(data);
+    } else {
+      throw Exception('Failed to load appointments');
+    }
+  }
+
+  Future<void> completeAppointment(String appointmentId) async {
+    try {
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/appointments/complete/$appointmentId'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to cancel appointment. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to cancel appointment: $e');
+    }
+  }
 }
