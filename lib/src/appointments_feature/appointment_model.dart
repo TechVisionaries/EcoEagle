@@ -4,15 +4,17 @@ class Appointment {
   final String? id;
   final String? userId;
   final String date;
-  final LatLng location; 
+  final LatLng location;  // Updated field
   String status;
+  String? driver; // Updated field
 
   Appointment({
     this.id,
     required this.userId,
     required this.date,
-    required this.location,
+    required this.location, // Updated field
     required this.status,
+    required this.driver, // Updated field
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class Appointment {
       date: json['date'] as String,
       location: json['location'] as LatLng, // Updated field
       status: json['status'] as String,
+      driver: json['driver'] as String,
     );
   }
 
@@ -30,8 +33,9 @@ class Appointment {
       'id': id,
       'userId': userId,
       'date': date,
-      'location': location.toJson(), // Updated field
+      'location': location, // Updated field
       'status': status,
+      'driver': driver, // Updated field
     };
   }
 
