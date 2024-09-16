@@ -545,8 +545,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     }
   }
 
-  void _stopCompleteDialog(dynamic currentAppointment) {
-    final commentController = TextEditingController(text: currentAppointment['comment']);
+  void _stopCompleteDialog(MapAppointment currentAppointment) {
+    final commentController = TextEditingController(text: currentAppointment.comment);
 
     showDialog(
       context: context,
@@ -556,7 +556,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Address: ${currentAppointment['address']}"),
+            Text("Address: ${currentAppointment.address}"),
             TextField(
               controller: commentController,
               maxLines: 3,
@@ -581,13 +581,10 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
                   throw Exception('Token is empty');
                 }
 
-                // await _updateReviewService.updateReview(
-                //     review.id, rating, comment, token);
-                // Navigator.pop(context);
-                // setState(() {
-                //   _reviewsFuture =
-                //       _loadReviews(); // Refresh reviews after update
-                // });
+                await apiService.completeAppointment(currentAppointment.id ?? "");
+                setState(() {
+                  _loadRoute(); // Refresh reviews after update
+                });
 
                 // Show success message
                 _showSuccessMessage('Stop completed successfully!');

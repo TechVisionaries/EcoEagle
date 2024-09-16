@@ -55,6 +55,7 @@ class MapAppointment extends Appointment{
   final String address;
   final String duration;
   final String distance;
+  final String? comment;
   final int durationValue;
   final int distanceValue;
 
@@ -64,16 +65,19 @@ class MapAppointment extends Appointment{
     required super.location, 
     required super.status,
     super.driver,
+    super.id,
     required this.address,
     required this.duration,
     required this.distance,
     required this.durationValue,
     required this.distanceValue,
+    this.comment,
   });
 
   factory MapAppointment.fromJson(Map<String, dynamic> json) {
     return MapAppointment(
       userId: json['userId'] as String?,
+      id: json['id'] as String?,
       date: json['date'] as String,
       address: json['address'] as String,
       duration: json['duration'] as String,
@@ -83,6 +87,7 @@ class MapAppointment extends Appointment{
       location: json['location'] as LatLng,
       status: json['status'] as String,
       driver: json['driver'] as String?,
+      comment: json['comment'] as String?,
     );
   }
 
@@ -103,6 +108,7 @@ class MapAppointment extends Appointment{
       'distance': distance,
       'durationValue': durationValue,
       'distanceValue': distanceValue,
+      'comment': comment,
     };
   }
 
