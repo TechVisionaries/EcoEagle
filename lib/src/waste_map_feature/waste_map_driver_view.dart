@@ -1,10 +1,14 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/common/strings.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -22,17 +26,24 @@ class WasteMapDriverView extends StatefulWidget {
 }
 
 class WasteMapDriverViewState extends State<WasteMapDriverView> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<CompassEvent>? _headingStreamSubscription;
   GoogleMapController? mapController;
+  late String _userID;
   late double currentZoomLevel;
   final List _instructions = [];
+  final List _appointmentList = [];
   int _currentInstructionIndex = 0;
+  int _currentAddressIndex = 0;
   double? _currentHeading;
+  String? apiKey = dotenv.env[Constants.googleApiKey];
   bool routeReady = false;
   bool journeyStarted = false;
   bool ignoreMove = false;
   bool isCentered = false;
+  bool isLoading = true;
+  bool isOpen = false;
   final Set<Marker> _markers = {};
   LatLng _initialPosition = const LatLng(37.4219983, -122.084);
   List<LatLng> _routePoints = [];
@@ -41,9 +52,9 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     _getCompassHeading();
     _requestLocationPermission();
-    _displayAppointments();
   }
 
   @override
@@ -118,9 +129,16 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     );
   }
 
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userID = prefs.getString('userID') ?? 'User';
+    });
+  }
+
   // Get the current location and start listening for location changes
   void _getUserLocation() async {
-    var currentLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    var currentLocation = await Geolocator.getCurrentPosition(locationSettings: AndroidSettings(accuracy: LocationAccuracy.bestForNavigation));
     // final icondescriptor = await BitmapDescriptor.asset(ImageConfiguration.empty, 'assets/truck.png');
     if (mounted) {
     setState(() {
@@ -133,13 +151,31 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
-        // distanceFilter: 10
       )
     ).listen((Position position) async {
+      _updateLocationInFirestore(position);
       if (mounted) {
         double? zoomLevel = await mapController?.getZoomLevel();
+        if (_appointmentList.isNotEmpty && _currentAddressIndex < _appointmentList.length && journeyStarted) {
+          double distanceToNextStop = Geolocator.distanceBetween(
+            currentLocation.latitude,
+            currentLocation.longitude,
+            _appointmentList[_currentInstructionIndex]['location']?.latitude,
+            _appointmentList[_currentInstructionIndex]['location']?.longitude,
+          );
 
-        if (_instructions.isNotEmpty && _currentInstructionIndex < _instructions.length) {
+          if (distanceToNextStop < 10 && !isOpen) { // Within 10 meters of the next turn
+            setState(() {
+              isOpen = true;
+              _stopCompleteDialog(_appointmentList[_currentAddressIndex]);
+              _currentAddressIndex++;
+            });
+          }
+        } else {
+          print('No addresses available or invalid index');
+        }
+
+        if (_instructions.isNotEmpty && _currentInstructionIndex < _instructions.length && journeyStarted) {
           double distanceToNextTurn = Geolocator.distanceBetween(
             currentLocation.latitude,
             currentLocation.longitude,
@@ -149,6 +185,10 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 
           if (distanceToNextTurn < 30) { // Within 30 meters of the next turn
             setState(() {
+              _instructions[_currentInstructionIndex] = {
+                ..._instructions[_currentInstructionIndex],
+                'isCompleted': true,
+              };
               _currentInstructionIndex++; // Move to the next turn instruction
               _speakTurnInstruction(_instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''));
             });
@@ -195,14 +235,14 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   }
 
   void _displayAppointments() async {
-    for (LatLng appointment in widget.appointments) {
-      _addMarker(appointment, '');
+    for (var i = 0; i < _appointmentList.length; i++) {
+      _addMarker(_appointmentList[i]['location'], _appointmentList[i]['address']);
     }
   }
 
   String getDirectionsUrl(LatLng origin, List<LatLng> waypoints, LatLng destination) {
     final waypointsString = waypoints.map((e) => '${e.latitude},${e.longitude}').join('|');
-    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=optimize:true|$waypointsString&key=AIzaSyAF7z74_GI2uDrs1tJaar3fxmkwHAqI4SA';
+    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=optimize:true|$waypointsString&key=$apiKey';
     return url;
   }
 
@@ -220,6 +260,12 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       // Parse the steps for turn-by-turn instructions
       for(var leg in legs){
         final steps = leg['steps'];
+        _appointmentList.add({
+          'address': leg['end_address'],
+          'location': LatLng(leg['end_location']['lat'], leg['end_location']['lng']),
+          'duration': leg['duration']['text'],
+          'distance': leg['distance']['text'],
+        });
         for (var step in steps) {
           final instruction = step['html_instructions']; // Contains turn instructions in HTML format
           final distance = step['distance']['text'];
@@ -231,12 +277,14 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
             'instruction': instruction,
             'location': location,
             'distance': distance,
-            'duration': duration
+            'duration': duration,
+            'isCompleted': false
           });
         }
       }
       
 
+      _displayAppointments();
       return decodePoly(route['overview_polyline']['points']);
     } else {
       throw Exception('Failed to load directions');
@@ -246,7 +294,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   String getSnapToRoadsUrl(List<LatLng> waypoints) {
     final pathString = waypoints.map((e) => '${e.latitude},${e.longitude}').join('|');
     
-    final url = 'https://roads.googleapis.com/v1/snapToRoads?path=$pathString&interpolate=true&key=AIzaSyAF7z74_GI2uDrs1tJaar3fxmkwHAqI4SA';
+    final url = 'https://roads.googleapis.com/v1/snapToRoads?path=$pathString&interpolate=true&key=$apiKey';
     return url;
   }
 
@@ -325,6 +373,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
         routeReady = true;
         isCentered = true;
         ignoreMove = true;
+        isLoading = false;
       });
 
       mapController?.animateCamera(
@@ -348,12 +397,12 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     }
   }
   // Add a marker on the map
-  void _addMarker(LatLng position, String label) {
+  void _addMarker(LatLng position, String label, {double color = BitmapDescriptor.hueCyan}) {
     final marker = Marker(
       markerId: MarkerId(label),
       position: position,
       infoWindow: InfoWindow(title: label),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+      icon: BitmapDescriptor.defaultMarkerWithHue(color),
     );
 
     setState(() {
@@ -366,12 +415,25 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     mapController = controller;
   }
 
-  void _startJourney() async {
+  void _startJourney({bool speak = true}) async {
     setState(() {
       isCentered = true;
       journeyStarted = true;
       ignoreMove = true;
     });
+    
+    try {
+      // Find the marker with MarkerId 'selected'
+      Marker marker = _markers.firstWhere(
+        (element) => element.markerId == const MarkerId("selected"),
+      );
+
+      // Remove the marker if found
+      _markers.remove(marker);
+    } catch (e) {
+      // Handle the case where no marker is found
+      print("Marker with ID 'selected' not found");
+    }
     mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -387,12 +449,135 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       ignoreMove = false;
     });
     
-    _speakTurnInstruction(_instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''));
+    if(speak){
+      _speakTurnInstruction(_instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''));
+    }
   }
 
+  Future<void> _updateLocationInFirestore(Position position) async {
+    List<dynamic> instructs = [];
+    if (_instructions.isNotEmpty && _currentInstructionIndex < _instructions.length) {
+      for (var element in _instructions) {
+        instructs.add({
+          'distance': element['distance'],
+          'duration': element['duration'],
+          'isCompleted': element['isCompleted']
+        });
+      }
+    }
+    _firestore.collection('drivers').doc(_userID).set({
+      'location': GeoPoint(position.latitude, position.longitude),
+      'journeyStarted': journeyStarted,
+      'instructions': instructs
+    });
+  }
 
   Future<void> _speakTurnInstruction(String instruction) async {
     await flutterTts.speak(instruction);
+  }
+
+  void _showLocationOnMap(dynamic address, ScrollController scrollController){
+    if(!journeyStarted){
+      _addMarker(address['location'], 'selected', color:BitmapDescriptor.hueRed);
+      mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(address['location'].latitude - 0.0055, address['location'].longitude),
+            zoom: 15,
+            bearing: 0,
+          )
+        )
+      );
+    }
+  }
+
+  void _stopCompleteDialog(dynamic currentAppointment) {
+    final commentController = TextEditingController(text: currentAppointment['comment']);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Arrived at stop!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Address: ${currentAppointment['address']}"),
+            TextField(
+              controller: commentController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Comment',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () async {
+              if(!mounted) return;
+              final comment = commentController.text;
+              
+              try {
+                final prefs = await SharedPreferences.getInstance();
+                final token = prefs.getString('token') ?? '';
+
+                if (token.isEmpty) {
+                  throw Exception('Token is empty');
+                }
+
+                // await _updateReviewService.updateReview(
+                //     review.id, rating, comment, token);
+                // Navigator.pop(context);
+                // setState(() {
+                //   _reviewsFuture =
+                //       _loadReviews(); // Refresh reviews after update
+                // });
+
+                // Show success message
+                _showSuccessMessage('Stop completed successfully!');
+              } catch (e) {
+                print('Error updating review: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update stop: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } finally{
+                setState(() {
+                  isOpen = false;
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Function to show a success message
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -406,7 +591,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
             color: Colors.white, // White text color
           ),
         ),
-        backgroundColor: Color.fromARGB(255, 94, 189, 149),
+        backgroundColor: const Color.fromARGB(255, 94, 189, 149),
         elevation: 0,
       ),
       body: Stack(
@@ -425,6 +610,20 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
               target: _initialPosition,
               zoom: 15.0,
             ),
+            onTap: (argument) {
+              try {
+                // Find the marker with MarkerId 'selected'
+                Marker marker = _markers.firstWhere(
+                  (element) => element.markerId == const MarkerId("selected"),
+                );
+
+                // Remove the marker if found
+                _markers.remove(marker);
+              } catch (e) {
+                // Handle the case where no marker is found
+                print("Marker with ID 'selected' not found");
+              }
+            },
             polylines: _routePoints.isNotEmpty
                 ? {
                     Polyline(
@@ -449,22 +648,60 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
             left: 0,
             right: 0,
             child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      _instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''),
-                      style: const TextStyle(fontSize: 18),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 5),
-                    Text('Next turn in ${_instructions[_currentInstructionIndex]['distance']}'),
-                  ],
-                ),
+              margin: const EdgeInsets.all(0),
+              shape: Border.all(width: 0),
+              color: const Color.fromARGB(255, 246, 253, 250),
+              child: Column(
+                children: [
+                  Text(
+                    _instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''),
+                    style: const TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 5),
+                  Text('Next turn in ${_instructions[_currentInstructionIndex]['distance']}'),
+                ],
               ),
             ),
+          ),
+          !journeyStarted ? 
+          DraggableScrollableSheet(
+            maxChildSize: 0.68, 
+            minChildSize: 0.1, 
+            initialChildSize: 0.5, 
+            expand: true,  // Expands to fill available space
+            builder: (BuildContext context, ScrollController scrollController) {
+              return LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints viewportConstraints) {
+                  return Container(
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                    child: ListView.builder(
+                      controller: scrollController,  // Use the provided scrollController
+                      itemCount: _appointmentList.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(_appointmentList[index]['address']),
+                          onTap: () => _showLocationOnMap(_appointmentList[index], scrollController),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
           )
+          :const SizedBox.shrink(),
+          isLoading ? const Align(
+            child: Card(
+              elevation: 10,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: CircularProgressIndicator(
+                  backgroundColor: Color.fromARGB(255, 94, 189, 149),
+                ),
+              )
+            )
+          ) : const SizedBox.shrink(),
         ],
       ),
       floatingActionButton: routeReady ? 
@@ -480,7 +717,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           : 
             ElevatedButton(
               onPressed: () {
-                _startJourney();
+                _startJourney(speak: false);
               },
               child: const Text('Recenter'),
             )
@@ -491,3 +728,23 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   }
 
 }
+
+class BottomBounceScrollPhysics extends BouncingScrollPhysics {
+  BottomBounceScrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
+
+  @override
+  BottomBounceScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return BottomBounceScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    // Only allow the bounce when scrolling downwards (towards the bottom)
+    if (value > position.pixels && position.pixels >= position.maxScrollExtent) {
+      return value - position.pixels; // Bounce at the bottom
+    }
+    return 0.0; // Prevent bouncing at the top
+  }
+}
+
+
