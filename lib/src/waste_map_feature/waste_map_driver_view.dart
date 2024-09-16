@@ -13,6 +13,9 @@ import 'package:trashtrek/common/strings.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
+import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/waste_map_feature/route_model.dart';
 
 class WasteMapDriverView extends StatefulWidget {
   const WasteMapDriverView({
@@ -28,10 +31,10 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<CompassEvent>? _headingStreamSubscription;
   GoogleMapController? mapController;
+  final ApiService apiService = ApiService();
   late String _userID;
   late double currentZoomLevel;
-  final List _instructions = [];
-  final List _appointmentList = [];
+  late MapRoute mapRoute = MapRoute(driver: '', locations: [], appointments: [], instructions: [], status: '');
   int _currentInstructionIndex = 0;
   int _currentAddressIndex = 0;
   double? _currentHeading;
@@ -154,18 +157,18 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       _updateLocationInFirestore(position);
       if (mounted) {
         double? zoomLevel = await mapController?.getZoomLevel();
-        if (_appointmentList.isNotEmpty && _currentAddressIndex < _appointmentList.length && journeyStarted) {
+        if (mapRoute.appointments.isNotEmpty && _currentAddressIndex < mapRoute.appointments.length && journeyStarted) {
           double distanceToNextStop = Geolocator.distanceBetween(
             currentLocation.latitude,
             currentLocation.longitude,
-            _appointmentList[_currentInstructionIndex]['location']?.latitude,
-            _appointmentList[_currentInstructionIndex]['location']?.longitude,
+            mapRoute.appointments[_currentInstructionIndex].location.latitude,
+            mapRoute.appointments[_currentInstructionIndex].location.longitude,
           );
 
           if (distanceToNextStop < 10 && !isOpen) { // Within 10 meters of the next turn
             setState(() {
               isOpen = true;
-              _stopCompleteDialog(_appointmentList[_currentAddressIndex]);
+              _stopCompleteDialog(mapRoute.appointments[_currentAddressIndex]);
               _currentAddressIndex++;
             });
           }
@@ -173,22 +176,22 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           print('No addresses available or invalid index');
         }
 
-        if (_instructions.isNotEmpty && _currentInstructionIndex < _instructions.length && journeyStarted) {
+        if (mapRoute.instructions.isNotEmpty && _currentInstructionIndex < mapRoute.instructions.length && journeyStarted) {
           double distanceToNextTurn = Geolocator.distanceBetween(
             currentLocation.latitude,
             currentLocation.longitude,
-            _instructions[_currentInstructionIndex]['location']?.latitude,
-            _instructions[_currentInstructionIndex]['location']?.longitude,
+            mapRoute.instructions[_currentInstructionIndex].location.latitude,
+            mapRoute.instructions[_currentInstructionIndex].location.longitude,
           );
 
           if (distanceToNextTurn < 30) { // Within 30 meters of the next turn
             setState(() {
-              _instructions[_currentInstructionIndex] = {
-                ..._instructions[_currentInstructionIndex],
+              mapRoute.instructions[_currentInstructionIndex] = Instruction.fromJson({
+                ...mapRoute.instructions[_currentInstructionIndex].toJson(),
                 'isCompleted': true,
-              };
+              });
               _currentInstructionIndex++; // Move to the next turn instruction
-              _speakTurnInstruction(_instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''));
+              _speakTurnInstruction(mapRoute.instructions[_currentInstructionIndex].instruction.replaceAll(RegExp(r'<[^>]*>'), ''));
             });
           }
         } else {
@@ -233,8 +236,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   }
 
   void _displayAppointments() async {
-    for (var i = 0; i < _appointmentList.length; i++) {
-      _addMarker(_appointmentList[i]['location'], _appointmentList[i]['address']);
+    for (var i = 0; i < mapRoute.locations.length; i++) {
+      _addMarker(mapRoute.appointments[i].location, mapRoute.appointments[i].address);
     }
   }
 
@@ -244,7 +247,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     return url;
   }
 
-  Future<List<LatLng>> fetchRoute(LatLng origin, List<LatLng> waypoints, LatLng destination) async {
+  Future<List<LatLng>> fetchRoute(LatLng origin, List<LatLng> waypoints, LatLng destination, List<Appointment> appts) async {
     final url = getDirectionsUrl(origin, waypoints, destination);
     final response = await http.get(Uri.parse(url));
 
@@ -256,31 +259,63 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       final legs = route['legs'];
 
       // Parse the steps for turn-by-turn instructions
+      List<MapAppointment> tempMapAppts = [];
+      List<Instruction> tempInstructions = [];
+      int i = 0;
       for(var leg in legs){
         final steps = leg['steps'];
-        _appointmentList.add({
-          'address': leg['end_address'],
-          'location': LatLng(leg['end_location']['lat'], leg['end_location']['lng']),
-          'duration': leg['duration']['text'],
-          'distance': leg['distance']['text'],
-        });
+        try {
+          if(appts.isNotEmpty && i < appts.length){
+          MapAppointment tmpMapApt = MapAppointment.fromJson({
+            ...appts[i].toJson(),
+            'address': leg['end_address'],
+            'location': LatLng(leg['end_location']['lat'], leg['end_location']['lng']),
+            'duration': leg['duration']['text'],
+            'distance': leg['distance']['text'],
+            'durationValue': leg['duration']['value'],
+            'distanceValue': leg['distance']['value'],
+          });
+          tempMapAppts.add(tmpMapApt);
+          }
+        } catch (e) {
+          print(e);
+        }
+        
+        // _appointmentList.add({
+        //   'address': leg['end_address'],
+        //   'location': LatLng(leg['end_location']['lat'], leg['end_location']['lng']),
+        //   'duration': leg['duration']['text'],
+        //   'distance': leg['distance']['text'],
+        // });
         for (var step in steps) {
           final instruction = step['html_instructions']; // Contains turn instructions in HTML format
           final distance = step['distance']['text'];
           final duration = step['duration']['text'];
+          final distanceValue = step['distance']['value'];
+          final durationValue = step['duration']['value'];
           final location = LatLng(step['end_location']['lat'], step['end_location']['lng']);
           
-          print('Turn Instruction: $instruction, Distance: $distance, Duration: $duration');
-          _instructions.add({
+          tempInstructions.add(Instruction.fromJson({
             'instruction': instruction,
             'location': location,
             'distance': distance,
             'duration': duration,
+            'distanceValue': distanceValue,
+            'durationValue': durationValue,
             'isCompleted': false
-          });
+          }));
         }
+        i++;
       }
       
+      setState(() {
+        mapRoute = MapRoute.fromJson({
+          'driver': _userID,
+          'instructions': tempInstructions,
+          'appointments': tempMapAppts,
+          'status': 'ready'
+        });
+      });
 
       _displayAppointments();
       return decodePoly(route['overview_polyline']['points']);
@@ -347,14 +382,38 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     return poly;
   }
 
+  Future<List<Appointment>> _fetchAppointments() async {
+    try {
+      return await apiService.fetchDriverAppointments(_userID);
+    } catch (e) {
+      _showErrorMessage("Error: $e");
+      return Future.error('Appontments not found');
+    }
+    
+  }
+
   void _loadRoute() async {
     try {
       List<List<LatLng>> chunks = [];
       List<LatLng> totalSnapPoints = [];
+      List<LatLng> locs = [];
+      late List<Appointment> tempAppts;
+      try {
+        tempAppts = await _fetchAppointments();
+        for (var appointment in tempAppts) {
+          locs.add(
+            appointment.location
+          );
+        }
+      } catch (e) {
+        _showErrorMessage("Error: $e");
+      }
+
       final routePoints = await fetchRoute(
         _initialPosition,
-        widget.appointments,
-        _initialPosition, // Assuming the last stop is the final destination
+        locs,
+        _initialPosition, // Assuming the last stop is the final destination,
+        tempAppts
       );
 
       for (var i = 0; i < routePoints.length; i += 100) {
@@ -418,6 +477,13 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       isCentered = true;
       journeyStarted = true;
       ignoreMove = true;
+      mapRoute = MapRoute(
+        driver: mapRoute.driver,
+        locations: mapRoute.locations,
+        appointments: mapRoute.appointments,
+        instructions: mapRoute.instructions,
+        status: 'started', // Update status
+      );
     });
     
     try {
@@ -448,25 +514,15 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     });
     
     if(speak){
-      _speakTurnInstruction(_instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''));
+      _speakTurnInstruction(mapRoute.instructions[_currentInstructionIndex].instruction.replaceAll(RegExp(r'<[^>]*>'), ''));
     }
   }
 
   Future<void> _updateLocationInFirestore(Position position) async {
-    List<dynamic> instructs = [];
-    if (_instructions.isNotEmpty && _currentInstructionIndex < _instructions.length) {
-      for (var element in _instructions) {
-        instructs.add({
-          'distance': element['distance'],
-          'duration': element['duration'],
-          'isCompleted': element['isCompleted']
-        });
-      }
-    }
     _firestore.collection('drivers').doc(_userID).set({
-      'location': GeoPoint(position.latitude, position.longitude),
+      'driverLocation': GeoPoint(position.latitude, position.longitude),
       'journeyStarted': journeyStarted,
-      'instructions': instructs
+      ...mapRoute.toJson()
     });
   }
 
@@ -474,13 +530,13 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     await flutterTts.speak(instruction);
   }
 
-  void _showLocationOnMap(dynamic address, ScrollController scrollController){
+  void _showLocationOnMap(MapAppointment appointment, ScrollController scrollController){
     if(!journeyStarted){
-      _addMarker(address['location'], 'selected', color:BitmapDescriptor.hueRed);
+      _addMarker(appointment.location, 'selected', color:BitmapDescriptor.hueRed);
       mapController?.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: LatLng(address['location'].latitude - 0.0055, address['location'].longitude),
+            target: LatLng(appointment.location.latitude - 0.0055, appointment.location.longitude),
             zoom: 15,
             bearing: 0,
           )
@@ -489,8 +545,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     }
   }
 
-  void _stopCompleteDialog(dynamic currentAppointment) {
-    final commentController = TextEditingController(text: currentAppointment['comment']);
+  void _stopCompleteDialog(MapAppointment currentAppointment) {
+    final commentController = TextEditingController(text: currentAppointment.comment);
 
     showDialog(
       context: context,
@@ -500,7 +556,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Address: ${currentAppointment['address']}"),
+            Text("Address: ${currentAppointment.address}"),
             TextField(
               controller: commentController,
               maxLines: 3,
@@ -525,24 +581,16 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
                   throw Exception('Token is empty');
                 }
 
-                // await _updateReviewService.updateReview(
-                //     review.id, rating, comment, token);
-                // Navigator.pop(context);
-                // setState(() {
-                //   _reviewsFuture =
-                //       _loadReviews(); // Refresh reviews after update
-                // });
+                await apiService.completeAppointment(currentAppointment.id ?? "");
+                setState(() {
+                  _loadRoute(); // Refresh reviews after update
+                });
 
                 // Show success message
                 _showSuccessMessage('Stop completed successfully!');
               } catch (e) {
                 print('Error updating review: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update stop: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                _showErrorMessage('Failed to update stop: $e');
               } finally{
                 setState(() {
                   isOpen = false;
@@ -569,6 +617,26 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           ],
         ),
         backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.cancel, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: const Color.fromARGB(255, 255, 0, 89),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -639,7 +707,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
             mapToolbarEnabled: true,
             compassEnabled: true,
           ),
-          (_instructions.isEmpty || !journeyStarted) ? 
+          (mapRoute.instructions.isEmpty || !journeyStarted) ? 
           const SizedBox.shrink() :
           Positioned(
             top: 0,
@@ -652,12 +720,12 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
               child: Column(
                 children: [
                   Text(
-                    _instructions[_currentInstructionIndex]['instruction'].replaceAll(RegExp(r'<[^>]*>'), ''),
+                    mapRoute.instructions[_currentInstructionIndex].instruction.replaceAll(RegExp(r'<[^>]*>'), ''),
                     style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 5),
-                  Text('Next turn in ${_instructions[_currentInstructionIndex]['distance']}'),
+                  Text('Next turn in ${mapRoute.instructions[_currentInstructionIndex].distance}'),
                 ],
               ),
             ),
@@ -675,11 +743,11 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
                     color: const Color.fromARGB(255, 255, 255, 255),
                     child: ListView.builder(
                       controller: scrollController,  // Use the provided scrollController
-                      itemCount: _appointmentList.length,
+                      itemCount: mapRoute.appointments.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          title: Text(_appointmentList[index]['address']),
-                          onTap: () => _showLocationOnMap(_appointmentList[index], scrollController),
+                          title: Text(mapRoute.appointments[index].address),
+                          onTap: () => _showLocationOnMap(mapRoute.appointments[index], scrollController),
                         );
                       },
                     ),
