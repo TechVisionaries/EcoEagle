@@ -15,10 +15,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
 
 class WasteMapDriverView extends StatefulWidget {
-  final List<LatLng> appointments;
   const WasteMapDriverView({
     super.key,
-    this.appointments = const [LatLng(6.920840, 79.965214),LatLng(6.919864, 79.975036),LatLng(6.924735, 79.968814),LatLng(6.915975, 79.970694),LatLng(6.924028, 79.964268),LatLng(6.922649, 79.973089),LatLng(6.919114, 79.974789),LatLng(6.916233, 79.974156),]
   });
 
   @override
