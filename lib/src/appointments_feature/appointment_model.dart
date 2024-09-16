@@ -14,7 +14,7 @@ class Appointment {
     required this.date,
     required this.location, // Updated field
     required this.status,
-    required this.driver, // Updated field
+    this.driver, // Updated field
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -24,7 +24,7 @@ class Appointment {
       date: json['date'] as String,
       location: json['location'] as LatLng, // Updated field
       status: json['status'] as String,
-      driver: json['driver'] as String,
+      driver: json['driver'] as String?,
     );
   }
 
