@@ -536,7 +536,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       mapController?.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: LatLng(appointment.location.latitude - 0.0055, appointment.location.longitude),
+            target: LatLng(appointment.location.latitude - 0.0105, appointment.location.longitude),
             zoom: 15,
             bearing: 0,
           )
@@ -646,6 +646,40 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     );
   }
 
+  String _getTotalDistanceUpToIndex(int index) {
+    // Summing all distance values from 0 to the current index and converting to kilometers
+    double totalDistanceInMeters = mapRoute.appointments
+        .take(index + 1)  // Only take elements up to the current index (inclusive)
+        .map((appointment) => appointment.distanceValue)  // Extract the distanceValue from each appointment
+        .fold(0.0, (prev, element) => prev + element);  // Sum up the distances
+
+    double totalDistanceInKilometers = totalDistanceInMeters / 1000;  // Convert meters to kilometers
+
+    return totalDistanceInKilometers.toStringAsFixed(2) + " km";  // Format the result to 2 decimal places
+  }
+
+  String _getTotalDurationUpToIndex(int index) {
+    // Summing all duration values from 0 to the current index in seconds
+    int totalDurationInSeconds = mapRoute.appointments
+        .take(index + 1)  // Only take elements up to the current index (inclusive)
+        .map((appointment) => appointment.durationValue)  // Extract the durationValue from each appointment
+        .fold(0, (prev, element) => prev + element);  // Sum up the durations
+
+    // Convert seconds into hours and minutes
+    int hours = totalDurationInSeconds ~/ 3600;  // Get the number of full hours
+    int minutes = (totalDurationInSeconds % 3600) ~/ 60;  // Get the remaining minutes after hours
+
+    // Return formatted time (e.g., "1h 15m" or "45m")
+    if (hours > 0) {
+      return "${hours}h ${minutes}m";
+    } else {
+      return "${minutes}m";
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -732,8 +766,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           ),
           !journeyStarted ? 
           DraggableScrollableSheet(
-            maxChildSize: 0.68, 
-            minChildSize: 0.1, 
+            maxChildSize: 0.8, 
+            minChildSize: 0.3, 
             initialChildSize: 0.5, 
             expand: true,  // Expands to fill available space
             builder: (BuildContext context, ScrollController scrollController) {
@@ -741,19 +775,89 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
                 builder: (BuildContext context, BoxConstraints viewportConstraints) {
                   return Container(
                     color: const Color.fromARGB(255, 255, 255, 255),
-                    child: ListView.builder(
-                      controller: scrollController,  // Use the provided scrollController
-                      itemCount: mapRoute.appointments.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(mapRoute.appointments[index].address),
-                          onTap: () => _showLocationOnMap(mapRoute.appointments[index], scrollController),
-                        );
-                      },
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Text(
+                            "Appointments",
+                            style: TextStyle(fontSize: 25, ),
+                          ),
+                        ),
+                        Expanded(  // Ensure ListView takes available space within the column
+                          child: mapRoute.appointments.isNotEmpty ? ListView.builder(
+                            controller: scrollController,  // Use the provided scrollController
+                            itemCount: mapRoute.appointments.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.location_pin),
+                                            Expanded(
+                                              child: Text(
+                                                mapRoute.appointments[index].address,
+                                                style: const TextStyle(
+                                                  overflow: TextOverflow.ellipsis
+                                                ),
+                                              )
+                                            )
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("Distance: ${_getTotalDistanceUpToIndex(index)}"), // add all distance values up to index
+                                            ),
+                                            Expanded(
+                                              child: Text("ETA: ${_getTotalDurationUpToIndex(index)}"), // add all distance values up to index
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ),
+                                onTap: () => _showLocationOnMap(mapRoute.appointments[index], scrollController),
+                              );
+                            },
+                          )
+                            :
+                          const Center(child: Text("No Appointments for today!"),)
+                        ),
+                        if (!journeyStarted && mapRoute.appointments.isNotEmpty) 
+                          Padding(
+                            padding: const EdgeInsets.all(10),  // Add some spacing around the button
+                            child: TextButton(
+                              style: const ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll( 
+                                  Color.fromARGB(255, 94, 189, 149),
+                                ),
+                                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+                                minimumSize: WidgetStatePropertyAll(Size(800, 50))
+                              ),
+                              onPressed: () {
+                                _startJourney();  // Start journey when camera is centered
+                              },
+                              child: const Text(
+                                'Start Journey',
+                                style: TextStyle(
+                                  color: Colors.white
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   );
                 },
               );
+
             },
           )
           :const SizedBox.shrink(),
@@ -772,14 +876,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       ),
       floatingActionButton: routeReady ? 
           (isCentered ? 
-            (!journeyStarted ? 
-              ElevatedButton(
-                onPressed: () {
-                  _startJourney();  // Start journey when camera is centered
-                },
-                child: const Text('Start Journey'),
-              ) 
-            : null)
+          null
           : 
             ElevatedButton(
               onPressed: () {
