@@ -1,6 +1,7 @@
 class Constants {
   // .env
   static const baseURL = 'BASE_URL';
+  static const googleApiKey = 'GOOGLE_API_KEY';
 
   // Route Names
   static const wasteMapDriverRoute = '/wastemap/driver';

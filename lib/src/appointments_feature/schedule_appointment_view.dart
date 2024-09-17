@@ -114,10 +114,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
         userId: userId,
         date: _dateController.text,
         status: 'pending',
-        location: Location(
-          latitude: _selectedLocation.latitude,
-          longitude: _selectedLocation.longitude,
-        ),
+        location: _selectedLocation,
       );
 
       try {
