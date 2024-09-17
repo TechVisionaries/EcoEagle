@@ -25,7 +25,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
   void initState() {
     super.initState();
     _appointmentsFuture = _loadAppointments();
-    _tabController = TabController(length: 2, vsync: this); // Updated length
+    _tabController = TabController(length: 3, vsync: this); // Updated length to 3 for the new tab
   }
 
   Future<List<Appointment>> _loadAppointments() async {
@@ -43,6 +43,8 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
         return Colors.orangeAccent;
       case 'completed':
         return Colors.greenAccent;
+      case 'accepted':
+        return Colors.blueAccent;
       default:
         return Colors.grey;
     }
@@ -92,6 +94,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
           isScrollable: false, // Changed to false to distribute tabs evenly
           tabs: const [
             Tab(text: 'Pending'),
+            Tab(text: 'Accepted'),
             Tab(text: 'Completed'),
           ],
           labelPadding: const EdgeInsets.symmetric(horizontal: 24.0), // Adjust if needed
@@ -131,6 +134,8 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
               children: [
                 _buildAppointmentList(
                     _filterAppointmentsByStatus(appointments, 'pending')),
+                _buildAppointmentList(
+                    _filterAppointmentsByStatus(appointments, 'accepted')),
                 _buildAppointmentList(
                     _filterAppointmentsByStatus(appointments, 'completed')),
               ],
@@ -239,7 +244,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content: const Text("Ones you cancel the appointment, You can not reschedule appointment for the same date. Are you sure you want to cancel the appointment?"),
+        content: const Text("Once you cancel the appointment, you cannot reschedule it for the same date. Are you sure you want to cancel the appointment?"),
         actions: [
           TextButton(
             onPressed: () {
