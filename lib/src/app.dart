@@ -7,6 +7,7 @@ import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 import 'package:trashtrek/src/user_management_feature/adminDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/adminReports.dart';
+import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'package:trashtrek/src/user_management_feature/editUserProfile.dart';
 
 import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
@@ -119,6 +120,8 @@ class MyApp extends StatelessWidget {
                     return const SignIn();
                   case Constants.signUpRoute:
                     return const SignUp();
+                  case Constants.driverRegistraionRoute:
+                    return const DriverRegistraion();
                   case Constants.userProfileRoute:
                     return const UserProfile();
                   case Constants.edtuserProfileRoute:

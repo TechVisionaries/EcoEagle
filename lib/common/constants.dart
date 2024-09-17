@@ -11,6 +11,7 @@ class Constants {
   static const spashScreenRoute = '/';
   static const signInRoute = '/signIn';
   static const signUpRoute = '/signup';
+  static const driverRegistraionRoute = '/driver_registration';
   static const userProfileRoute = '/user_profile';
   static const edtuserProfileRoute = '/editProfile';
   static const driverDashboardRoute = '/driver_dashboard';
