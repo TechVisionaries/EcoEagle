@@ -6,12 +6,16 @@ import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 import 'package:trashtrek/src/user_management_feature/adminDashboard.dart';
+import 'package:trashtrek/src/user_management_feature/adminReports.dart';
+import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'package:trashtrek/src/user_management_feature/editUserProfile.dart';
 
 import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/signin.dart';
 import 'package:trashtrek/src/user_management_feature/signup.dart';
+import 'package:trashtrek/src/user_management_feature/splashScreen.dart';
 import 'package:trashtrek/src/user_management_feature/userProfile.dart';
+import 'package:trashtrek/src/user_management_feature/userReport.dart';
 import 'package:trashtrek/src/waste_map_feature/waste_map_driver_view.dart';
 
 import 'reward_management/add_rating_view.dart';
@@ -106,10 +110,18 @@ class MyApp extends StatelessWidget {
                     return const ResidentDashboard();
                   case Constants.adminDashboardRoute:
                     return const AdminDashboard();
+                  case Constants.adminReportsRoute:
+                    return const AdminReports();
+                  case Constants.userReportRoute:
+                    return const UserReport();
+                  case Constants.spashScreenRoute:
+                    return const SplashScreen();
                   case Constants.signInRoute:
                     return const SignIn();
                   case Constants.signUpRoute:
                     return const SignUp();
+                  case Constants.driverRegistraionRoute:
+                    return const DriverRegistraion();
                   case Constants.userProfileRoute:
                     return const UserProfile();
                   case Constants.edtuserProfileRoute:

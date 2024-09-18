@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
-import 'package:trashtrek/src/user_management_feature/adminReports.dart';
-import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
+import 'package:trashtrek/src/user_management_feature/userReport.dart';
 import '../settings/settings_view.dart';
 import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
 
-/// Displays a list of options for navigation with a beautified UI for the admin dashboard.
-class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+/// Displays a list of options for navigation with a beautified UI for the admin reports page.
+class AdminReports extends StatefulWidget {
+  const AdminReports({super.key});
 
-  static const routeName = Constants.adminDashboardRoute;
+  static const routeName = Constants.adminReportsRoute;
 
   @override
-  _AdminDashboardState createState() => _AdminDashboardState();
+  _AdminReportsState createState() => _AdminReportsState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class _AdminReportsState extends State<AdminReports> {
   int _selectedIndex = 0; // Track the selected index
 
   void _navigateToProfile(BuildContext context) {
@@ -34,7 +33,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     });
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AdminDashboard()),
+      MaterialPageRoute(builder: (context) => const AdminReports()),
     );
   }
 
@@ -43,7 +42,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Admin Dashboard',
+          'Admin Reports',
           style: TextStyle(
             fontWeight: FontWeight.bold, // Bold text
             color: Colors.white, // White text color
@@ -82,17 +81,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             _buildNavigationTile(
               context,
-              title: 'Reports Generation',
+              title: 'User Reports',
               icon: Icons.report,
               color: Colors.purple,
-              routeName: AdminReports.routeName,
-            ),
-            _buildNavigationTile(
-              context,
-              title: 'Driver Registration',
-              icon: Icons.app_registration,
-              color: Colors.purple,
-              routeName: DriverRegistraion.routeName,
+              routeName: UserReport.routeName,
             ),
           ],
         ),

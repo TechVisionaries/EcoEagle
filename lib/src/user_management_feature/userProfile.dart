@@ -79,6 +79,10 @@ class _UserProfileState extends State<UserProfile> {
     });
 
     if (response.statusCode == 200) {
+      prefs.remove('userID');
+      prefs.remove('token');
+      prefs.remove('userlogtype');
+      prefs.remove('refreshtoken');
       // Show success dialog
       showDialog(
         context: context,
@@ -99,10 +103,6 @@ class _UserProfileState extends State<UserProfile> {
           );
         },
       );
-
-      // Optionally clear user data
-      prefs.remove('userID');
-      prefs.remove('token');
     } else {
       // Handle error
       print('Failed to logout');
