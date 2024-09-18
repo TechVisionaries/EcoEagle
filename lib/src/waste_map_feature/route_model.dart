@@ -45,6 +45,7 @@ class MapRoute {
       'locations': locations
           .map((loc) => {'latitude': loc.latitude, 'longitude': loc.longitude})
           .toList(),
+      'instructions': instructions.map((instruction) => instruction.toJson()).toList(),
       'appointments': appointments.map((appointment) => appointment.toJson()).toList(),
       'status': status,
     };
@@ -84,7 +85,10 @@ class MapAppointment extends Appointment{
       distance: json['distance'] as String,
       durationValue: json['durationValue'] as int,
       distanceValue: json['distanceValue'] as int,
-      location: json['location'] as LatLng,
+      location: LatLng(
+        json['location']['latitude'] as double,
+        json['location']['longitude'] as double,
+      ),
       status: json['status'] as String,
       driver: json['driver'] as String?,
       comment: json['comment'] as String?,
@@ -143,7 +147,10 @@ class Instruction {
   factory Instruction.fromJson(Map<String, dynamic> json) {
     return Instruction(
       instruction: json['instruction'] as String, 
-      location: json['location'] as LatLng,
+      location: LatLng(
+        json['location']['latitude'] as double,
+        json['location']['longitude'] as double,
+      ),
       distance: json['distance'] as String,
       duration: json['duration'] as String,
       distanceValue: json['distanceValue'] as int,

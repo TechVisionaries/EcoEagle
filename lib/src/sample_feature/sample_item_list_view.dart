@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
+import 'package:trashtrek/src/waste_map_feature/waste_map_resident_view.dart';
 
 import '../reward_management/add_rating_view.dart';
 import '../reward_management/view_reviews.dart';
@@ -148,7 +150,12 @@ class _SampleItemListViewState extends State<SampleItemListView> {
             IconButton(
               icon: const Icon(Icons.location_on),
               onPressed: () {
-                // Handle location button press
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WasteMapResidentView(appointmentId: "66e8287733bd563eb7613f30"),
+                  ),
+                );
               },
             ),
           ],
