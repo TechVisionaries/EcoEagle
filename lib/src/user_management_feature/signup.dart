@@ -40,30 +40,31 @@ class _SignUpState extends State<SignUp> {
 
   // List of cities in ascending order
   final List<String> _cities = [
-    "Athurugiriya",
+    "Ampara",
+    "Anuradhapura",
     "Badulla",
-    "Bentota",
+    "Batticaloa",
     "Colombo",
     "Galle",
     "Gampaha",
+    "Hambantota",
     "Jaffna",
-    "Kalmunai",
     "Kalutara",
     "Kandy",
-    "Kesbewa",
-    "Kolonnawa",
+    "Kegalle",
+    "Kilinochchi",
     "Kurunegala",
-    "Maharagama",
     "Mannar",
+    "Matale",
     "Matara",
-    "Moratuwa",
-    "Mount Lavinia",
-    "Negombo",
+    "Moneragala",
+    "Mullativu",
+    "Nuwara Eliya",
+    "Polonnaruwa",
     "Puttalam",
     "Ratnapura",
-    "Sri Jayewardenepura Kotte",
     "Trincomalee",
-    "Weligama"
+    "Vavuniya"
   ];
 
   @override

@@ -25,30 +25,31 @@ class _UserReportState extends State<UserReport> {
   String? _selectedUserType = "Both"; // Default user type to "Both"
 
   final List<String> _cities = [
-    "Athurugiriya",
+    "Ampara",
+    "Anuradhapura",
     "Badulla",
-    "Bentota",
+    "Batticaloa",
     "Colombo",
     "Galle",
     "Gampaha",
+    "Hambantota",
     "Jaffna",
-    "Kalmunai",
     "Kalutara",
     "Kandy",
-    "Kesbewa",
-    "Kolonnawa",
+    "Kegalle",
+    "Kilinochchi",
     "Kurunegala",
-    "Maharagama",
     "Mannar",
+    "Matale",
     "Matara",
-    "Moratuwa",
-    "Mount Lavinia",
-    "Negombo",
+    "Moneragala",
+    "Mullativu",
+    "Nuwara Eliya",
+    "Polonnaruwa",
     "Puttalam",
     "Ratnapura",
-    "Sri Jayewardenepura Kotte",
     "Trincomalee",
-    "Weligama"
+    "Vavuniya"
   ];
 
   Future<void> _fetchUserReports() async {
@@ -124,6 +125,97 @@ class _UserReportState extends State<UserReport> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('PDF Report Generated: ${file.path}')),
+    );
+  }
+
+  Future<void> _removeAccount(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final baseUrl =
+        dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/users/$userId'),
+      headers: {
+        'authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Account Removed'),
+            content: const Text('The account has been removed successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pushReplacementNamed(
+                      Constants.userReportRoute); // Navigate to login page
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Handle error
+      print('Failed to remove account');
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Account Removal Failed'),
+            content:
+                const Text('An error occurred while removing the account.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void _showRemoveAccountDialog(String userId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Account Removal'),
+          content:
+              const Text('You are about to remove this account. Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _removeAccount(userId); // Pass userId to _removeAccount method
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red, // Red color for the button
+              ),
+              child: const Text('Remove Account'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -221,29 +313,31 @@ class _UserReportState extends State<UserReport> {
               groupValue: _selectedUserType,
               onChanged: (value) {
                 setState(() {
-                  _selectedUserType = value;
+                  _selectedUserType = value.toString();
                 });
                 _filterUsers();
               },
             ),
             const Text('Resident'),
+            const SizedBox(width: 20),
             Radio(
               value: 'Driver',
               groupValue: _selectedUserType,
               onChanged: (value) {
                 setState(() {
-                  _selectedUserType = value;
+                  _selectedUserType = value.toString();
                 });
                 _filterUsers();
               },
             ),
             const Text('Driver'),
+            const SizedBox(width: 20),
             Radio(
               value: 'Both',
               groupValue: _selectedUserType,
               onChanged: (value) {
                 setState(() {
-                  _selectedUserType = value;
+                  _selectedUserType = value.toString();
                 });
                 _filterUsers();
               },
@@ -264,14 +358,25 @@ class _UserReportState extends State<UserReport> {
           DataColumn(label: Text('Email')),
           DataColumn(label: Text('Phone')),
           DataColumn(label: Text('User Type')),
+          DataColumn(label: Text('Actions')), // Add "Actions" column
         ],
         rows: _filteredUsers.map((user) {
-          return DataRow(cells: [
-            DataCell(Text('${user['firstName']} ${user['lastName']}')),
-            DataCell(Text(user['email'])),
-            DataCell(Text(user['phoneNo'] ?? 'N/A')),
-            DataCell(Text(user['userType'] ?? 'N/A')),
-          ]);
+          return DataRow(
+            cells: [
+              DataCell(Text('${user['firstName']} ${user['lastName']}')),
+              DataCell(Text(user['email'])),
+              DataCell(Text(user['phoneNo'] ?? 'N/A')),
+              DataCell(Text(user['userType'] ?? 'N/A')),
+              DataCell(
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    _showRemoveAccountDialog(user['_id']); // Pass user ID
+                  },
+                ),
+              ),
+            ],
+          );
         }).toList(),
       ),
     );

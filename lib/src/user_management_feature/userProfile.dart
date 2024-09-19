@@ -127,102 +127,6 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
-  Future<void> _removeAccount() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    final username = _username;
-
-    final baseUrl =
-        dotenv.env[Constants.baseURL]; // Get the base URL from the .env file
-
-    final response = await http.delete(
-      Uri.parse('$baseUrl/users/$username'),
-      headers: {
-        'authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Account Removed'),
-            content: const Text('Your account has been removed successfully.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.of(context)
-                      .pushReplacementNamed('/'); // Navigate to login page
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-
-      // Optionally clear user data
-      prefs.remove('userID');
-      prefs.remove('token');
-    } else {
-      // Handle error
-      print('Failed to remove account');
-      // Optionally show an error dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Account Removal Failed'),
-            content:
-                const Text('An error occurred while removing your account.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  void _showRemoveAccountDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Account Removal'),
-          content:
-              const Text('You are going to remove your account. Are you sure?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _removeAccount(); // Call remove account method
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red, // Red color for the button
-              ),
-              child: const Text('Remove Account'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -233,9 +137,19 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Profile'),
-        backgroundColor: const Color.fromARGB(255, 65, 168, 125),
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.green,
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'User Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -298,18 +212,6 @@ class _UserProfileState extends State<UserProfile> {
                         const SizedBox(height: 20),
                         _buildUserInfo("User Type", _userType),
                         const SizedBox(height: 30),
-                        // Remove Account Button
-                        ElevatedButton(
-                          onPressed: _showRemoveAccountDialog,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFBB3A3A),
-                            minimumSize: const Size(double.infinity, 50),
-                          ),
-                          child: const Text(
-                            "Remove my account",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
                       ],
                     ),
                   ),
