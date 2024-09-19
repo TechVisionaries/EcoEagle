@@ -126,9 +126,19 @@ class _EditUserProfileState extends State<EditUserProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
-        backgroundColor: const Color.fromARGB(255, 65, 168, 125),
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.green,
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
       ),
       body: Container(
         decoration: const BoxDecoration(
