@@ -132,6 +132,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    if(!mounted) return;
     setState(() {
       _userID = prefs.getString('userID') ?? 'User';
     });
@@ -228,6 +229,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   }
 
   void _getCompassHeading() {
+    if(!mounted) return;
     _headingStreamSubscription = FlutterCompass.events!.listen((CompassEvent event) {
       setState(() {
         _currentHeading = event.heading; 
@@ -269,7 +271,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           MapAppointment tmpMapApt = MapAppointment.fromJson({
             ...appts[i].toJson(),
             'address': leg['end_address'],
-            'location': LatLng(leg['end_location']['lat'], leg['end_location']['lng']),
+            'location': {'latitude': leg['end_location']['lat'], 'longitude':leg['end_location']['lng']},
             'duration': leg['duration']['text'],
             'distance': leg['distance']['text'],
             'durationValue': leg['duration']['value'],
@@ -297,7 +299,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           
           tempInstructions.add(Instruction.fromJson({
             'instruction': instruction,
-            'location': location,
+            'location': {'latitude': location.latitude, 'longitude':location.longitude},
             'distance': distance,
             'duration': duration,
             'distanceValue': distanceValue,
@@ -393,6 +395,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   }
 
   void _loadRoute() async {
+    if(!mounted) return;
     try {
       List<List<LatLng>> chunks = [];
       List<LatLng> totalSnapPoints = [];
