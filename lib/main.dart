@@ -29,6 +29,7 @@ void main() async {
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
+  settingsController.updateThemeMode(ThemeMode.light);
 
   await dotenv.load(fileName: "assets/.env");
 
