@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/src/reward_management/admin_driver_dashboard.dart';
+import 'package:trashtrek/src/reward_management/admin_driver_profile.dart';
+import 'package:trashtrek/src/reward_management/driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/adminReports.dart';
+import 'package:trashtrek/src/user_management_feature/driverDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import '../settings/settings_view.dart';
 import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
@@ -93,6 +97,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
               icon: Icons.app_registration,
               color: Colors.purple,
               routeName: DriverRegistraion.routeName,
+            ),
+            _buildNavigationTile(
+              context,
+              title: 'Driver Ranking',
+              icon: Icons.reviews,
+              color: Colors.purple,
+              routeName: AdminDriverDashboard.routeName,
             ),
           ],
         ),

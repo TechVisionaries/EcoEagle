@@ -5,6 +5,8 @@ import 'package:trashtrek/common/constants.dart';
 
 import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/reward_management/admin_driver_dashboard.dart';
+import 'package:trashtrek/src/reward_management/driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/adminDashboard.dart';
 import 'package:trashtrek/src/user_management_feature/adminReports.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
@@ -101,7 +103,11 @@ class MyApp extends StatelessWidget {
                   case RateDriverScreen.routeName:
                     return const RateDriverScreen();
                   case MyReviewsScreen.routeName:
-                    return const MyReviewsScreen();
+                    return const RateDriverScreen();
+                  case AdminDriverDashboard.routeName:
+                    return const AdminDriverDashboard();
+                  case DriverProfile.routeName:
+                    return const DriverProfile();
                   case AdminDriverProfile.routeName:
                     return const AdminDriverProfile();
                   case Constants.driverDashboardRoute:
