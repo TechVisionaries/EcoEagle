@@ -4,6 +4,7 @@ import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleAppointmentView extends StatefulWidget {
   final ApiService apiService;
@@ -21,9 +22,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   bool _isLoading = false;
-  LatLng _selectedLocation = LatLng(0, 0); // Default to a neutral location
-
+  bool _isMapLoading = true; // Flag for map loading state
+  LatLng _selectedLocation = const LatLng(0, 0); // Default to a neutral location
   late GoogleMapController _mapController;
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -79,6 +81,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       setState(() {
         _selectedLocation = LatLng(position.latitude, position.longitude);
         _mapController.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
+        _isMapLoading = false; // Stop map loading spinner
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,25 +90,17 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           backgroundColor: Colors.red,
         ),
       );
+      setState(() {
+        _isMapLoading = false; // Stop map loading spinner even if error
+      });
     }
   }
 
-  Future<void> _selectDate() async {
-    DateTime now = DateTime.now();
-    DateTime tomorrow = now.add(Duration(days: 1));
-
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: tomorrow,
-      firstDate: tomorrow,
-      lastDate: DateTime(2101),
-    );
-
-    if (selectedDate != null) {
-      setState(() {
-        _dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
-      });
-    }
+  Future<void> _selectDate(DateTime selectedDate) async {
+    setState(() {
+      _selectedDate = selectedDate;
+      _dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
+    });
   }
 
   Future<void> _submitAppointment() async {
@@ -144,6 +139,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           ),
         );
 
+        // Navigate to appointment list or confirmation screen after success
+        Navigator.pushNamed(context, '/my_appointments');
+
         _formKey.currentState?.reset();
         _dateController.clear();
       } catch (e) {
@@ -173,10 +171,23 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Image.asset(
-              'assets/images/appointments.webp',
-              height: 200,
-              fit: BoxFit.cover,
+            TableCalendar(
+              focusedDay: _selectedDate.isAfter(DateTime.now())
+                  ? _selectedDate
+                  : DateTime.now().add(const Duration(days: 1)), // Ensure focusedDay is a future date
+              selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
+              onDaySelected: (selectedDay, focusedDay) {
+                _selectDate(selectedDay);
+              },
+              firstDay: DateTime.now().add(const Duration(days: 1)), // Start from tomorrow
+              lastDay: DateTime.now().add(const Duration(days: 365)), // Allows selection up to one year in the future
+              enabledDayPredicate: (day) {
+                // Only allow future dates
+                return day.isAfter(DateTime.now());
+              },
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+              ),
             ),
             const SizedBox(height: 16),
             Form(
@@ -190,7 +201,9 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                       labelText: 'Schedule Date',
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.calendar_today),
-                        onPressed: _selectDate,
+                        onPressed: () {
+                          // You can trigger the calendar view here if needed
+                        },
                       ),
                       border: const OutlineInputBorder(),
                     ),
@@ -205,26 +218,34 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                   const SizedBox(height: 16),
                   SizedBox(
                     height: 300,
-                    child: GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: _selectedLocation,
-                        zoom: 14.0,
-                      ),
-                      onMapCreated: (GoogleMapController controller) {
-                        _mapController = controller;
-                        _getUserLocation();
-                      },
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId('userLocation'),
-                          position: _selectedLocation,
+                    child: Stack(
+                      children: [
+                        GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: _selectedLocation,
+                            zoom: 14.0,
+                          ),
+                          onMapCreated: (GoogleMapController controller) {
+                            _mapController = controller;
+                            _getUserLocation();
+                          },
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('userLocation'),
+                              position: _selectedLocation,
+                            ),
+                          },
                         ),
-                      },
+                        if (_isMapLoading)
+                          const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _isLoading ? null : _submitAppointment,
+                    onPressed: (_isLoading || _isMapLoading) ? null : _submitAppointment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 94, 189, 149),
                       minimumSize: const Size(double.infinity, 50),
