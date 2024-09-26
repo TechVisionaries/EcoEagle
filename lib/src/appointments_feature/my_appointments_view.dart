@@ -156,6 +156,8 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
       itemCount: appointments.length,
       itemBuilder: (context, index) {
         final appointment = appointments[index];
+        final currentDate = DateTime.now();
+        final appointmentDate = DateTime.parse(appointment.date);
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 5,
@@ -210,7 +212,26 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Address section with location icon
+                // Show "View Route" button if appointment is accepted and date matches current date
+                if (appointment.status == 'accepted' &&
+                    appointmentDate.year == currentDate.year &&
+                    appointmentDate.month == currentDate.month &&
+                    appointmentDate.day == currentDate.day)
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: TextButton(
+                      onPressed: () {
+                        // Navigate to the map view
+                      },
+                      child: const Text(
+                        'View Route',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 if (appointment.status == 'pending')
                   Align(
