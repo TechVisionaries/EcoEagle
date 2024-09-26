@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
@@ -127,6 +129,12 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           return;
         }
 
+        // Fetch the user ID based on the town name
+        final driverID = await widget.apiService.fetchUserIDByCity(town);
+        print('Fetched User ID: $driverID');
+
+
+
 
 
         final appointment = Appointment(
@@ -134,6 +142,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           date: _dateController.text,
           status: 'pending',
           location: _selectedLocation,
+          driver: driverID,
         );
 
         final hasAppointment =

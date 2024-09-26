@@ -153,14 +153,21 @@ class ApiService {
   }
 
 //   get user based on city
-  Future<List<Appointment>> fetchUserByCity(String city) async {
+  Future<String> fetchUserIDByCity(String city) async {
     final response = await http.get(Uri.parse('$baseUrl/users/$city'));
 
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return Appointment.listFromJson(data);
+      final Map<String, dynamic> usersResponse = json.decode(response.body);
+      final List<dynamic> usersInCity = usersResponse['users'];
+
+      if (usersInCity.isNotEmpty) {
+        // Assuming you want to return the first user's _id
+        return usersInCity[0]['_id'];
+      } else {
+        throw Exception('No drivers found in this city');
+      }
     } else {
-      throw Exception('Failed to load appointments');
+      throw Exception('Failed to load users');
     }
   }
 
