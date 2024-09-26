@@ -17,9 +17,11 @@ import 'package:http/http.dart' as http;
 
 class WasteMapResidentView extends StatefulWidget {
   final String appointmentId;
+  final String driverId;
   const WasteMapResidentView({
     super.key,
     required this.appointmentId,
+    required this.driverId,
   });
 
   @override
@@ -34,7 +36,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
   Marker? _driverMarker;
   Marker? _appointmentMarker;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late MapRoute _mapRoute;
+  MapRoute? _mapRoute;
   late LatLng _appointmentLocation;
   late LatLng _driverLocation;
   bool _isLoading = false;
@@ -72,8 +74,8 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
       tempDriver = _driverMarker!.copyWith(positionParam: newPosition);
     }
 
-    if(_mapRoute.appointments.isNotEmpty){
-      tempApt = _mapRoute.appointments.firstWhere((appt) => appt.id == widget.appointmentId);
+    if(_mapRoute != null && _mapRoute!.appointments.isNotEmpty){
+      tempApt = _mapRoute!.appointments.firstWhere((appt) => appt.id == widget.appointmentId);
       if(tempApt.status == "completed" && !_isOpen){
         _isOpen = true;
         _driverLocationSubscription?.cancel();
@@ -197,7 +199,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
       List<LatLng> totalSnapPoints = [];
       List<LatLng> locs = [];
 
-      for(var loc in _mapRoute.locations){
+      for(var loc in _mapRoute!.locations){
         if(loc == _appointmentLocation){
           break;
         }
@@ -221,6 +223,8 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
 
       setState(() {
         _routePoints = totalSnapPoints;
+          _isLoading = false;
+          _isLoading2 = false;
       });
 
       // _mapController?.animateCamera(
@@ -241,13 +245,13 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
     } catch (e) {
       // Handle errors
       print(e);
-    } finally {
-      if(!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _isLoading2 = false;
-      });
-    }
+      if(mounted){
+        setState(() {
+          _isLoading = false;
+          _isLoading2 = false;
+        });
+      }
+    } 
   }
   
   void _startDriverLocationStream() {
@@ -259,7 +263,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
   }
 
   Stream<LatLng> _getDriverLocationStream() {
-    return _firestore.collection('drivers').doc("66e829b133bd563eb7613f36").snapshots().map((snapshot) {
+    return _firestore.collection('drivers').doc(widget.driverId).snapshots().map((snapshot) {
       final data = snapshot.data();
       if (data != null && data['driverLocation'] != null) {
 
@@ -278,7 +282,10 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
           ins.add(Instruction.fromJson(inst));
         }
 
-        _mapRoute.appointments.firstWhere((appt) => appt.id == widget.appointmentId);
+        if(_mapRoute != null && _mapRoute!.appointments.isNotEmpty){
+          _mapRoute!.appointments.firstWhere((appt) => appt.id == widget.appointmentId);
+        }
+        
         MapRoute mapRoute = MapRoute(driver: data['driver'], locations: locs, appointments: appts, instructions: ins, status: data['status']);
         setState(() {
           _mapRoute = mapRoute;

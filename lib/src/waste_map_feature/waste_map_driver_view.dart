@@ -162,8 +162,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
           double distanceToNextStop = Geolocator.distanceBetween(
             currentLocation.latitude,
             currentLocation.longitude,
-            mapRoute.appointments[_currentInstructionIndex].location.latitude,
-            mapRoute.appointments[_currentInstructionIndex].location.longitude,
+            mapRoute.appointments[_currentAddressIndex].location.latitude,
+            mapRoute.appointments[_currentAddressIndex].location.longitude,
           );
 
           if (distanceToNextStop < 10 && !isOpen) { // Within 10 meters of the next turn
@@ -191,8 +191,8 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
                 ...mapRoute.instructions[_currentInstructionIndex].toJson(),
                 'isCompleted': true,
               });
-              _currentInstructionIndex++; // Move to the next turn instruction
               _speakTurnInstruction(mapRoute.instructions[_currentInstructionIndex].instruction.replaceAll(RegExp(r'<[^>]*>'), ''));
+              _currentInstructionIndex++; // Move to the next turn instruction
             });
           }
         } else {
@@ -754,17 +754,20 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
               margin: const EdgeInsets.all(0),
               shape: Border.all(width: 0),
               color: const Color.fromARGB(255, 246, 253, 250),
-              child: Column(
+              child: 
+                    (mapRoute.instructions.isNotEmpty && _currentInstructionIndex < mapRoute.instructions.length && journeyStarted) ?
+              Column(
                 children: [
                   Text(
-                    mapRoute.instructions[_currentInstructionIndex].instruction.replaceAll(RegExp(r'<[^>]*>'), ''),
+                      mapRoute.instructions[_currentInstructionIndex].instruction.replaceAll(RegExp(r'<[^>]*>'), '')
+                    ,
                     style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 5),
                   Text('Next turn in ${mapRoute.instructions[_currentInstructionIndex].distance}'),
                 ],
-              ),
+              ) : const SizedBox.shrink(),
             ),
           ),
           !journeyStarted ? 
