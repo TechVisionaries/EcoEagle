@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
-import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -110,14 +110,32 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       });
 
       final userId = await widget.apiService.getUserId();
-      final appointment = Appointment(
-        userId: userId,
-        date: _dateController.text,
-        status: 'pending',
-        location: _selectedLocation,
-      );
+      String? town;
 
       try {
+        // Fetch the town name from coordinates
+        town = await widget.apiService.getTownFromCoordinates(_selectedLocation.latitude, _selectedLocation.longitude);
+        // Print the fetched town name in the terminal
+        print('Fetched City/Town: $town');
+        if (town == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to determine town from coordinates'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+
+
+        final appointment = Appointment(
+          userId: userId,
+          date: _dateController.text,
+          status: 'pending',
+          location: _selectedLocation,
+        );
+
         final hasAppointment =
         await widget.apiService.hasAppointment(appointment.date);
 
@@ -132,6 +150,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
         }
 
         await widget.apiService.createAppointment(appointment);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Appointment Scheduled Successfully'),
@@ -158,6 +177,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
