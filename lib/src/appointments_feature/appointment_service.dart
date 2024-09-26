@@ -152,8 +152,8 @@ class ApiService {
     return null; // Return null if no locality is found
   }
 
-//   get user based on city
-  Future<String> fetchUserIDByCity(String city) async {
+//   get driver id based on city
+  Future<String> fetchDriverIDByCity(String city) async {
     final response = await http.get(Uri.parse('$baseUrl/users/$city'));
 
     if (response.statusCode == 200) {
@@ -170,6 +170,8 @@ class ApiService {
       throw Exception('Failed to load users');
     }
   }
+
+
 
 
 

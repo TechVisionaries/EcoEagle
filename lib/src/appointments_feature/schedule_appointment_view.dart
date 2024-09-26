@@ -130,8 +130,8 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
         }
 
         // Fetch the user ID based on the town name
-        final driverID = await widget.apiService.fetchUserIDByCity(town);
-        print('Fetched User ID: $driverID');
+        final driverID = await widget.apiService.fetchDriverIDByCity(town);
+        print('Fetched Driver ID: $driverID');
 
 
 
