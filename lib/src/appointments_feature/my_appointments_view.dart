@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
-import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
 
 class MyAppointmentsView extends StatefulWidget {
   static const routeName = Constants.myAppointmentsRoute;

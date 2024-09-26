@@ -14,7 +14,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
-import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
 import 'package:trashtrek/src/waste_map_feature/route_model.dart';
 
 class WasteMapDriverView extends StatefulWidget {
