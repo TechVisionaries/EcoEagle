@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
+import 'package:trashtrek/src/waste_map_feature/waste_map_resident_view.dart';
 
 class MyAppointmentsView extends StatefulWidget {
   static const routeName = Constants.myAppointmentsRoute;
@@ -221,7 +222,12 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                     alignment: Alignment.bottomLeft,
                     child: TextButton(
                       onPressed: () {
-                        // Navigate to the map view
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WasteMapResidentView(appointmentId: appointment.id ?? "", driverId: appointment.driver ?? '',),
+                          ),
+                        );
                       },
                       child: const Text(
                         'View Route',
