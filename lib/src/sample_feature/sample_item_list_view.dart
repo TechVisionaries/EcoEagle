@@ -150,12 +150,6 @@ class _SampleItemListViewState extends State<SampleItemListView> {
             IconButton(
               icon: const Icon(Icons.location_on),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WasteMapResidentView(appointmentId: "66e8287733bd563eb7613f30"),
-                  ),
-                );
               },
             ),
           ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
-import 'package:trashtrek/src/appointments_feature/schedule_appointment_service.dart';
+import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
+import 'package:trashtrek/src/waste_map_feature/waste_map_resident_view.dart';
 
 class MyAppointmentsView extends StatefulWidget {
   static const routeName = Constants.myAppointmentsRoute;
@@ -156,6 +157,8 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
       itemCount: appointments.length,
       itemBuilder: (context, index) {
         final appointment = appointments[index];
+        final currentDate = DateTime.now();
+        final appointmentDate = DateTime.parse(appointment.date);
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 5,
@@ -210,7 +213,31 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Address section with location icon
+                // Show "View Route" button if appointment is accepted and date matches current date
+                if (appointment.status == 'accepted' &&
+                    appointmentDate.year == currentDate.year &&
+                    appointmentDate.month == currentDate.month &&
+                    appointmentDate.day == currentDate.day)
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WasteMapResidentView(appointmentId: appointment.id ?? "", driverId: appointment.driver ?? '',),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'View Route',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 if (appointment.status == 'pending')
                   Align(
