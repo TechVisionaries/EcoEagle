@@ -1,6 +1,6 @@
 class Rating {
   final String id;
-  final String? driverId; // Make driverId nullable if not always present
+  final String? driverId; 
   final String residentId;
   final int points;
   final String reviewText;
@@ -18,7 +18,7 @@ class Rating {
   factory Rating.fromJson(Map<String, dynamic> json) {
     return Rating(
       id: json['_id'] ?? '',
-      driverId: json['driverId'], // Nullable
+      driverId: json['driverId'], 
       residentId: json['userId']?['_id'] ?? '', // Extracting from userId
       points: json['rating'] ?? 0,
       reviewText: json['comment'] ?? '',

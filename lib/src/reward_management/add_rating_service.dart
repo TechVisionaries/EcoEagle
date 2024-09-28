@@ -10,6 +10,7 @@ class RatingService {
   RatingService()
       : baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:8080/api';
 
+  // Method to submit rating for a driver
   Future<Rating> submitRating(Rating rating) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -34,10 +35,9 @@ class RatingService {
 
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
-        // Check if 'reward' key exists and is not null
         if (data['reward'] != null) {
           return Rating.fromJson(
-              data['reward']); // Adjust based on actual structure
+              data['reward']); 
         } else {
           throw Exception('No reward data found in the response');
         }
@@ -47,6 +47,39 @@ class RatingService {
       }
     } catch (e) {
       print('Error: $e');
+      rethrow;
+    }
+  }
+
+  // Method to fetch driver name by driver ID
+  Future<String> fetchDriverName(String driverId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/drivers/$driverId'), // Updated URL
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Fetch Driver Name Status code: ${response.statusCode}');
+      print('Fetch Driver Name Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        // Assuming the driver's name is structured as follows
+        String firstName = data['driver']['firstName'] ?? 'Unknown';
+        String lastName = data['driver']['lastName'] ?? 'Driver';
+        return '$firstName $lastName';
+      } else {
+        throw Exception(
+            'Failed to fetch driver name. Status code: ${response.statusCode}. Response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching driver name: $e');
       rethrow;
     }
   }
