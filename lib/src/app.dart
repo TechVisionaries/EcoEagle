@@ -100,10 +100,8 @@ class MyApp extends StatelessWidget {
                     return ScheduleAppointmentView(apiService: ApiService());
                   case MyAppointmentsView.routeName:
                     return MyAppointmentsView(apiService: ApiService());
-                  case RateDriverScreen.routeName:
-                    return const RateDriverScreen();
                   case MyReviewsScreen.routeName:
-                    return const RateDriverScreen();
+                    return const MyReviewsScreen();
                   case AdminDriverDashboard.routeName:
                     return const AdminDriverDashboard();
                   case DriverProfile.routeName:
