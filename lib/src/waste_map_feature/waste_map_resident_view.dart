@@ -327,7 +327,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
               if(!mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
-                  builder: (context) => RateDriverScreen(/*driverId: tempApt.driver*/),
+                  builder: (context) => RateDriverScreen(driverId: driverId ?? ""),
                 ),
                 ModalRoute.withName(Constants.homeRoute), // This condition ensures that all previous routes are removed
               );
