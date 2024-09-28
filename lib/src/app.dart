@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
                   case RateDriverScreen.routeName:
                     return const RateDriverScreen();
                   case MyReviewsScreen.routeName:
-                    return const RateDriverScreen();
+                    return const MyReviewsScreen();
                   case AdminDriverDashboard.routeName:
                     return const AdminDriverDashboard();
                   case DriverProfile.routeName:
