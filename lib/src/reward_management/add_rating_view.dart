@@ -4,7 +4,11 @@ import 'add_rating_service.dart';
 import 'rating_model.dart'; // Adjust the path as per your folder structure
 
 class RateDriverScreen extends StatefulWidget {
-  const RateDriverScreen({Key? key}) : super(key: key);
+  final String driverId;
+  const RateDriverScreen({
+    super.key,
+    required this.driverId,
+  });
 
   static const routeName = '/rewards';
 
@@ -20,11 +24,10 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
   Future<void> _submitRating() async {
     final prefs = await SharedPreferences.getInstance();
     final residentId = prefs.getString("userID") ?? 'defaultResidentId';
-    const String driverId = 'driver123';
 
     Rating rating = Rating(
       id: '',
-      driverId: driverId,
+      driverId: widget.driverId,
       residentId: residentId,
       points: ratingPoints,
       reviewText: _reviewController.text,
