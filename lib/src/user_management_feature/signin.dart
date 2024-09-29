@@ -69,7 +69,7 @@ class _SignInState extends State<SignIn> {
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
           Navigator.of(context).pushNamedAndRemoveUntil(
-            Constants.homeRoute,
+            Constants.residentDashboardRoute,
             (route) => false, // Removes all previous routes
           );
         } else if (data['userlogtype'] == "Admin" ||

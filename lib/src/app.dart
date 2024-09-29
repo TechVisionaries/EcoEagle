@@ -7,12 +7,11 @@ import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
 import 'package:trashtrek/src/reward_management/admin_driver_dashboard.dart';
 import 'package:trashtrek/src/reward_management/driver_profile.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
-import 'package:trashtrek/src/user_management_feature/adminDashboard.dart';
-import 'package:trashtrek/src/user_management_feature/adminReports.dart';
+import 'package:trashtrek/src/dashboards/admin_dashboard.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'package:trashtrek/src/user_management_feature/editUserProfile.dart';
 
-import 'package:trashtrek/src/user_management_feature/residentDashboard.dart';
+import 'package:trashtrek/src/dashboards/resident_dashboard.dart';
 import 'package:trashtrek/src/user_management_feature/signin.dart';
 import 'package:trashtrek/src/user_management_feature/signup.dart';
 import 'package:trashtrek/src/user_management_feature/splashScreen.dart';
@@ -20,14 +19,12 @@ import 'package:trashtrek/src/user_management_feature/userProfile.dart';
 import 'package:trashtrek/src/user_management_feature/userReport.dart';
 import 'package:trashtrek/src/waste_map_feature/waste_map_driver_view.dart';
 
-import 'reward_management/add_rating_view.dart';
 import 'reward_management/admin_driver_profile.dart';
 import 'reward_management/view_reviews.dart';
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
+import 'dashboards/report_dashboard.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
-import 'user_management_feature/driverDashboard.dart';
+import 'dashboards/driver_dashboard.dart';
 import 'appointments_feature/schedule_appointment_view.dart';
 
 /// The Widget that configures your application.
@@ -94,8 +91,6 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
                   case Constants.appointmentsRoute:
                     return ScheduleAppointmentView(apiService: ApiService());
                   case MyAppointmentsView.routeName:
@@ -114,8 +109,6 @@ class MyApp extends StatelessWidget {
                     return const ResidentDashboard();
                   case Constants.adminDashboardRoute:
                     return const AdminDashboard();
-                  case Constants.adminReportsRoute:
-                    return const AdminReports();
                   case Constants.userReportRoute:
                     return const UserReport();
                   case Constants.spashScreenRoute:
@@ -134,10 +127,10 @@ class MyApp extends StatelessWidget {
                     return const WasteMapDriverView();
                   case Constants.wasteMapResidentRoute:
                     return const WasteMapDriverView();
-                  case Constants.homeRoute:
-                    return const SampleItemListView();
+                  case Constants.reportDashboardRoute:
+                    return const ReportView();
                   default:
-                    return const SampleItemListView();
+                    return const SignIn();
                 }
               },
             );

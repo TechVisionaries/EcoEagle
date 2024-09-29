@@ -13,6 +13,7 @@ import 'package:trashtrek/common/strings.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
 import 'package:trashtrek/src/waste_map_feature/route_model.dart';
@@ -196,7 +197,14 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
             });
           }
         } else {
-          print('No instructions available or invalid index');
+          if(!mounted || !routeReady) return;
+          if(mapRoute.instructions.isNotEmpty){
+            _showErrorMessage("No Appointents for today!");
+          }
+          else {
+            _showSuccessMessage("Journey Completed!");
+          }
+          Navigator.pop(context);
         }
 
         if(isCentered && journeyStarted){
@@ -686,17 +694,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'My Route',
-          style: TextStyle(
-            fontWeight: FontWeight.bold, // Bold text
-            color: Colors.white, // White text color
-          ),
-        ),
-        backgroundColor: const Color.fromARGB(255, 94, 189, 149),
-        elevation: 0,
-      ),
+      appBar: CustomAppBar.appBar('My Route'),
       body: Stack(
         children: [
           GoogleMap(
