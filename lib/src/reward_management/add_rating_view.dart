@@ -6,6 +6,7 @@ import 'rating_model.dart'; // Adjust the path as per your folder structure
 
 class RateDriverScreen extends StatefulWidget {
   final String driverId;
+
   const RateDriverScreen({
     super.key,
     required this.driverId,
@@ -19,8 +20,28 @@ class RateDriverScreen extends StatefulWidget {
 
 class _RateDriverScreenState extends State<RateDriverScreen> {
   int ratingPoints = 0;
+  String driverName = 'Fetching...'; 
   final TextEditingController _reviewController = TextEditingController();
   final RatingService ratingService = RatingService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDriverName(); 
+  }
+
+  Future<void> _fetchDriverName() async {
+    try {
+      String name = await ratingService.fetchDriverName(widget.driverId);
+      setState(() {
+        driverName = name;
+      });
+    } catch (e) {
+      setState(() {
+        driverName = 'Unknown Driver';
+      });
+    }
+  }
 
   Future<void> _submitRating() async {
     final prefs = await SharedPreferences.getInstance();
@@ -110,9 +131,9 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                 backgroundImage: AssetImage('assets/images/profile.png'),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Ramon Watson',
-                style: TextStyle(
+              Text(
+                driverName,
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
