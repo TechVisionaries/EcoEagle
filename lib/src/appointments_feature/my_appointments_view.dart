@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
+import 'package:trashtrek/components/custom_bottom_navigation.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
 import 'package:trashtrek/src/waste_map_feature/waste_map_resident_view.dart';
@@ -87,9 +89,22 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Appointments'),
-        backgroundColor: const Color.fromARGB(255, 94, 189, 149),
+      appBar: CustomAppBar.appBar(
+        'My Appointments',              
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.add_box_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                Constants.appointmentsRoute
+              );
+            },
+          ),
+        ],    
         bottom: TabBar(
           controller: _tabController,
           isScrollable: false, // Changed to false to distribute tabs evenly
@@ -144,6 +159,7 @@ class _MyAppointmentsViewState extends State<MyAppointmentsView>
           }
         },
       ),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 1, 'Resident'),
     );
   }
 

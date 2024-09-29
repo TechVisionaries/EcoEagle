@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
+import 'package:trashtrek/components/custom_bottom_navigation.dart';
 import 'package:trashtrek/src/reward_management/admin_driver_profile.dart';
+import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 
 class AdminDriverDashboard extends StatelessWidget {
   const AdminDriverDashboard({super.key});
@@ -9,12 +12,22 @@ class AdminDriverDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
+      appBar: CustomAppBar.appBar(
+        'Drivers',              
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.add_box_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                DriverRegistraion.routeName
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -74,19 +87,7 @@ class AdminDriverDashboard extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.local_shipping), label: 'Drivers'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-      ),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 1, 'Admin')
     );
   }
 
