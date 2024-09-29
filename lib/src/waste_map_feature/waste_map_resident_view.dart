@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/common/strings.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/reward_management/add_rating_view.dart';
 import 'package:trashtrek/src/waste_map_feature/route_model.dart';
@@ -316,7 +317,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
             onPressed: () async {
               if(!mounted) return;
               Navigator.of(context).pushNamedAndRemoveUntil(
-                Constants.homeRoute,
+                Constants.residentDashboardRoute,
                 (route) => false, // Removes all previous routes
               );
             },
@@ -329,7 +330,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
                 MaterialPageRoute(
                   builder: (context) => RateDriverScreen(driverId: driverId ?? ""),
                 ),
-                ModalRoute.withName(Constants.homeRoute), // This condition ensures that all previous routes are removed
+                ModalRoute.withName(Constants.residentDashboardRoute), // This condition ensures that all previous routes are removed
               );
             },
             child: const Text('Rate Driver'),
@@ -342,7 +343,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Appointment')),
+      appBar: CustomAppBar.appBar('My Appointment'),
       body: StreamBuilder<LatLng>(
         stream: _getDriverLocationStream(),
         builder: (context, snapshot) {

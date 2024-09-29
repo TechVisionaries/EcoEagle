@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
+import 'package:trashtrek/components/custom_bottom_navigation.dart';
 
 class DriverProfile extends StatelessWidget {
   const DriverProfile({super.key});
@@ -8,13 +10,7 @@ class DriverProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
+      appBar: CustomAppBar.appBar('My Profile'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -71,16 +67,7 @@ class DriverProfile extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Reviews'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        currentIndex: 2, // Profile is selected by default
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-      ),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 2, 'Driver'),
     );
   }
 

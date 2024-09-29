@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
+import 'package:trashtrek/components/custom_bottom_navigation.dart';
 import 'package:trashtrek/src/reward_management/driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/userProfile.dart'; // Import the user profile page
 
@@ -39,8 +42,22 @@ class _DriverDashboardState extends State<DriverDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Driver Dashboard'),
+      appBar: CustomAppBar.appBar(
+        'Dashboard', 
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.restorablePushNamed(
+                context,
+                Constants.userProfileRoute
+              );
+            },
+          ),
+        ]
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -53,49 +70,44 @@ class _DriverDashboardState extends State<DriverDashboard> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
-          children: [
-            _buildNavigationTile(
-              context,
-              title: 'My Reviews',
-              icon: Icons.reviews,
-              color: Colors.redAccent,
-              routeName: DriverProfile.routeName,
-            ),
-            _buildNavigationTile(
-              context,
-              title: 'My Route',
-              icon: Icons.map,
-              color: Colors.teal,
-              routeName: Constants.wasteMapDriverRoute,
-            ),
-          ],
+        child: Expanded(
+          child: Container(
+            color: Colors.transparent, // Keep it transparent to show the gradient
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.only(top: 30),
+            child: Column(
+              children: [
+                Text(
+                  'Welcome to TrashTrek👋', 
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  style: GoogleFonts.andika(
+                    textStyle: const TextStyle(
+                      fontSize: 24,            // Font size
+                      fontWeight: FontWeight.bold, // Font weight
+                      color: Color.fromARGB(255, 255, 255, 255),  
+                    ),
+                  ),
+                ),
+                Image.asset("assets/images/homescreen.png"),
+                const SizedBox(height: 100),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, Constants.wasteMapDriverRoute);
+                  }, 
+                  child: Text(
+                    'Get Started!', 
+                    softWrap: true,
+                    style: GoogleFonts.alike(),
+                  ),
+                )
+              ],
+            )
+          ),
+        
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6.0,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            const Icon(
-              (Icons.home),
-            ),
-            IconButton(
-              icon: const Icon(Icons.account_circle),
-              onPressed: _navigateToUserProfile,
-            ),
-            IconButton(
-              icon: const Icon(Icons.location_on),
-              onPressed: () {
-                // Location button action (optional)
-              },
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 0, 'Driver')
     );
   }
   

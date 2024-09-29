@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
+import 'package:trashtrek/components/custom_bottom_navigation.dart';
 import 'rating_model.dart';
 import 'view_reviews_service.dart';
 import 'delete_review_service.dart';
@@ -179,20 +181,7 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'My Reviews',
-          style: TextStyle(
-            color: Colors.white, // Set text color to white
-            fontWeight: FontWeight.bold, // Make the text bold
-          ),
-        ),
-        centerTitle: true, // Center the title
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Set arrow icon color to white
-        ),
-        backgroundColor: Colors.green,
-      ),
+      appBar: CustomAppBar.appBar('My Reviews'),
       body: FutureBuilder<List<Rating>>(
         future: _reviewsFuture,
         builder: (context, snapshot) {
@@ -278,6 +267,7 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
           }
         },
       ),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 2, 'Resident'),
     );
   }
 }

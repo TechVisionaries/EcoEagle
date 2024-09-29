@@ -15,9 +15,9 @@ class Constants {
   static const userProfileRoute = '/user_profile';
   static const edtuserProfileRoute = '/editProfile';
   static const driverDashboardRoute = '/driver_dashboard';
+  static const reportDashboardRoute = '/report_dashboard';
   static const residentDashboardRoute = '/resident_dashboard';
   static const adminDashboardRoute = '/admin_dashboard';
   static const adminReportsRoute = '/admin_reports';
   static const userReportRoute = '/user_report';
-  static const homeRoute = '/home';
 }

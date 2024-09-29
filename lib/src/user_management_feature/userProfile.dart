@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
+import 'package:trashtrek/components/custom_bottom_navigation.dart';
+import 'package:trashtrek/src/settings/settings_view.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -136,21 +139,7 @@ class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'User Profile',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-      ),
+      appBar: CustomAppBar.appBar('User Profile'),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -177,18 +166,30 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                   const SizedBox(height: 10),
                   // Edit Button (under the profile icon)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/editProfile');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      minimumSize: const Size(120, 30), // Smaller size
-                    ),
-                    child: const Text(
-                      "Edit Profile",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/editProfile');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          minimumSize: const Size(120, 30), // Smaller size
+                        ),
+                        child: const Text(
+                          "Edit Profile",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        onPressed: () {
+                          // Navigate to the settings page.
+                          Navigator.restorablePushNamed(context, SettingsView.routeName);
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   // White box for user details and Remove Account Button

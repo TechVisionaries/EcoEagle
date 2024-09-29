@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 4)); // 3-second delay
 
     if (userType == 'Resident') {
-      Navigator.of(context).pushReplacementNamed(Constants.homeRoute);
+      Navigator.of(context).pushReplacementNamed(Constants.residentDashboardRoute);
     } else if (userType == 'Driver') {
       Navigator.of(context)
           .pushReplacementNamed(Constants.driverDashboardRoute);

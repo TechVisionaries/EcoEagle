@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -191,10 +192,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Schedule Appointment'),
-        backgroundColor: const Color.fromARGB(255, 94, 189, 149),
-      ),
+      appBar: CustomAppBar.appBar('Schedule Appointment'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
