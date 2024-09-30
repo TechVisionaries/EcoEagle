@@ -7,7 +7,6 @@ import 'package:trashtrek/src/reward_management/rating_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
-
 class DriverProfile extends StatefulWidget {
   const DriverProfile({super.key});
 
@@ -43,7 +42,11 @@ class _DriverProfileState extends State<DriverProfile> {
       setState(() {
         points = profileData['points'];
         rank = profileData['rank'];
-        reviews = profileData['reviews'];
+
+        // Retrieve reviews and sort them by createdAt in descending order
+        reviews = List<Rating>.from(profileData['reviews'])
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Sort descending
+
         isLoading = false;
       });
     } catch (e) {
@@ -69,7 +72,7 @@ class _DriverProfileState extends State<DriverProfile> {
                     children: [
                       const CircleAvatar(
                         backgroundImage: AssetImage(
-                            'assets/images/driver1.webp'), // Replace with the correct path
+                            'assets/images/profile.png'), // Replace with the correct path
                         radius: 50,
                       ),
                       const SizedBox(height: 16),
@@ -103,14 +106,14 @@ class _DriverProfileState extends State<DriverProfile> {
                         child: ListView.builder(
                           itemCount: reviews.length,
                           itemBuilder: (context, index) {
-                          final review = reviews[index];
-                          return _buildReviewTile(
-                            '${review.residentId}', // Dynamically loaded resident name
-                            review.createdAt, // Pass the DateTime object
-                            review.points,
-                            review.reviewText,
-                          );
-                        },
+                            final review = reviews[index];
+                            return _buildReviewTile(
+                              '${review.residentId}', // Dynamically loaded resident name
+                              review.createdAt, // Pass the DateTime object
+                              review.points,
+                              review.reviewText,
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -122,28 +125,27 @@ class _DriverProfileState extends State<DriverProfile> {
 
   ListTile _buildReviewTile(
     String reviewer, DateTime createdAt, int stars, String comment) {
-  return ListTile(
-    title: Text(reviewer),
-    subtitle: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(DateFormat('dd/MM/yy').format(createdAt)), // Format date here
-        const SizedBox(height: 4),
-        RatingBarIndicator(
-          rating: stars.toDouble(), // Convert points to double for the rating
-          itemBuilder: (context, index) => Icon(
-            Icons.star,
-            color: Colors.amber,
+    return ListTile(
+      title: Text(reviewer),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(DateFormat('dd/MM/yy').format(createdAt)), // Format date here
+          const SizedBox(height: 4),
+          RatingBarIndicator(
+            rating: stars.toDouble(), // Convert points to double for the rating
+            itemBuilder: (context, index) => Icon(
+              Icons.star,
+              color: Colors.amber,
+            ),
+            itemCount: 5,
+            itemSize: 20.0,
+            direction: Axis.horizontal,
           ),
-          itemCount: 5,
-          itemSize: 20.0,
-          direction: Axis.horizontal,
-        ),
-        const SizedBox(height: 4),
-        Text(comment),
-      ],
-    ),
-  );
-}
-
+          const SizedBox(height: 4),
+          Text(comment),
+        ],
+      ),
+    );
+  }
 }
