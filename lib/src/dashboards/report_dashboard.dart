@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
-import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/user_management_feature/userReport.dart';
-import 'package:trashtrek/src/waste_map_feature/waste_map_resident_view.dart';
 
-import '../reward_management/add_rating_view.dart';
-import '../reward_management/view_reviews.dart';
-import '../settings/settings_view.dart';
-import '../appointments_feature/schedule_appointment_view.dart';
-import '../appointments_feature/my_appointments_view.dart';
-import '../user_management_feature/userProfile.dart'; // Make sure to import your UserProfile page
+// Make sure to import your UserProfile page
 
 /// Displays a list of options for navigation with a beautified UI.
 class ReportView extends StatefulWidget {

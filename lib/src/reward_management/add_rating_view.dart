@@ -60,11 +60,11 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       await ratingService.submitRating(rating);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 24),
-              const SizedBox(width: 10),
-              const Expanded(
+              Icon(Icons.check_circle, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
                 child: Text(
                   'Rating submitted successfully!',
                   style: TextStyle(

@@ -4,11 +4,6 @@ import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
 
-import '../reward_management/add_rating_view.dart';
-import '../reward_management/view_reviews.dart';
-import '../settings/settings_view.dart';
-import '../appointments_feature/schedule_appointment_view.dart';
-import '../appointments_feature/my_appointments_view.dart';
 
 /// Displays a list of options for navigation with a beautified UI.
 class ResidentDashboard extends StatefulWidget {

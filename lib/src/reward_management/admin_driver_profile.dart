@@ -60,7 +60,7 @@ class AdminDriverProfile extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
-                child: Text('Assign'),
+                child: const Text('Assign'),
               ),
               const SizedBox(height: 24),
               const Align(

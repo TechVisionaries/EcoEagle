@@ -72,12 +72,12 @@ class _DriverProfileState extends State<DriverProfile> {
                     children: [
                       const CircleAvatar(
                         backgroundImage: AssetImage(
-                            'assets/images/profile.png'), // Replace with the correct path
+                            'assets/images/profile.png'),
                         radius: 50,
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Ethan Warner', // Dynamically load if needed
+                        'Ethan Warner', // Driver name
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -108,8 +108,8 @@ class _DriverProfileState extends State<DriverProfile> {
                           itemBuilder: (context, index) {
                             final review = reviews[index];
                             return _buildReviewTile(
-                              '${review.residentId}', // Dynamically loaded resident name
-                              review.createdAt, // Pass the DateTime object
+                              review.residentId, // Dynamically loaded resident name
+                              review.createdAt, 
                               review.points,
                               review.reviewText,
                             );
@@ -133,8 +133,8 @@ class _DriverProfileState extends State<DriverProfile> {
           Text(DateFormat('dd/MM/yy').format(createdAt)), // Format date here
           const SizedBox(height: 4),
           RatingBarIndicator(
-            rating: stars.toDouble(), // Convert points to double for the rating
-            itemBuilder: (context, index) => Icon(
+            rating: stars.toDouble(), 
+            itemBuilder: (context, index) => const Icon(
               Icons.star,
               color: Colors.amber,
             ),
