@@ -29,7 +29,7 @@ class AdminDriverProfile extends StatelessWidget {
               const CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage(
-                    'assets/images/driver1.webp'), // replace with actual image asset
+                    'assets/images/profile.png'), // replace with actual image asset
               ),
               const SizedBox(height: 16),
               const Text(
@@ -45,22 +45,6 @@ class AdminDriverProfile extends StatelessWidget {
               const Text(
                 'Ranking: 1st, Points: 1234',
                 style: TextStyle(fontSize: 16, color: Colors.green),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle assign action
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Replaces `primary`
-                  foregroundColor: Colors.white, // Replaces `onPrimary`
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                ),
-                child: const Text('Assign'),
               ),
               const SizedBox(height: 24),
               const Align(
@@ -116,21 +100,21 @@ class AdminDriverProfile extends StatelessWidget {
         "date": "Jan 31, 2023",
         "rating": 5,
         "review": "Great driver, very polite.",
-        "image": "assets/images/driver1.webp" // replace with actual image asset
+        "image": "assets/images/profile.png" // replace with actual image asset
       },
       {
         "name": "Noah White",
         "date": "Mar 12, 2023",
         "rating": 4,
         "review": "Very professional and on time.",
-        "image": "assets/images/driver1.webp" // replace with actual image asset
+        "image": "assets/images/profile.png" // replace with actual image asset
       },
       {
         "name": "Ava Moore",
         "date": "Apr 22, 2023",
         "rating": 5,
         "review": "Excellent service, will use again.",
-        "image": "assets/images/driver1.webp" // replace with actual image asset
+        "image": "assets/images/profile.png" // replace with actual image asset
       },
     ];
 
