@@ -666,7 +666,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 
     double totalDistanceInKilometers = totalDistanceInMeters / 1000;  // Convert meters to kilometers
 
-    return totalDistanceInKilometers.toStringAsFixed(2) + " km";  // Format the result to 2 decimal places
+    return "${totalDistanceInKilometers.toStringAsFixed(2)} km";  // Format the result to 2 decimal places
   }
 
   String _getTotalDurationUpToIndex(int index) {
@@ -897,7 +897,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 }
 
 class BottomBounceScrollPhysics extends BouncingScrollPhysics {
-  BottomBounceScrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
+  const BottomBounceScrollPhysics({super.parent});
 
   @override
   BottomBounceScrollPhysics applyTo(ScrollPhysics? ancestor) {

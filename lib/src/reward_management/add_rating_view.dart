@@ -20,14 +20,14 @@ class RateDriverScreen extends StatefulWidget {
 
 class _RateDriverScreenState extends State<RateDriverScreen> {
   int ratingPoints = 0;
-  String driverName = 'Fetching...'; 
+  String driverName = 'Fetching...';
   final TextEditingController _reviewController = TextEditingController();
   final RatingService ratingService = RatingService();
 
   @override
   void initState() {
     super.initState();
-    _fetchDriverName(); 
+    _fetchDriverName();
   }
 
   Future<void> _fetchDriverName() async {
@@ -47,6 +47,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
     final prefs = await SharedPreferences.getInstance();
     final residentId = prefs.getString("userID") ?? 'defaultResidentId';
 
+    // Create Rating object
     Rating rating = Rating(
       id: '',
       driverId: widget.driverId,
@@ -54,17 +55,19 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       points: ratingPoints,
       reviewText: _reviewController.text,
       createdAt: DateTime.now(),
+      rank: null, // Rank can be handled later
+      totalPoints: 0, // Total points can also be fetched or calculated
     );
 
     try {
       await ratingService.submitRating(rating);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 24),
-              const SizedBox(width: 10),
-              const Expanded(
+              Icon(Icons.check_circle, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
                 child: Text(
                   'Rating submitted successfully!',
                   style: TextStyle(

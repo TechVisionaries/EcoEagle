@@ -24,6 +24,7 @@ dependencies:
   flutter_rating_bar: ^4.0.0
   flutter_compass: ^0.8.0
   flutter_tts: ^4.0.2
+  flutter_secure_storage: ^7.0.1
 
   table_calendar: ^3.0.6
 
