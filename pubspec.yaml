@@ -61,3 +61,4 @@ flutter:
     - assets/images/
     - assets/.env
     - assets/animations/splashAnimation.json
+    - assets/images/truck.png
