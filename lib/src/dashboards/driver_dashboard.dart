@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
-import 'package:trashtrek/src/reward_management/driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/userProfile.dart'; // Import the user profile page
 
 class DriverDashboard extends StatefulWidget {

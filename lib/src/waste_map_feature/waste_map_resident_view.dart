@@ -43,7 +43,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
   bool _isLoading = false;
   bool _isOpen = false;
   bool _isLoading2 = true;
-  bool _hasNavigated = false;
+  final bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -294,7 +294,7 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
         GeoPoint location = data['driverLocation'];
         return LatLng(location.latitude, location.longitude);
       }
-      return LatLng(0, 0); // Default location if no data is found
+      return const LatLng(0, 0); // Default location if no data is found
     });
   }
 

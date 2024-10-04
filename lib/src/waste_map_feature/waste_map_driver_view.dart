@@ -175,7 +175,15 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
             });
           }
         } else {
-          print('No addresses available or invalid index');
+          if(!mounted || !routeReady) return;
+          if(mapRoute.appointments.isEmpty){
+            _showErrorMessage("No Appointents for today!");
+            Navigator.pop(context);
+          }
+          else if(journeyStarted){
+            _showSuccessMessage("Journey Completed!");
+            Navigator.pop(context);
+          }
         }
 
         if (mapRoute.instructions.isNotEmpty && _currentInstructionIndex < mapRoute.instructions.length && journeyStarted) {
@@ -196,15 +204,6 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
               _currentInstructionIndex++; // Move to the next turn instruction
             });
           }
-        } else {
-          if(!mounted || !routeReady) return;
-          if(mapRoute.instructions.isNotEmpty){
-            _showErrorMessage("No Appointents for today!");
-          }
-          else {
-            _showSuccessMessage("Journey Completed!");
-          }
-          Navigator.pop(context);
         }
 
         if(isCentered && journeyStarted){
@@ -251,14 +250,92 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     }
   }
 
-  String getDirectionsUrl(LatLng origin, List<LatLng> waypoints, LatLng destination) {
-    final waypointsString = waypoints.map((e) => '${e.latitude},${e.longitude}').join('|');
-    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=optimize:true|$waypointsString&key=$apiKey';
+  Future<List<dynamic>> getDistances({
+    required LatLng origin,
+    required List<LatLng> waypoints,
+  }) async {
+    final waypointsString = waypoints
+        .map((e) => '${e.latitude},${e.longitude}')
+        .join('|');
+    
+    final url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
+        '?origins=${origin.latitude},${origin.longitude}'
+        '&destinations=$waypointsString'
+        '&key=$apiKey';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      return jsonResponse['rows'][0]['elements']; // Distances to all waypoints
+    } else {
+      throw Exception('Failed to load distance matrix');
+    }
+  }
+  
+  LatLng findFurthestWaypoint(LatLng origin, List<LatLng> waypoints, List<dynamic> distances) {
+    int maxDistance = 0;
+    LatLng furthestWaypoint = waypoints[0];
+
+    for (int i = 0; i < distances.length; i++) {
+      final distanceValue = distances[i]['distance']['value']; // Distance in meters
+      if (distanceValue > maxDistance) {
+        maxDistance = distanceValue;
+        furthestWaypoint = waypoints[i];
+      }
+    }
+
+    return furthestWaypoint;
+  }
+
+  String createDirectionsUrl({
+    required LatLng origin,
+    required LatLng destination,
+    required List<LatLng> waypoints,
+  }) {
+    // Remove the destination (furthest waypoint) from the waypoints list
+    final remainingWaypoints = waypoints.where((wp) => wp != destination).toList();
+
+    // Construct the waypoints string
+    final waypointsString = remainingWaypoints
+        .map((e) => '${e.latitude},${e.longitude}')
+        .join('|');
+
+    // Construct the Directions API URL
+    final url = 'https://maps.googleapis.com/maps/api/directions/json?'
+        'origin=${origin.latitude},${origin.longitude}'
+        '&destination=${destination.latitude},${destination.longitude}'
+        '&waypoints=optimize:true|$waypointsString'
+        '&key=$apiKey';
+
     return url;
   }
 
+  Future<String> getDirectionsUrl(
+    LatLng origin,
+    List<LatLng> waypoints,
+  ) async {
+    // Step 1: Get distances from the Distance Matrix API
+    final distances = await getDistances(
+      origin: origin,
+      waypoints: waypoints,
+    );
+
+    // Step 2: Find the furthest waypoint
+    final furthestWaypoint = findFurthestWaypoint(origin, waypoints, distances);
+
+    // Step 3: Generate the Directions API URL
+    final directionsUrl = createDirectionsUrl(
+      origin: origin,
+      destination: furthestWaypoint,
+      waypoints: waypoints,
+    );
+
+    return directionsUrl;
+  }
+
   Future<List<LatLng>> fetchRoute(LatLng origin, List<LatLng> waypoints, LatLng destination, List<Appointment> appts) async {
-    final url = getDirectionsUrl(origin, waypoints, destination);
+    final url = await getDirectionsUrl(origin, waypoints);
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -666,7 +743,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 
     double totalDistanceInKilometers = totalDistanceInMeters / 1000;  // Convert meters to kilometers
 
-    return totalDistanceInKilometers.toStringAsFixed(2) + " km";  // Format the result to 2 decimal places
+    return "${totalDistanceInKilometers.toStringAsFixed(2)} km";  // Format the result to 2 decimal places
   }
 
   String _getTotalDurationUpToIndex(int index) {
@@ -897,7 +974,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
 }
 
 class BottomBounceScrollPhysics extends BouncingScrollPhysics {
-  BottomBounceScrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
+  const BottomBounceScrollPhysics({super.parent});
 
   @override
   BottomBounceScrollPhysics applyTo(ScrollPhysics? ancestor) {

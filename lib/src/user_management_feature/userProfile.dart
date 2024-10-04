@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
-import 'package:trashtrek/components/custom_bottom_navigation.dart';
 import 'package:trashtrek/src/settings/settings_view.dart';
 
 class UserProfile extends StatefulWidget {
