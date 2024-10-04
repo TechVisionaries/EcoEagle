@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
+import 'package:trashtrek/src/reward_management/add_rating_service.dart';
 import 'package:trashtrek/src/reward_management/admin_driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'admin_driver_dashboard_service.dart';
 import 'rating_model.dart';
 
 class AdminDriverDashboard extends StatefulWidget {
-  const AdminDriverDashboard({super.key});
+  final String driverId;
+
+  const AdminDriverDashboard({super.key, required this.driverId});
 
   static const routeName = '/rewards_driverDashboard';
 
@@ -18,11 +21,26 @@ class AdminDriverDashboard extends StatefulWidget {
 
 class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
   late Future<List<Rating>> futureDriverRatings;
-
+  String driverName = 'Loading...';
+  final RatingService ratingService = RatingService(); 
   @override
   void initState() {
     super.initState();
-    futureDriverRatings = _fetchDriverRatings(); // Initialize the future here
+    _fetchDriverName();
+    futureDriverRatings = _fetchDriverRatings();
+  }
+
+  Future<void> _fetchDriverName() async {
+    try {
+      String name = await ratingService.fetchDriverName(widget.driverId); 
+      setState(() {
+        driverName = name;
+      });
+    } catch (e) {
+      setState(() {
+        driverName = 'Unknown Driver';
+      });
+    }
   }
 
   Future<List<Rating>> _fetchDriverRatings() async {
@@ -30,7 +48,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
     final token = prefs.getString('token');
 
     if (token == null) {
-      throw Exception('No authentication token found.'); // Handle token absence
+      throw Exception('No authentication token found.');
     }
 
     return await AdminDriverDashboardService().fetchDriverRatings(token);
@@ -99,9 +117,9 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                       children: [
                         for (var driver in topDrivers)
                           buildDriverCard(
-                            '${driver.rank}. ${driver.residentId}', 
+                            '${driver.rank}. ${driver.driverId}', 
                             driver.totalPoints,
-                            'assets/images/profile.png', 
+                            'assets/images/profile.png',
                             context,
                           ),
                         const Divider(),
@@ -115,9 +133,9 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                         const SizedBox(height: 16),
                         for (var driver in allDrivers)
                           buildDriverCard(
-                            '${driver.rank}. ${driver.residentId}', // Assuming residentId is the driver's name
+                            '${driver.rank}. ${driver.driverId}', 
                             driver.totalPoints,
-                            'assets/images/profile.png', // Placeholder image, update as needed
+                            'assets/images/profile.png',
                             context,
                           ),
                       ],
@@ -142,9 +160,13 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
       ),
       title: Text(name),
       subtitle: Text('Total Points: $points'),
-      // onTap: () {
-      //   Navigator.restorablePushNamed(context, AdminDriverProfile.routeName);
-      // },
+      onTap: () {
+        Navigator.restorablePushNamed(
+          context, 
+          AdminDriverProfile.routeName,
+          arguments: {'driverId': widget.driverId},
+        );
+      },
     );
   }
 }

@@ -58,7 +58,7 @@ class RatingService {
       final token = prefs.getString('token') ?? '';
 
       final response = await http.get(
-        Uri.parse('$baseUrl/users/profile/$driverId'), // Updated URL
+        Uri.parse('$baseUrl/users/profile/$driverId'), 
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -84,5 +84,7 @@ class RatingService {
       rethrow;
     }
   }
+
+  
 
 }

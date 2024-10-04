@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'rating_model.dart';
 
 class DriverProfileService {
@@ -34,4 +35,39 @@ class DriverProfileService {
       rethrow;
     }
   }
+
+  // Method to fetch driver name by driver ID
+  Future<String> fetchResidentName(String driverId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/profile/$driverId'), 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Fetch resident Name Status code: ${response.statusCode}');
+      print('Fetch resident Name Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('resident data: $data');
+        // Assuming the resident's name is structured as follows
+        String firstName = data['user']['firstName'] ?? 'Unknown';
+        String lastName = data['user']['lastName'] ?? 'Resident';
+        return '$firstName $lastName';
+      } else {
+        throw Exception(
+            'Failed to fetch resident name. Status code: ${response.statusCode}. Response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching resident name: $e');
+      rethrow;
+    }
+  }
+
 }

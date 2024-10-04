@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'add_rating_service.dart';
-import 'rating_model.dart'; // Adjust the path as per your folder structure
+import 'rating_model.dart'; 
 
 class RateDriverScreen extends StatefulWidget {
   final String driverId;
@@ -47,7 +47,6 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
     final prefs = await SharedPreferences.getInstance();
     final residentId = prefs.getString("userID") ?? 'defaultResidentId';
 
-    // Create Rating object
     Rating rating = Rating(
       id: '',
       driverId: widget.driverId,
@@ -55,8 +54,8 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       points: ratingPoints,
       reviewText: _reviewController.text,
       createdAt: DateTime.now(),
-      rank: null, // Rank can be handled later
-      totalPoints: 0, // Total points can also be fetched or calculated
+      rank: null, 
+      totalPoints: 0, 
     );
 
     try {

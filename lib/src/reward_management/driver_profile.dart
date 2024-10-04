@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
+import 'package:trashtrek/src/reward_management/add_rating_service.dart'; 
 import 'package:trashtrek/src/reward_management/driver_profile_service.dart';
 import 'package:trashtrek/src/reward_management/rating_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 class DriverProfile extends StatefulWidget {
-  const DriverProfile({super.key});
+  const DriverProfile({super.key, required this.driverId, required this.residentId});
+
+  final String driverId; 
+  final String residentId;
 
   static const routeName = '/rewards_DriverProfile';
 
@@ -22,30 +26,63 @@ class _DriverProfileState extends State<DriverProfile> {
   List<Rating> reviews = [];
   bool isLoading = true;
   String errorMessage = '';
+  String driverName = 'Unknown Driver'; 
+  String residentName = 'Unknown Resident'; 
+
+  final RatingService _ratingService = RatingService(); 
+  final DriverProfileService _driverProfileService = DriverProfileService(); 
 
   @override
   void initState() {
     super.initState();
     _fetchDriverProfile();
+    _fetchDriverName();
+    _fetchResidentName();
+  }
+
+  Future<void> _fetchDriverName() async {
+    try {
+      String name = await _ratingService.fetchDriverName(widget.driverId); 
+      setState(() {
+        driverName = name;
+      });
+    } catch (e) {
+      setState(() {
+        driverName = 'Unknown Driver';
+      });
+    }
+  }
+
+  Future<void> _fetchResidentName() async {
+    try {
+      String name = await _driverProfileService.fetchResidentName(widget.residentId); 
+      setState(() {
+        residentName = name;
+      });
+    } catch (e) {
+      setState(() {
+        residentName = 'Unknown Resident';
+      });
+    }
   }
 
   Future<void> _fetchDriverProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Retrieve the token
+      final token = prefs.getString('token'); 
 
       if (token == null) {
         throw Exception('No authentication token found.');
       }
 
-      final profileData = await DriverProfileService().fetchDriverProfile(token);
+      final profileData = await _driverProfileService.fetchDriverProfile(token);
       setState(() {
         points = profileData['points'];
         rank = profileData['rank'];
 
         // Retrieve reviews and sort them by createdAt in descending order
         reviews = List<Rating>.from(profileData['reviews'])
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Sort descending
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); 
 
         isLoading = false;
       });
@@ -71,14 +108,13 @@ class _DriverProfileState extends State<DriverProfile> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const CircleAvatar(
-                        backgroundImage: AssetImage(
-                            'assets/images/profile.png'),
+                        backgroundImage: AssetImage('assets/images/profile.png'),
                         radius: 50,
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Ethan Warner', // Driver name
-                        style: TextStyle(
+                      Text(
+                        driverName,
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -108,8 +144,8 @@ class _DriverProfileState extends State<DriverProfile> {
                           itemBuilder: (context, index) {
                             final review = reviews[index];
                             return _buildReviewTile(
-                              review.residentId, // Dynamically loaded resident name
-                              review.createdAt, 
+                              residentName,
+                              review.createdAt,
                               review.points,
                               review.reviewText,
                             );
@@ -130,7 +166,7 @@ class _DriverProfileState extends State<DriverProfile> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(DateFormat('dd/MM/yy').format(createdAt)), // Format date here
+          Text(DateFormat('dd/MM/yy').format(createdAt)), 
           const SizedBox(height: 4),
           RatingBarIndicator(
             rating: stars.toDouble(), 
