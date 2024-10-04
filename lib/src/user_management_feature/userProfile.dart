@@ -185,7 +185,8 @@ class _UserProfileState extends State<UserProfile> {
                         icon: const Icon(Icons.settings),
                         onPressed: () {
                           // Navigate to the settings page.
-                          Navigator.restorablePushNamed(context, SettingsView.routeName);
+                          Navigator.restorablePushNamed(
+                              context, SettingsView.routeName);
                         },
                       ),
                     ],
