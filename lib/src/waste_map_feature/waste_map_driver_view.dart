@@ -315,6 +315,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     LatLng origin,
     List<LatLng> waypoints,
   ) async {
+    if(waypoints.isEmpty) return "";
     // Step 1: Get distances from the Distance Matrix API
     final distances = await getDistances(
       origin: origin,
@@ -538,7 +539,10 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       );
     } catch (e) {
       // Handle errors
-      print(e);
+      setState(() {
+        routeReady = true;
+        isLoading = false;
+      });
     }
   }
   // Add a marker on the map
