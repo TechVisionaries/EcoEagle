@@ -199,9 +199,7 @@ class _DriverRegistrationState extends State<DriverRegistraion> {
   }
 
   Future<void> _registerUser() async {
-    print("heho");
     if (!_validateForm()) return;
-    print("huhu");
     setState(() {
       _isLoading = true;
     });

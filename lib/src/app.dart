@@ -19,6 +19,7 @@ import 'package:trashtrek/src/user_management_feature/userProfile.dart';
 import 'package:trashtrek/src/user_management_feature/userReport.dart';
 import 'package:trashtrek/src/waste_map_feature/waste_map_driver_view.dart';
 
+import 'appointments_feature/AppointmentReportPage.dart';
 import 'reward_management/admin_driver_profile.dart';
 import 'reward_management/view_reviews.dart';
 import 'dashboards/report_dashboard.dart';
@@ -111,6 +112,8 @@ class MyApp extends StatelessWidget {
                     return const AdminDashboard();
                   case Constants.userReportRoute:
                     return const UserReport();
+                  case Constants.appointmentReportRoute:
+                    return const AppointmentReportPage();
                   case Constants.spashScreenRoute:
                     return const SplashScreen();
                   case Constants.signInRoute:
