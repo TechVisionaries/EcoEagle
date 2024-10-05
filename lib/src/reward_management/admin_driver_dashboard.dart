@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
-import 'package:trashtrek/src/reward_management/add_rating_service.dart';
 import 'package:trashtrek/src/reward_management/admin_driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'admin_driver_dashboard_service.dart';
@@ -22,7 +21,9 @@ class AdminDriverDashboard extends StatefulWidget {
 class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
   late Future<List<Rating>> futureDriverRatings;
   String driverName = 'Loading...';
-  final RatingService ratingService = RatingService(); 
+  final AdminDriverDashboardService ratingService =
+      AdminDriverDashboardService();
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +33,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
 
   Future<void> _fetchDriverName() async {
     try {
-      String name = await ratingService.fetchDriverName(widget.driverId); 
+      String name = await ratingService.fetchDriverName(widget.driverId);
       setState(() {
         driverName = name;
       });
@@ -52,6 +53,31 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
     }
 
     return await AdminDriverDashboardService().fetchDriverRatings(token);
+  }
+
+  // Method to generate report
+  void _generateReport(List<Rating> topDrivers) {
+    String reportContent = "Top 5 Drivers Report:\n\n";
+    for (var driver in topDrivers) {
+      reportContent +=
+          'Driver Name: ${driver.driverId}, Points: ${driver.totalPoints}\n';
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Driver Report"),
+        content: SingleChildScrollView(
+          child: Text(reportContent),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Close"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -102,7 +128,8 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Implement reset functionality here
+                          _generateReport(
+                              topDrivers); // Pass the top drivers to the report function
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -117,7 +144,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                       children: [
                         for (var driver in topDrivers)
                           buildDriverCard(
-                            '${driver.rank}. ${driver.driverId}', 
+                            '${driver.rank}. ${driver.driverId}',
                             driver.totalPoints,
                             'assets/images/profile.png',
                             context,
@@ -133,7 +160,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                         const SizedBox(height: 16),
                         for (var driver in allDrivers)
                           buildDriverCard(
-                            '${driver.rank}. ${driver.driverId}', 
+                            '${driver.rank}. ${driver.driverId}',
                             driver.totalPoints,
                             'assets/images/profile.png',
                             context,
@@ -162,9 +189,9 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
       subtitle: Text('Total Points: $points'),
       onTap: () {
         Navigator.restorablePushNamed(
-          context, 
+          context,
           AdminDriverProfile.routeName,
-          arguments: {'driverId': widget.driverId},
+          arguments: {'driverId': widget.driverId}, // Passing the driverId here
         );
       },
     );

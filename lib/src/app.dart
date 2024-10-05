@@ -140,16 +140,5 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp(
-  //     debugShowCheckedModeBanner: false,
-  //     // home: ScheduleAppointmentView(),
-  //     // home: RateDriverScreen(),
-  //     // home : MyReviewsScreen(),
-  //     // home : AdminDriverProfile(),
-  //     // home: DriverDashboard(),
-  //     home: DriverProfile(),
-  //   );
-  // }
+
 }

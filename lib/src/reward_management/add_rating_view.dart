@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'add_rating_service.dart';
-import 'rating_model.dart'; 
+import 'rating_model.dart';
 
 class RateDriverScreen extends StatefulWidget {
   final String driverId;
@@ -44,6 +44,16 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
   }
 
   Future<void> _submitRating() async {
+    // Validation
+    if (ratingPoints == 0) {
+      _showSnackBar('Please select a rating.');
+      return;
+    }
+    if (_reviewController.text.isEmpty) {
+      _showSnackBar('Please enter a review.');
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final residentId = prefs.getString("userID") ?? 'defaultResidentId';
 
@@ -54,68 +64,52 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       points: ratingPoints,
       reviewText: _reviewController.text,
       createdAt: DateTime.now(),
-      rank: null, 
-      totalPoints: 0, 
+      rank: null,
+      totalPoints: 0,
     );
 
     try {
       await ratingService.submitRating(rating);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white, size: 24),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Rating submitted successfully!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      _showSnackBar('Rating submitted successfully!', success: true);
       setState(() {
         ratingPoints = 0;
         _reviewController.clear();
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white, size: 24),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Failed to submit rating: $e',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+      _showSnackBar('Failed to submit rating: $e');
+    }
+  }
+
+  void _showSnackBar(String message, {bool success = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              success ? Icons.check_circle : Icons.error,
+              color: Colors.white,
+              size: 24,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          duration: const Duration(seconds: 3),
+            ),
+          ],
         ),
-      );
-    }
+        backgroundColor: success ? Colors.green : Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override

@@ -27,7 +27,7 @@ class Rating {
       points: json['rating'] ?? 0, // rating from backend
       reviewText: json['comment'] ?? '', // comment from backend
       createdAt: DateTime.parse(json['date'] ?? DateTime.now().toString()),
-      rank: json['rank'] ?? null, // rank from backend
+      rank: json['rank'], // rank from backend
       totalPoints: json['totalPoints'] ?? 0, // totalPoints from backend
     );
   }
