@@ -159,7 +159,7 @@ void _generateReport(List<Rating> topDrivers) async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar.appBar(
-        'Drivers',
+        'Driver Dashboard',
         actions: [
           IconButton(
             icon: const Icon(
@@ -206,7 +206,8 @@ void _generateReport(List<Rating> topDrivers) async {
                           _generateReport(topDrivers);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.green, // Background color
+                          foregroundColor: Colors.white, // Text color
                         ),
                         child: const Text('Report'),
                       ),
