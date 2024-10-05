@@ -20,28 +20,13 @@ class AdminDriverDashboard extends StatefulWidget {
 
 class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
   late Future<List<Rating>> futureDriverRatings;
-  String driverName = 'Loading...';
   final AdminDriverDashboardService ratingService =
       AdminDriverDashboardService();
 
   @override
   void initState() {
     super.initState();
-    _fetchDriverName();
     futureDriverRatings = _fetchDriverRatings();
-  }
-
-  Future<void> _fetchDriverName() async {
-    try {
-      String name = await ratingService.fetchDriverName(widget.driverId);
-      setState(() {
-        driverName = name;
-      });
-    } catch (e) {
-      setState(() {
-        driverName = 'Unknown Driver';
-      });
-    }
   }
 
   Future<List<Rating>> _fetchDriverRatings() async {
@@ -128,8 +113,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          _generateReport(
-                              topDrivers); // Pass the top drivers to the report function
+                          _generateReport(topDrivers);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -143,11 +127,34 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                     child: ListView(
                       children: [
                         for (var driver in topDrivers)
-                          buildDriverCard(
-                            '${driver.rank}. ${driver.driverId}',
-                            driver.totalPoints,
-                            'assets/images/profile.png',
-                            context,
+                          FutureBuilder<String>(
+                            future: ratingService
+                                .fetchDriverName(driver.driverId.toString()),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return buildDriverCard(
+                                  'Loading name...',
+                                  driver.totalPoints,
+                                  'assets/images/profile.png',
+                                  context,
+                                );
+                              } else if (snapshot.hasError) {
+                                return buildDriverCard(
+                                  'Error loading name',
+                                  driver.totalPoints,
+                                  'assets/images/profile.png',
+                                  context,
+                                );
+                              } else {
+                                return buildDriverCard(
+                                  '${driver.rank}. ${snapshot.data}',
+                                  driver.totalPoints,
+                                  'assets/images/profile.png',
+                                  context,
+                                );
+                              }
+                            },
                           ),
                         const Divider(),
                         const Text(
@@ -159,11 +166,34 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                         ),
                         const SizedBox(height: 16),
                         for (var driver in allDrivers)
-                          buildDriverCard(
-                            '${driver.rank}. ${driver.driverId}',
-                            driver.totalPoints,
-                            'assets/images/profile.png',
-                            context,
+                          FutureBuilder<String>(
+                            future: ratingService
+                                .fetchDriverName(driver.driverId.toString()),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return buildDriverCard(
+                                  'Loading name...',
+                                  driver.totalPoints,
+                                  'assets/images/profile.png',
+                                  context,
+                                );
+                              } else if (snapshot.hasError) {
+                                return buildDriverCard(
+                                  'Error loading name',
+                                  driver.totalPoints,
+                                  'assets/images/profile.png',
+                                  context,
+                                );
+                              } else {
+                                return buildDriverCard(
+                                  '${driver.rank}. ${snapshot.data}',
+                                  driver.totalPoints,
+                                  'assets/images/profile.png',
+                                  context,
+                                );
+                              }
+                            },
                           ),
                       ],
                     ),
@@ -191,7 +221,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
         Navigator.restorablePushNamed(
           context,
           AdminDriverProfile.routeName,
-          arguments: {'driverId': widget.driverId}, // Passing the driverId here
+          arguments: widget.driverId,
         );
       },
     );

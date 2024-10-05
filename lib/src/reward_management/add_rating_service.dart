@@ -36,8 +36,7 @@ class RatingService {
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
         if (data['reward'] != null) {
-          return Rating.fromJson(
-              data['reward']); 
+          return Rating.fromJson(data['reward']);
         } else {
           throw Exception('No reward data found in the response');
         }
@@ -58,7 +57,7 @@ class RatingService {
       final token = prefs.getString('token') ?? '';
 
       final response = await http.get(
-        Uri.parse('$baseUrl/users/profile/$driverId'), 
+        Uri.parse('$baseUrl/users/profile/$driverId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -84,7 +83,4 @@ class RatingService {
       rethrow;
     }
   }
-
-  
-
 }
