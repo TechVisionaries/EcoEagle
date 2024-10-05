@@ -61,6 +61,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       id: '',
       driverId: widget.driverId,
       residentId: residentId,
+      resident_name: null,
       points: ratingPoints,
       reviewText: _reviewController.text,
       createdAt: DateTime.now(),

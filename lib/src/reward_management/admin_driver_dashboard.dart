@@ -37,10 +37,9 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
       throw Exception('No authentication token found.');
     }
 
-    return await AdminDriverDashboardService().fetchDriverRatings(token);
+    return await ratingService.fetchDriverRatings(token);
   }
 
-  // Method to generate report
   void _generateReport(List<Rating> topDrivers) {
     String reportContent = "Top 5 Drivers Report:\n\n";
     for (var driver in topDrivers) {
@@ -127,7 +126,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                     child: ListView(
                       children: [
                         for (var driver in topDrivers)
-                          FutureBuilder<String>(
+                          FutureBuilder<String?>(
                             future: ratingService
                                 .fetchDriverName(driver.driverId.toString()),
                             builder: (context, snapshot) {
@@ -147,8 +146,10 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                                   context,
                                 );
                               } else {
+                                final driverName =
+                                    snapshot.data ?? 'Unknown Driver';
                                 return buildDriverCard(
-                                  '${driver.rank}. ${snapshot.data}',
+                                  '${driver.rank}. $driverName',
                                   driver.totalPoints,
                                   'assets/images/profile.png',
                                   context,
@@ -166,7 +167,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                         ),
                         const SizedBox(height: 16),
                         for (var driver in allDrivers)
-                          FutureBuilder<String>(
+                          FutureBuilder<String?>(
                             future: ratingService
                                 .fetchDriverName(driver.driverId.toString()),
                             builder: (context, snapshot) {
@@ -186,8 +187,10 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                                   context,
                                 );
                               } else {
+                                final driverName =
+                                    snapshot.data ?? 'Unknown Driver';
                                 return buildDriverCard(
-                                  '${driver.rank}. ${snapshot.data}',
+                                  '${driver.rank}. $driverName',
                                   driver.totalPoints,
                                   'assets/images/profile.png',
                                   context,
