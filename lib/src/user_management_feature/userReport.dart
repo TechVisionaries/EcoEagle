@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:trashtrek/common/constants.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:flutter/services.dart';
 
 class UserReport extends StatefulWidget {
   const UserReport({super.key});
@@ -94,20 +96,87 @@ class _UserReportState extends State<UserReport> {
 
   Future<void> _generatePdfReport() async {
     final pdf = pw.Document();
+
+    // Load the company logo from assets
+    final ByteData bytes = await rootBundle.load('assets/images/truck.png');
+    final image = pw.MemoryImage(bytes.buffer.asUint8List());
+
+    // Get the current date and time
+    final DateTime now = DateTime.now();
+    final formattedDate = "${now.year}-${now.month}-${now.day}";
+    final formattedTime = "${now.hour}:${now.minute}:${now.second}";
+
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
-          return pw.Table.fromTextArray(
-            context: context,
-            headers: ['Name', 'Email', 'Phone', 'User Type'],
-            data: _filteredUsers.map((user) {
-              return [
-                '${user['firstName']} ${user['lastName']}',
-                user['email'],
-                user['phoneNo'] ?? 'N/A',
-                user['userType'] ?? 'N/A'
-              ];
-            }).toList(),
+          return pw.Column(
+            children: [
+              // Header Section
+              pw.Container(
+                color: PdfColor.fromHex('#bfff00'), // Light green color
+                padding: const pw.EdgeInsets.all(16),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Text(
+                      'TrashTrek\n Company',
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                    // Logo and "Users Report" in a centered column
+                    pw.Column(
+                      mainAxisAlignment: pw.MainAxisAlignment.center,
+                      children: [
+                        pw.Image(image, width: 60, height: 60), // Logo Image
+                        pw.SizedBox(
+                            height: 8), // Space between the logo and the text
+                        pw.Text(
+                          'Users Report',
+                          style: pw.TextStyle(
+                            fontSize: 14,
+                            fontWeight: pw.FontWeight.bold,
+                            decoration: pw.TextDecoration
+                                .underline, // Underline added here
+                          ),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    pw.Text(
+                      'Date: $formattedDate\nTime: $formattedTime',
+                      style: pw.TextStyle(
+                        fontSize: 12,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      textAlign: pw.TextAlign.right,
+                    ),
+                  ],
+                ),
+              ),
+              pw.Divider(
+                  color: PdfColors.white,
+                  thickness: 10), // Add some space after the header
+
+              // Table Section
+              pw.Container(
+                color: PdfColor.fromHex('#ffffff'),
+                child: pw.Table.fromTextArray(
+                  context: context,
+                  headers: ['Name', 'Email', 'Phone', 'User Type'],
+                  data: _filteredUsers.map((user) {
+                    return [
+                      '${user['firstName']} ${user['lastName']}',
+                      user['email'],
+                      user['phoneNo'] ?? 'N/A',
+                      user['userType'] ?? 'N/A'
+                    ];
+                  }).toList(),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -122,7 +191,7 @@ class _UserReportState extends State<UserReport> {
     }
     final file = File('${downloadsDir.path}/user_report.pdf');
     await file.writeAsBytes(await pdf.save());
-
+    print("PDF saved to: ${file.path}");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('PDF Report Generated: ${file.path}')),
     );
