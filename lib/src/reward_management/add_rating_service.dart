@@ -58,7 +58,7 @@ class RatingService {
       final token = prefs.getString('token') ?? '';
 
       final response = await http.get(
-        Uri.parse('$baseUrl/drivers/$driverId'), // Updated URL
+        Uri.parse('$baseUrl/users/profile/$driverId'), // Updated URL
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -70,9 +70,10 @@ class RatingService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('Driver data: $data');
         // Assuming the driver's name is structured as follows
-        String firstName = data['driver']['firstName'] ?? 'Unknown';
-        String lastName = data['driver']['lastName'] ?? 'Driver';
+        String firstName = data['user']['firstName'] ?? 'Unknown';
+        String lastName = data['user']['lastName'] ?? 'Driver';
         return '$firstName $lastName';
       } else {
         throw Exception(
