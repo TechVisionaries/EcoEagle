@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
+import 'package:trashtrek/src/appointments_feature/AppointmentReportPage.dart';
 import 'package:trashtrek/src/user_management_feature/userReport.dart';
 
 // Make sure to import your UserProfile page
@@ -39,6 +41,13 @@ class ReportViewState extends State<ReportView> {
               icon: Icons.report,
               color: Colors.purple,
               routeName: UserReport.routeName,
+            ),
+          //   add appointment report here
+            _buildNavigationTile(context,
+                title: "Appointment Reports",
+                icon: Icons.report, 
+                color: Colors.purple,
+                routeName: AppointmentReportPage.routeName
             ),
           ],
         ),

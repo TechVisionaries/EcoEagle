@@ -20,4 +20,5 @@ class Constants {
   static const adminDashboardRoute = '/admin_dashboard';
   static const adminReportsRoute = '/admin_reports';
   static const userReportRoute = '/user_report';
+  static const appointmentReportRoute = '/appointment_report';
 }

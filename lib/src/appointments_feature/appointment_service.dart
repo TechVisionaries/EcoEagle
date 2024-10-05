@@ -20,6 +20,19 @@ class ApiService {
     }
   }
 
+  // get all appointments
+  Future<List<Appointment>> fetchAllAppointments() async {
+    final response = await http.get(Uri.parse('$baseUrl/appointments'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return Appointment.listFromJson(data);
+    } else {
+      throw Exception('Failed to load appointments');
+    }
+  }
+
+
   Future<Appointment> createAppointment(Appointment appointment) async {
     try {
       final response = await http
