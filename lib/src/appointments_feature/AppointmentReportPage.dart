@@ -91,7 +91,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                items: ['All', 'Pending', 'Accepted', 'Confirmed']
+                items: ['All', 'Pending', 'Accepted', 'Completed']
                     .map((status) => DropdownMenuItem<String>(
                   value: status,
                   child: Text(status),
