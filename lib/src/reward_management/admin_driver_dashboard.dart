@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
@@ -6,6 +8,9 @@ import 'package:trashtrek/src/reward_management/admin_driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'admin_driver_dashboard_service.dart';
 import 'rating_model.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class AdminDriverDashboard extends StatefulWidget {
   final String driverId;
@@ -40,27 +45,54 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
     return await ratingService.fetchDriverRatings(token);
   }
 
-  void _generateReport(List<Rating> topDrivers) {
-    String reportContent = "Top 5 Drivers Report:\n\n";
-    for (var driver in topDrivers) {
-      reportContent +=
-          'Driver Name: ${driver.driverId}, Points: ${driver.totalPoints}\n';
-    }
+  void _generateReport(List<Rating> topDrivers) async {
+    final pdf = pw.Document();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Driver Report"),
-        content: SingleChildScrollView(
-          child: Text(reportContent),
+    // Adding a title and top drivers table
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Top 5 Drivers Report',
+              style: pw.TextStyle(
+                fontSize: 24,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Table.fromTextArray(
+              headers: ['Rank', 'Driver Name', 'Total Points'],
+              data: topDrivers.map((driver) {
+                // Fetch the driver name instead of using driverId
+                return [
+                  driver.rank.toString(),
+                  driver.driverId
+                      .toString(), // Replace with driverName if available
+                  driver.totalPoints.toString(),
+                ];
+              }).toList(),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
-          ),
-        ],
       ),
+    );
+
+    // Save the PDF to the Downloads directory
+    final outputDir =
+        await getExternalStorageDirectory(); // Get external directory
+    final downloadsDir = Directory("${outputDir!.path}/Download");
+    if (!await downloadsDir.exists()) {
+      await downloadsDir.create(recursive: true);
+    }
+    final file = File(
+        '${downloadsDir.path}/top_drivers_report.pdf'); // Specify the filename
+    await file.writeAsBytes(await pdf.save());
+
+    print("PDF saved to: ${file.path}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('PDF Report Generated: ${file.path}')),
     );
   }
 
@@ -115,7 +147,10 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                           _generateReport(topDrivers);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: const Color.fromARGB(
+                              255, 69, 189, 71), // Change button color here
+                          foregroundColor:
+                              Colors.white, // Change text color here
                         ),
                         child: const Text('Report'),
                       ),
