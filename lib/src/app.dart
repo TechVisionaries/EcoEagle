@@ -99,9 +99,14 @@ class MyApp extends StatelessWidget {
                   case MyReviewsScreen.routeName:
                     return const MyReviewsScreen();
                   case AdminDriverDashboard.routeName:
-                    return const AdminDriverDashboard();
+                    return const AdminDriverDashboard(
+                      driverId: '',
+                    );
                   case DriverProfile.routeName:
-                    return const DriverProfile();
+                    return const DriverProfile(
+                      driverId: '',
+                      residentId: '',
+                    );
                   case AdminDriverProfile.routeName:
                     return const AdminDriverProfile();
                   case Constants.driverDashboardRoute:
@@ -142,17 +147,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp(
-  //     debugShowCheckedModeBanner: false,
-  //     // home: ScheduleAppointmentView(),
-  //     // home: RateDriverScreen(),
-  //     // home : MyReviewsScreen(),
-  //     // home : AdminDriverProfile(),
-  //     // home: DriverDashboard(),
-  //     home: DriverProfile(),
-  //   );
-  // }
 }

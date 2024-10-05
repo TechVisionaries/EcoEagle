@@ -7,6 +7,7 @@ class Rating {
   final DateTime createdAt; // date in backend
   final int? rank; // Optional rank
   final int totalPoints; // totalPoints for the driver
+  final String? resident_name;
 
   Rating({
     required this.id,
@@ -16,18 +17,20 @@ class Rating {
     required this.reviewText,
     required this.createdAt,
     this.rank, // Optional rank field
-    required this.totalPoints, // totalPoints for the driver
+    required this.totalPoints,
+    required this.resident_name, // totalPoints for the driver
   });
 
   factory Rating.fromJson(Map<String, dynamic> json) {
     return Rating(
       id: json['_id'] ?? '',
       driverId: json['driverId'],
-      residentId: json['userId']?['_id'] ?? '', // userId from backend
+      residentId: json['userId']?['_id'] ?? '',
+      resident_name: json['residentName'],
       points: json['rating'] ?? 0, // rating from backend
       reviewText: json['comment'] ?? '', // comment from backend
       createdAt: DateTime.parse(json['date'] ?? DateTime.now().toString()),
-      rank: json['rank'] ?? null, // rank from backend
+      rank: json['rank'], // rank from backend
       totalPoints: json['totalPoints'] ?? 0, // totalPoints from backend
     );
   }
@@ -35,9 +38,9 @@ class Rating {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'driverId': driverId, // Nullable
-      'userId': {'_id': residentId}, // Assuming userId is an object
-      'rating': points, // Points to rating
+      'driverId': driverId,
+      'userId': residentId,
+      'rating': points,
       'comment': reviewText, // Review text as comment
       'date': createdAt.toIso8601String(),
       'rank': rank, // Include rank if available
