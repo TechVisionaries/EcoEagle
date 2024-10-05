@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
@@ -25,8 +26,7 @@ class AdminDriverDashboard extends StatefulWidget {
 
 class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
   late Future<List<Rating>> futureDriverRatings;
-  final AdminDriverDashboardService ratingService =
-      AdminDriverDashboardService();
+  final AdminDriverDashboardService ratingService = AdminDriverDashboardService();
 
   @override
   void initState() {
@@ -45,37 +45,95 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
     return await ratingService.fetchDriverRatings(token);
   }
 
-  void _generateReport(List<Rating> topDrivers) async {
+void _generateReport(List<Rating> topDrivers) async {
     final pdf = pw.Document();
+    final ByteData bytes = await rootBundle.load('assets/images/truck.png');
+    final image = pw.MemoryImage(bytes.buffer.asUint8List());
 
-    // Adding a title and top drivers table
+    // Get the current date and time
+    final DateTime now = DateTime.now();
+    final formattedDate = "${now.year}-${now.month}-${now.day}";
+    final formattedTime = "${now.hour}:${now.minute}:${now.second}";
+
+    // Create a list to hold driver names
+    final List<String> driverNames = [];
+
+    // Fetch driver names asynchronously for each top driver
+    for (var driver in topDrivers) {
+      final driverName =
+          await ratingService.fetchDriverName(driver.driverId.toString());
+      driverNames.add(driverName ?? 'Unknown Driver');
+    }
+
+    // Adding a title and top drivers table with updated headers and content
     pdf.addPage(
       pw.Page(
-        build: (pw.Context context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Top 5 Drivers Report',
-              style: pw.TextStyle(
-                fontSize: 24,
-                fontWeight: pw.FontWeight.bold,
+        build: (pw.Context context) {
+          return pw.Column(
+            children: [
+              // Header Section
+              pw.Container(
+                color: PdfColor.fromHex('#bfff00'), // Light green color
+                padding: const pw.EdgeInsets.all(16),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Text(
+                      'TrashTrek\n Company',
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                    // Logo and "Top 5 Drivers" in a centered column
+                    pw.Column(
+                      mainAxisAlignment: pw.MainAxisAlignment.center,
+                      children: [
+                        pw.Image(image, width: 60, height: 60), // Logo Image
+                        pw.SizedBox(
+                            height: 8), // Space between the logo and the text
+                        pw.Text(
+                          'Top 5 Drivers',
+                          style: pw.TextStyle(
+                            fontSize: 14,
+                            fontWeight: pw.FontWeight.bold,
+                            decoration: pw.TextDecoration.underline,
+                          ),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    pw.Text(
+                      'Date: $formattedDate\nTime: $formattedTime',
+                      style: pw.TextStyle(
+                        fontSize: 12,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      textAlign: pw.TextAlign.right,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            pw.SizedBox(height: 16),
-            pw.Table.fromTextArray(
-              headers: ['Rank', 'Driver Name', 'Total Points'],
-              data: topDrivers.map((driver) {
-                // Fetch the driver name instead of using driverId
-                return [
-                  driver.rank.toString(),
-                  driver.driverId
-                      .toString(), // Replace with driverName if available
-                  driver.totalPoints.toString(),
-                ];
-              }).toList(),
-            ),
-          ],
-        ),
+              pw.Divider(
+                  color: PdfColors.white,
+                  thickness: 10), // Space after the header
+
+              // Table Section
+              pw.Table.fromTextArray(
+                headers: ['Rank', 'Driver Name', 'Total Points'],
+                data: List.generate(topDrivers.length, (index) {
+                  final driver = topDrivers[index];
+                  return [
+                    driver.rank.toString(),
+                    driverNames[index], // Use fetched driver name
+                    driver.totalPoints.toString(),
+                  ];
+                }),
+              ),
+            ],
+          );
+        },
       ),
     );
 
@@ -95,6 +153,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
       SnackBar(content: Text('PDF Report Generated: ${file.path}')),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -147,10 +206,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                           _generateReport(topDrivers);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                              255, 69, 189, 71), // Change button color here
-                          foregroundColor:
-                              Colors.white, // Change text color here
+                          backgroundColor: Colors.green,
                         ),
                         child: const Text('Report'),
                       ),
@@ -162,11 +218,9 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                       children: [
                         for (var driver in topDrivers)
                           FutureBuilder<String?>(
-                            future: ratingService
-                                .fetchDriverName(driver.driverId.toString()),
+                            future: ratingService.fetchDriverName(driver.driverId.toString()),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
                                 return buildDriverCard(
                                   'Loading name...',
                                   driver.totalPoints,
@@ -181,8 +235,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                                   context,
                                 );
                               } else {
-                                final driverName =
-                                    snapshot.data ?? 'Unknown Driver';
+                                final driverName = snapshot.data ?? 'Unknown Driver';
                                 return buildDriverCard(
                                   '${driver.rank}. $driverName',
                                   driver.totalPoints,
@@ -203,11 +256,9 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                         const SizedBox(height: 16),
                         for (var driver in allDrivers)
                           FutureBuilder<String?>(
-                            future: ratingService
-                                .fetchDriverName(driver.driverId.toString()),
+                            future: ratingService.fetchDriverName(driver.driverId.toString()),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
                                 return buildDriverCard(
                                   'Loading name...',
                                   driver.totalPoints,
@@ -222,8 +273,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                                   context,
                                 );
                               } else {
-                                final driverName =
-                                    snapshot.data ?? 'Unknown Driver';
+                                final driverName = snapshot.data ?? 'Unknown Driver';
                                 return buildDriverCard(
                                   '${driver.rank}. $driverName',
                                   driver.totalPoints,
@@ -242,13 +292,11 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
           },
         ),
       ),
-      bottomNavigationBar:
-          CustomBottomNavigation.dynamicNav(context, 1, 'Admin'),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 1, 'Admin'),
     );
   }
 
-  Widget buildDriverCard(
-      String name, int points, String imagePath, BuildContext context) {
+  Widget buildDriverCard(String name, int points, String imagePath, BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: AssetImage(imagePath),
