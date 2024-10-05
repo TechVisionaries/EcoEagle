@@ -32,6 +32,8 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
   List<Appointment> appointments = [];
   List<Appointment> filteredAppointments = [];
   String selectedStatus = 'All'; // Default is to show all appointments
+  bool isLoading = false; // Loading state for the overall UI
+  bool isButtonLoading = false; // Loading state for the button
 
   @override
   void initState() {
@@ -40,10 +42,14 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
   }
 
   Future<void> _loadAppointments() async {
+    setState(() {
+      isLoading = true; // Start loading
+    });
     List<Appointment> fetchedAppointments = await apiService.fetchAllAppointments();
     setState(() {
       appointments = fetchedAppointments;
       filteredAppointments = appointments; // Initially show all
+      isLoading = false; // Stop loading
     });
   }
 
@@ -52,7 +58,9 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
       if (status == 'All') {
         filteredAppointments = appointments;
       } else {
-        filteredAppointments = appointments.where((appointment) => appointment.status == status.toLowerCase()).toList();
+        filteredAppointments = appointments
+            .where((appointment) => appointment.status == status.toLowerCase())
+            .toList();
       }
     });
   }
@@ -64,7 +72,9 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
         title: Text('Appointment Report'),
         backgroundColor: const Color(0xFF41A87D),
       ),
-      body: Container(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator
+          : Container(
         color: const Color(0xFFEFF5E5), // Light background color
         child: Column(
           children: [
@@ -81,7 +91,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                items: ['All', 'Pending', 'Accepted', 'Confirmed']
+                items: ['All', 'Pending', 'Accepted', 'Completed']
                     .map((status) => DropdownMenuItem<String>(
                   value: status,
                   child: Text(status),
@@ -104,7 +114,8 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       child: ListTile(
                         title: Text(
                           'Appointment on ${appointment.date}',
@@ -130,17 +141,31 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: _generatePDF, // Call method to generate PDF
+                onPressed: isButtonLoading ? null : _generatePDF, // Disable button if loading
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.picture_as_pdf),
+                    if (isButtonLoading)
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    else
+                      Icon(Icons.picture_as_pdf),
                     SizedBox(width: 8),
-                    Text('Generate PDF', style: TextStyle(fontSize: 16)),
+                    Text(
+                      'Generate PDF',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ],
                 ),
               ),
             ),
+
           ],
         ),
       ),
@@ -148,8 +173,11 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
   }
 
   Future<void> _generatePDF() async {
-    final pdf = pw.Document();
+    setState(() {
+      isButtonLoading = true; // Start loading while generating PDF
+    });
 
+    final pdf = pw.Document();
     List<String> townNames = [];
 
     // Fetch town names asynchronously for each appointment
@@ -195,5 +223,9 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
 
     // Optionally, open the PDF in a viewer
     await Printing.sharePdf(bytes: await pdf.save(), filename: 'appointment_report.pdf');
+
+    setState(() {
+      isButtonLoading = false; // Stop loading after PDF generation
+    });
   }
 }
