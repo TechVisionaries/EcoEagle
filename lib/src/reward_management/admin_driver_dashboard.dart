@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
@@ -141,7 +142,7 @@ void _generateReport(List<Rating> topDrivers) async {
     final file = File("${output.path}/top_drivers_report.pdf");
     await file.writeAsBytes(await pdf.save());
 
-
+    
     // final outputDir =
     //     await getExternalStorageDirectory(); // Get external directory
     // final downloadsDir = Directory("${outputDir!.path}/Download");
@@ -156,6 +157,7 @@ void _generateReport(List<Rating> topDrivers) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('PDF Report Generated: ${file.path}')),
     );
+    await Printing.sharePdf(bytes: await pdf.save(), filename: 'top_drivers_report.pdf');
   }
 
 

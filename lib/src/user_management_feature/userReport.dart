@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:trashtrek/common/constants.dart';
@@ -195,6 +196,7 @@ class _UserReportState extends State<UserReport> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('PDF Report Generated: ${file.path}')),
     );
+    await Printing.sharePdf(bytes: await pdf.save(), filename: 'user_report.pdf');
   }
 
   Future<void> _removeAccount(String userId) async {
