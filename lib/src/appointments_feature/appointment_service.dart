@@ -101,8 +101,15 @@ class ApiService {
   }
 
   Future<List<Appointment>> fetchDriverAppointments(String userId) async {
-    final response = await http.get(
-        Uri.parse('$baseUrl/appointments/driver/$userId'));
+    final today = DateTime.now().toIso8601String().split('T').first; // Ensures 'YYYY-MM-DD' format
+
+    // Construct the URL with query parameters
+    final uri = Uri.parse('$baseUrl/appointments/driver/$userId').replace(
+      queryParameters: {'date': today},
+    );
+
+    // Make the GET request
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
