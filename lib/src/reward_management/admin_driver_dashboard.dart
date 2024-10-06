@@ -11,7 +11,6 @@ import 'admin_driver_dashboard_service.dart';
 import 'rating_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
 class AdminDriverDashboard extends StatefulWidget {
   final String driverId;
@@ -138,15 +137,20 @@ void _generateReport(List<Rating> topDrivers) async {
     );
 
     // Save the PDF to the Downloads directory
-    final outputDir =
-        await getExternalStorageDirectory(); // Get external directory
-    final downloadsDir = Directory("${outputDir!.path}/Download");
-    if (!await downloadsDir.exists()) {
-      await downloadsDir.create(recursive: true);
-    }
-    final file = File(
-        '${downloadsDir.path}/top_drivers_report.pdf'); // Specify the filename
+  final output = await getTemporaryDirectory();
+    final file = File("${output.path}/top_drivers_report.pdf");
     await file.writeAsBytes(await pdf.save());
+
+
+    // final outputDir =
+    //     await getExternalStorageDirectory(); // Get external directory
+    // final downloadsDir = Directory("${outputDir!.path}/Download");
+    // if (!await downloadsDir.exists()) {
+    //   await downloadsDir.create(recursive: true);
+    // }
+    // final file = File(
+    //     '${downloadsDir.path}/top_drivers_report.pdf'); // Specify the filename
+    // await file.writeAsBytes(await pdf.save());
 
     print("PDF saved to: ${file.path}");
     ScaffoldMessenger.of(context).showSnackBar(
