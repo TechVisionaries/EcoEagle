@@ -65,6 +65,7 @@ class MapAppointment extends Appointment{
     required super.date, 
     required super.location, 
     required super.status,
+    required super.garbageTypes,
     super.driver,
     super.id,
     required this.address,
@@ -92,6 +93,7 @@ class MapAppointment extends Appointment{
       status: json['status'] as String,
       driver: json['driver'] as String?,
       comment: json['comment'] as String?,
+      garbageTypes: List<String>.from(json['garbageTypes'] as List<dynamic>),
     );
   }
 
@@ -113,6 +115,7 @@ class MapAppointment extends Appointment{
       'durationValue': durationValue,
       'distanceValue': distanceValue,
       'comment': comment,
+      'garbageTypes': garbageTypes,
     };
   }
 

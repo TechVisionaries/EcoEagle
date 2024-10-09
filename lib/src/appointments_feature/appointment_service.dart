@@ -35,26 +35,32 @@ class ApiService {
 
   Future<Appointment> createAppointment(Appointment appointment) async {
     try {
+      // Create the request body JSON
+      final requestBody = jsonEncode(appointment.toJson());
+      print('Request Body: $requestBody');
+
+      // Send the HTTP POST request
       final response = await http
           .post(
         Uri.parse('$baseUrl/appointments'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(appointment.toJson()),
+        body: requestBody, // Use the requestBody variable instead of encoding again
       )
           .timeout(const Duration(seconds: 10));
 
+      // Check the response status
       if (response.statusCode == 201) {
         // Handle success
         return Appointment.fromJson(json.decode(response.body));
       } else {
-        throw Exception(
-            'Failed to create appointment. Status code: ${response
-                .statusCode}');
+        print('Response Body: ${response.body}');
+        throw Exception('Failed to create appointment. Status code: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to create appointment: $e');
     }
   }
+
 
   Future<String?> getUserId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -187,7 +193,7 @@ class ApiService {
         throw Exception('No drivers found in this city');
       }
     } else {
-      throw Exception('Failed to load users');
+      throw Exception('Failed to load drivers');
     }
   }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../common/constants.dart';
 import 'appointment_model.dart';
 import 'appointment_service.dart';
-
 import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -76,97 +75,139 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
           ? Center(child: CircularProgressIndicator()) // Show loading indicator
           : Container(
         color: const Color(0xFFEFF5E5), // Light background color
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: DropdownButtonFormField<String>(
-                value: selectedStatus,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: ['All', 'Pending', 'Accepted', 'Completed']
-                    .map((status) => DropdownMenuItem<String>(
-                  value: status,
-                  child: Text(status),
-                ))
-                    .toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedStatus = newValue ?? 'All';
-                    _filterAppointments(selectedStatus);
-                  });
-                },
-              ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0), // Padding around the entire body
+          child: Card(
+            elevation: 4, // Adds shadow to the card for depth
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12), // Rounded corners
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredAppointments.length,
-                itemBuilder: (context, index) {
-                  final appointment = filteredAppointments[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      child: ListTile(
-                        title: Text(
-                          'Appointment on ${appointment.date}',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        subtitle: Text(
-                          'Status: ${appointment.status.capitalize()}',
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.filter_list, color: Color(0xFF41A87D)), // Icon for the filter
+                      SizedBox(width: 8), // Space between icon and text
+                      Text(
+                        'Filter by Status',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12), // Space between title and radio buttons
+                  Center(
+                    child: SizedBox(
+                      width: 800,
+                      child: Row(
+                        children: ['All', 'Pending', 'Accepted', 'Completed']
+                            .map((status) => Expanded(
+                          child: RadioListTile<String>(
+                            title: Text(status),
+                            value: status,
+                            groupValue: selectedStatus,
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatus = newValue ?? 'All';
+                                _filterAppointments(selectedStatus);
+                              });
+                            },
+                            activeColor: Color(0xFF41A87D), // Customize the active color
+                            visualDensity: VisualDensity(horizontal: 0, vertical: -4), // Adjust spacing
+                          ),
+                        ))
+                            .toList(),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: const Color(0xFF41A87D),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                onPressed: isButtonLoading ? null : _generatePDF, // Disable button if loading
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (isButtonLoading)
-                      SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    else
-                      Icon(Icons.picture_as_pdf),
-                    SizedBox(width: 8),
-                    Text(
-                      'Generate PDF',
-                      style: TextStyle(fontSize: 16),
+                  SizedBox(height: 16), // Space before data table
+
+                  // Center the DataTable
+                  Center(
+                    child: SingleChildScrollView(
+                      child: DataTable(
+                        columns: [
+                          DataColumn(label: Container(width: 80, child: Text('Date', style: TextStyle(fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Container(width: 100, child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Container(width: 150, child: Text('Location', style: TextStyle(fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Container(width: 50, child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)))),
+                        ],
+                        rows: filteredAppointments
+                            .map(
+                              (appointment) => DataRow(cells: [
+                            DataCell(Text(appointment.date)),
+                            DataCell(Text(appointment.status.capitalize())),
+                            DataCell(FutureBuilder<String?>(
+                              future: apiService.getTownFromCoordinates(
+                                appointment.location.latitude,
+                                appointment.location.longitude,
+                              ),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Text('Loading...'); // While loading
+                                } else if (snapshot.hasError || !snapshot.hasData) {
+                                  return Text('N/A'); // Error case
+                                } else {
+                                  return Text(snapshot.data ?? 'Unknown');
+                                }
+                              },
+                            )),
+                            DataCell(
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red), // Delete icon
+                                onPressed: () {
+                                  // _deleteAppointment(appointment.id);
+                                },
+                              ),
+                            ),
+                          ]),
+                        )
+                            .toList(),
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                  Spacer(), // This spacer will push the button to the bottom of the column
+
+                  // Move the Generate PDF button here for better visibility
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        backgroundColor: const Color(0xFF41A87D),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: isButtonLoading ? null : _generatePDF, // Disable button if loading
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min, // Make the button fit its content
+                        children: [
+                          if (isButtonLoading)
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          else
+                            Icon(Icons.picture_as_pdf),
+                          SizedBox(width: 8),
+                          Text(
+                            'Generate PDF',
+                            style: TextStyle(fontSize: 16), // Adjust font size if needed
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
-          ],
+          ),
         ),
       ),
     );
@@ -186,7 +227,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
         appointment.location.latitude,
         appointment.location.longitude,
       );
-      townNames.add(town!);
+      townNames.add(town ?? 'Unknown');
     }
 
     // Add PDF content
@@ -200,7 +241,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
               pw.Table.fromTextArray(
                 context: context,
                 data: <List<String>>[
-                  <String>['Date', 'Status', 'Location'],
+                  <String>['Date', 'Time', 'Service Type', 'Status', 'Location'],
                   ...filteredAppointments.map(
                         (appointment) => [
                       appointment.date,
