@@ -4,18 +4,20 @@ class Appointment {
   final String? id;
   final String? userId;
   final String date;
-  final LatLng location; // Correct field
+  final LatLng location;
   String status;
-  String? driver; // Correct field
+  String? driver;
+  List<String> garbageTypes;
 
   Appointment({
     this.id,
     required this.userId,
     required this.date,
-    required this.location, // Correct field
+    required this.location,
     required this.status,
-    this.driver, // Correct field
-  });
+    this.driver,
+    List<String>? garbageTypes, // Nullable list
+  }) : garbageTypes = garbageTypes ?? []; // Default to an empty list if null
 
   // Factory method to convert JSON into an Appointment object
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -26,9 +28,12 @@ class Appointment {
       location: LatLng(
         json['location']['latitude'] as double,
         json['location']['longitude'] as double,
-      ), // Corrected field for LatLng parsing
+      ),
       status: json['status'] as String,
       driver: json['driver'] as String?,
+      garbageTypes: json['garbageTypes'] != null
+          ? List<String>.from(json['garbageTypes'] as List<dynamic>)
+          : [],
     );
   }
 
@@ -41,9 +46,10 @@ class Appointment {
       'location': {
         'latitude': location.latitude,
         'longitude': location.longitude,
-      }, // Corrected field for LatLng conversion
+      },
       'status': status,
       'driver': driver,
+      'garbageTypes': garbageTypes, // Properly include garbageTypes in the request
     };
   }
 

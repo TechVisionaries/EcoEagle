@@ -28,6 +28,10 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
   LatLng _selectedLocation = const LatLng(0, 0); // Default to a neutral location
   late GoogleMapController _mapController;
   DateTime _selectedDate = DateTime.now();
+  // List to hold selected garbage types but this cannot be  null
+  final List<String> _selectedGarbageTypes = [];
+  // List of available garbage types
+  final List<String> _garbageTypes = ['Plastic', 'Paper', 'Organic', 'Metal', 'Glass'];
 
   @override
   void initState() {
@@ -143,7 +147,11 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
           status: 'pending',
           location: _selectedLocation,
           driver: driverID,
+          garbageTypes: _selectedGarbageTypes,
+
         );
+
+
 
         final hasAppointment =
         await widget.apiService.hasAppointment(appointment.date);
@@ -215,6 +223,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                 formatButtonVisible: false,
               ),
             ),
+
             const SizedBox(height: 16),
             Form(
               key: _formKey,
@@ -222,26 +231,53 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   TextFormField(
-                    controller: _dateController,
-                    decoration: InputDecoration(
-                      labelText: 'Schedule Date',
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_today),
-                        onPressed: () {
-                          // You can trigger the calendar view here if needed
-                        },
-                      ),
-                      border: const OutlineInputBorder(),
+                  controller: _dateController,
+                  decoration: InputDecoration(
+                    labelText: 'Schedule Date',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () {
+                        // You can trigger the calendar view here if needed
+                      },
                     ),
-                    readOnly: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the date';
-                      }
-                      return null;
-                    },
+                    border: const OutlineInputBorder(),
                   ),
+                  readOnly: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the date';
+                    }
+                    return null;
+                  },
+                ),
                   const SizedBox(height: 16),
+                  const Text(
+                    'Select Garbage Types',
+                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8.0), // Spacing
+                  ..._garbageTypes.map((type) {
+                    return CheckboxListTile(
+                      title: Text(
+                        type,
+                        style: const TextStyle(fontSize: 16.0, color: Colors.black),
+                      ),
+                      value: _selectedGarbageTypes.contains(type), // Check if the type is selected
+                      onChanged: (bool? isChecked) {
+                        setState(() {
+                          if (isChecked == true) {
+                            _selectedGarbageTypes.add(type); // Add to selected if checked
+                          } else {
+                            _selectedGarbageTypes.remove(type); // Remove from selected if unchecked
+                          }
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading, // Position the checkbox to the left
+                    );
+                  }).toList(),
+
+
+                const SizedBox(height: 16),
                   SizedBox(
                     height: 300,
                     child: Stack(
