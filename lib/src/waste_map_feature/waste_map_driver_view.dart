@@ -16,7 +16,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_model.dart';
 import 'package:trashtrek/src/appointments_feature/appointment_service.dart';
+import 'package:trashtrek/src/notification_feature/notification_service.dart';
 import 'package:trashtrek/src/waste_map_feature/route_model.dart';
+import 'package:trashtrek/src/notification_feature/notification_model.dart';
 
 class WasteMapDriverView extends StatefulWidget {
   const WasteMapDriverView({
@@ -29,6 +31,7 @@ class WasteMapDriverView extends StatefulWidget {
 
 class WasteMapDriverViewState extends State<WasteMapDriverView> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NotificationService notifier = NotificationService();
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<CompassEvent>? _headingStreamSubscription;
   GoogleMapController? mapController;
@@ -43,7 +46,7 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
   bool routeReady = false;
   bool journeyStarted = false;
   bool ignoreMove = false;
-  bool isCentered = false;
+  bool isCentered = true;
   bool isLoading = true;
   bool isOpen = false;
   final Set<Marker> _markers = {};
@@ -576,6 +579,11 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
         instructions: mapRoute.instructions,
         status: 'started', // Update status
       );
+    });
+
+    mapRoute.appointments.map((appt) async{
+      bool success = await notifier.notify(PushNotification(targetUserId: appt.userId ?? "", notificationTitle: 'TrashTrek notification!', notificationBody: 'The trash truck is on its way! ETA ${appt.duration}'));
+      print("${appt.userId}: $success");
     });
     
     try {

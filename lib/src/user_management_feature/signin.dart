@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trashtrek/utils/notification.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -66,6 +67,9 @@ class _SignInState extends State<SignIn> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       await _storeUserData(data);
+      if(data['userId'] != null && data['userId'] != ""){
+        await saveTokenToDatabase(data['userId']);
+      }
       if (mounted) {
         if (data['userlogtype'] == "Resident") {
           Navigator.of(context).pushNamedAndRemoveUntil(

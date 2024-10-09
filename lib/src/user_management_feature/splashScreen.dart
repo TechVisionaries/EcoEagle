@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/utils/notification.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,6 +21,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final userType = prefs.getString('userlogtype');
+    final uid = prefs.getString('userID');
+    if(uid != null && uid != ""){
+      await saveTokenToDatabase(uid);
+    }
 
     await Future.delayed(const Duration(seconds: 4)); // 3-second delay
 

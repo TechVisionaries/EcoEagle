@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trashtrek/utils/notification.dart';
 
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
@@ -11,16 +12,8 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Set the background message handler
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  NotificationSettings settings = await messaging.requestPermission();
-
-  // Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  //   await Firebase.initializeApp();
-  //   print('Received background message: ${message.notification?.title}');
-  // }
-
-  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  await requestNotificationPermissions();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
