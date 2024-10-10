@@ -16,108 +16,89 @@ class ResidentDashboardState extends State<ResidentDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar.appBar('Dashboard', actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                Constants.userProfileRoute,
-              );
-            },
+      appBar: CustomAppBar.appBar('Dashboard', actions: [
+        IconButton(
+          icon: const Icon(
+            Icons.person,
+            color: Colors.white,
           ),
-        ]),
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 133, 224, 125),
-                Color.fromARGB(255, 187, 251, 201),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: Expanded(
-            child: Container(
-                color: Colors
-                    .transparent, // Keep it transparent to show the gradient
-                alignment: Alignment.topCenter,
-                padding: const EdgeInsets.only(top: 30),
-                child: Column(
-                  children: [
-                    Text(
-                      'Welcome to TrashTrek👋',
-                      softWrap: true,
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.andika(
-                        textStyle: const TextStyle(
-                          fontSize: 24, // Font size
-                          fontWeight: FontWeight.bold, // Font weight
-                          color: Color.fromARGB(255, 255, 255, 255),
-                        ),
-                      ),
-                    ),
-                    Image.asset("assets/images/homescreen.png"),
-                    const SizedBox(height: 100),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(
-                            context, Constants.appointmentsRoute);
-                      },
-                      child: Text(
-                        'Get Started!',
-                        softWrap: true,
-                        style: GoogleFonts.alike(),
-                      ),
-                    )
-                  ],
-                )),
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              Constants.userProfileRoute,
+            );
+          },
+        ),
+      ]),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 133, 224, 125),
+              Color.fromARGB(255, 187, 251, 201),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        bottomNavigationBar:
-            CustomBottomNavigation.dynamicNav(context, 0, 'Resident'));
+        child: Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(height: 30),
+                Text(
+                  'Welcome to TrashTrek👋',
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  style: GoogleFonts.andika(
+                    textStyle: const TextStyle(
+                      fontSize: 24, // Font size
+                      fontWeight: FontWeight.bold, // Font weight
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                ),
+                Image.asset("assets/images/homescreen.png"),
+                const SizedBox(height: 100),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, Constants.appointmentsRoute);
+                  },
+                  child: Text(
+                    'Get Started!',
+                    softWrap: true,
+                    style: GoogleFonts.alike(),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              bottom: 20,
+              right: 20, // Set it to the bottom right corner
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    Constants.wasteAssistantRoute,
+                  );
+                },
+                backgroundColor: Colors.green[700],
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/ai.png',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar:
+          CustomBottomNavigation.dynamicNav(context, 0, 'Resident'),
+    );
   }
-
-  /// Builds a navigation tile with custom styling and animations.
-  // Widget _buildNavigationTile(
-  //   BuildContext context, {
-  //   required String title,
-  //   required IconData icon,
-  //   required Color color,
-  //   required String routeName,
-  // }) {
-  //   return Card(
-  //     shape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(16.0)), // Rounded corners
-  //     elevation: 4, // Slightly lighter elevation
-  //     shadowColor: Colors.black.withOpacity(0.2), // Subtle shadow color
-  //     margin: const EdgeInsets.symmetric(vertical: 8.0), // Margin between cards
-  //     child: ListTile(
-  //       contentPadding: const EdgeInsets.symmetric(
-  //           horizontal: 16.0, vertical: 12.0), // Padding inside ListTile
-  //       leading: CircleAvatar(
-  //         backgroundColor: color.withOpacity(0.2),
-  //         child: Icon(icon, color: color),
-  //       ),
-  //       title: Text(
-  //         title,
-  //         style: const TextStyle(
-  //           fontSize: 16,
-  //           fontWeight: FontWeight.w600,
-  //           color: Colors.black87,
-  //         ),
-  //       ),
-  //       trailing: Icon(Icons.arrow_forward_ios,
-  //           color: Colors.grey[600]), // Slightly darker grey
-  //       onTap: () {
-  //         // Navigate to the specified route.
-  //         Navigator.restorablePushNamed(context, routeName);
-  //       },
-  //     ),
-  //   );
-  // }
 }

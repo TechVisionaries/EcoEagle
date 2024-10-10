@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "echoeagle-chatbot-syau",
+  "private_key_id": "7d6b9bb8d3b286e4e36ef79411f537a1c1a00ba6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDm71BpXemPEWmW\nyx6SXH0+CW5JrkvIAlHAcKl0GXdWmK2ib9snvWkHc1Msupo6PskbYVHqi2Jq7uGs\ny/S4VrnOwbdM94paYcVztP0r8TsYgTJtcBwd/yPWNNyyUsGdwFvWYdfExJIMb6Qn\nVc9oG3ur9yvxJWxSKlvzF2mEGoHNDdPbJhb/Qj5/8cPHzLIamSvKz32FoerjE+1b\nEAuftjSdQoj1P5UTW1u0fIK579RXOWeYx5r4MTXF+0Hbk0U0rKFYvv+994qBAmaD\nGtsMMOLaMEnEbIkItVqniBfkEgOFVUETUhkKngwrgeBM8Z3gAjvKcwl7KMfcPMXk\ncdy4KMfdAgMBAAECggEAGgFQ+MyOhIHddhGhe7HWmKnPNZTfC8LXGeiV7HEBs0q2\nItidwTffH+uorhzFSVHQq7il1NelWY1U9HRzNl7txY6i6ZPmjI7+AS2cZNphYT0L\nRK+fOvGEQ5boU1xmWTFUJiwWdB3+pE/eGF/dX0fZAWBwHlOsgwQqHpHAXBPwEfsJ\n1kWKKik/YQdKzd0NkNA9XKACRagV+/hRXzpFBfjoIdBbrHWTvNACIV8bDcyQcKNp\n4duuGwzgd88qkpInXcix9rjmxIL+wHVlZWY4dBHWceZfO+pX43u0/pg1H30fyddw\nNxb1fhoQ+ROBDwcFuknX5ofXFoZIgOf4NFYc4OcysQKBgQD9Gk5tSBju1vWYnW2n\nxy03VkjawadW9R+dscYMSmsO3QHZ5mG8Ca4Tw7e52dMZHf9sd/YLz/Qpr/x9OvW7\nSwtS2YihfyJUTSsFnzmU+gF9e+xS2P9PYqJjMpUWmnEKOxDr/X+uz9ahtx4+25jy\njExpfdO8yfgP0dO3afPfuQ2mkwKBgQDplAv1NSt6UTNCb504vlaC7McOPdx7FzkW\nGCpaWNWM454m6aMl9omodwoCAqzRhWg8tuVDcR6Jxc70TF3sJvT70fLh35Y+ROch\nzJUsLvdkIOh8mTrdUHouvVY5NzxDjx2Mf7grnXKra8UZp3UWZi3n7o50Syi0dhEM\nYvZiUhPtzwKBgQCnw7gYV6GvLmy8LB1zCGLAO0EvPw1cZj3+mMddfjZYM8X2WO6P\nZRstnp05Y1i5XVjg3OMKEV0WBMCngV1AOA3ZbLdT1KE8n6nUoCXayZwTQQD0KUGR\nrR9WAUExKk2jKmOdCPqJNNpfdrFlmMlYfAZqJi0jBfyW/84F1QUBVffmYQKBgQCm\nJlNjN1EYDw6hYXe611n+g6MMtGBThq9q0gG+hpZRQ9BJ6cPNy1McbKDH0VNRLs54\n8bifgqWwZu7RxEjDJOr6/dsBZOQgoy6uUjKCXV5I8Ueu6eh/aTGgcboVtP6/J9xj\nBq7hB3x8B4sKtp2JM2HQK1dVzejEhX+XCgYs5ima7QKBgQDxKeFMdrwiJWEeebt4\nuyP458M1AkBFarRW7qDME3QwjPu2UOIgOrvix9fE6NWQ/jPGSB2bNtth8Jwy+P1C\nsIAwug4cCEBvsvC+nnhxx7pZstADsRwDHlfjhjSKeisVHu77fhrMXRi/sR+NDDLI\n2pwCAaK8usG311DYdEc+Jc9mYQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "echoeaglechatbot@echoeagle-chatbot-syau.iam.gserviceaccount.com",
+  "client_id": "108857045090671251245",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/echoeaglechatbot%40echoeagle-chatbot-syau.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

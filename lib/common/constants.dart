@@ -22,4 +22,6 @@ class Constants {
   static const userReportRoute = '/user_report';
   static const appointmentReportRoute = '/appointment_report';
   static const driverAppointmentRoute = '/driver_appointment';
+  static const chatBotRoute = '/chatbot';
+  static const wasteAssistantRoute = '/waste_assistant';
 }
