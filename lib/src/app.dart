@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:trashtrek/common/constants.dart';
+import 'package:trashtrek/src/appointments_feature/DriverMyAppointmentView.dart';
 
 import 'package:trashtrek/src/appointments_feature/my_appointments_view.dart';
 import 'package:trashtrek/src/reward_management/admin_driver_dashboard.dart';
@@ -20,6 +21,7 @@ import 'package:trashtrek/src/user_management_feature/userReport.dart';
 import 'package:trashtrek/src/waste_map_feature/waste_map_driver_view.dart';
 
 import 'appointments_feature/AppointmentReportPage.dart';
+import 'notification_feature/notification_service.dart';
 import 'reward_management/admin_driver_profile.dart';
 import 'reward_management/view_reviews.dart';
 import 'dashboards/report_dashboard.dart';
@@ -137,6 +139,8 @@ class MyApp extends StatelessWidget {
                     return const WasteMapDriverView();
                   case Constants.reportDashboardRoute:
                     return const ReportView();
+                    case Constants.driverAppointmentRoute:
+                    return  DriverMyAppointmentsView(apiService: ApiService(),notificationService: NotificationService());
                   default:
                     return const SignIn();
                 }

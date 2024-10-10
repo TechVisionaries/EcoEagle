@@ -93,6 +93,12 @@ class CustomBottomNavigation {
                   (route) => false,
                 );
                 break;
+              case 3:
+                Navigator.restorablePushNamed(
+                    context,
+                    Constants.driverAppointmentRoute
+                );
+                break;
 
               default:
             }
@@ -109,6 +115,10 @@ class CustomBottomNavigation {
             BottomNavigationBarItem(
               icon: Icon(Icons.reviews),
               label: "Reviews",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today),
+              label: "Appointments",
             )
           ],
         )
