@@ -16,6 +16,11 @@ class _WasteAssistantState extends State<WasteAssistant> {
   bool isGreetingDisplayed = false;
 
   void handleInput(String input) {
+    // Insert the user's message as a user bubble
+    setState(() {
+      messages.insert(0, {"data": 1, "message": input});
+    });
+
     if (!isGreetingDisplayed) {
       setState(() {
         messages.insert(0, {
@@ -26,7 +31,7 @@ class _WasteAssistantState extends State<WasteAssistant> {
         messages.insert(0, {
           "data": 0,
           "message":
-              "Please select your language: 1) English 2) Sinhala 3) Tamil"
+              "Please select your language: \n1) English \n2) Sinhala \n3) Tamil"
         });
         isGreetingDisplayed = true;
       });
@@ -45,6 +50,11 @@ class _WasteAssistantState extends State<WasteAssistant> {
         displayTamilMenu();
       } else {
         addMessage("Invalid selection. Please choose a valid language option.");
+        messages.insert(0, {
+          "data": 0,
+          "message":
+              "Please select your language: \n1) English \n2) Sinhala \n3) Tamil"
+        });
       }
     } else {
       handleLanguageCommands(input);
@@ -100,17 +110,62 @@ class _WasteAssistantState extends State<WasteAssistant> {
       case 'English':
         if (input == '1') {
           addMessage("To make an appointment, please contact our support.");
+          messages.insert(0, {
+            "data": 0,
+            "message": "You have selected English. Here are your options:\n"
+                "1) How to make an appointment\n"
+                "2) How to check my appointments\n"
+                "3) How to remove my appointment\n"
+                "4) How to rate my driver\n"
+                "5) Exit"
+          });
         } else if (input == '2') {
           addMessage("You can check your appointments in the app.");
+          messages.insert(0, {
+            "data": 0,
+            "message": "You have selected English. Here are your options:\n"
+                "1) How to make an appointment\n"
+                "2) How to check my appointments\n"
+                "3) How to remove my appointment\n"
+                "4) How to rate my driver\n"
+                "5) Exit"
+          });
         } else if (input == '3') {
           addMessage(
               "To remove your appointment, please go to your appointments list.");
+          messages.insert(0, {
+            "data": 0,
+            "message": "You have selected English. Here are your options:\n"
+                "1) How to make an appointment\n"
+                "2) How to check my appointments\n"
+                "3) How to remove my appointment\n"
+                "4) How to rate my driver\n"
+                "5) Exit"
+          });
         } else if (input == '4') {
           addMessage("You can rate your driver in the app after your ride.");
+          messages.insert(0, {
+            "data": 0,
+            "message": "You have selected English. Here are your options:\n"
+                "1) How to make an appointment\n"
+                "2) How to check my appointments\n"
+                "3) How to remove my appointment\n"
+                "4) How to rate my driver\n"
+                "5) Exit"
+          });
         } else if (input == '5') {
           resetAssistant();
         } else {
           addMessage("Invalid selection. Please choose a valid option.");
+          messages.insert(0, {
+            "data": 0,
+            "message": "You have selected English. Here are your options:\n"
+                "1) How to make an appointment\n"
+                "2) How to check my appointments\n"
+                "3) How to remove my appointment\n"
+                "4) How to rate my driver\n"
+                "5) Exit"
+          });
         }
         break;
 
@@ -118,17 +173,67 @@ class _WasteAssistantState extends State<WasteAssistant> {
         if (input == '1') {
           addMessage(
               "කටයුතු සැලසුම් කිරීම සඳහා, කරුණාකර අපගේ සහය වාර්තා කරන්න.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "ඔබ සිංහල භාෂාව තේරී ඇති අතර, පහත ඇති විකල්ප වලින් යමක් තෝරන්න:\n"
+                    "1) කටයුතු සැලසුම් කරන්නේ කෙසේද\n"
+                    "2) මාගේ කටයුතු පරීක්ෂා කළ හැකිද\n"
+                    "3) මාගේ කටයුතු අහෝසි කරන්නේ කෙසේද\n"
+                    "4) මාගේ රියදුරාට අනුග්‍රහය ලබාදීම\n"
+                    "5) නතර කරන්න"
+          });
         } else if (input == '2') {
           addMessage("ඔබගේ කටයුතු අපේ යෙදුම තුල පරීක්ෂා කළ හැක.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "ඔබ සිංහල භාෂාව තේරී ඇති අතර, පහත ඇති විකල්ප වලින් යමක් තෝරන්න:\n"
+                    "1) කටයුතු සැලසුම් කරන්නේ කෙසේද\n"
+                    "2) මාගේ කටයුතු පරීක්ෂා කළ හැකිද\n"
+                    "3) මාගේ කටයුතු අහෝසි කරන්නේ කෙසේද\n"
+                    "4) මාගේ රියදුරාට අනුග්‍රහය ලබාදීම\n"
+                    "5) නතර කරන්න"
+          });
         } else if (input == '3') {
           addMessage(
               "ඔබේ කටයුතු අහෝසි කිරීමට, කරුණාකර ඔබේ කටයුතු ලැයිස්තුවට යන්න.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "ඔබ සිංහල භාෂාව තේරී ඇති අතර, පහත ඇති විකල්ප වලින් යමක් තෝරන්න:\n"
+                    "1) කටයුතු සැලසුම් කරන්නේ කෙසේද\n"
+                    "2) මාගේ කටයුතු පරීක්ෂා කළ හැකිද\n"
+                    "3) මාගේ කටයුතු අහෝසි කරන්නේ කෙසේද\n"
+                    "4) මාගේ රියදුරාට අනුග්‍රහය ලබාදීම\n"
+                    "5) නතර කරන්න"
+          });
         } else if (input == '4') {
           addMessage("ඔබේ රියදුරාට අනුග්‍රහය ලබා දිය හැක.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "ඔබ සිංහල භාෂාව තේරී ඇති අතර, පහත ඇති විකල්ප වලින් යමක් තෝරන්න:\n"
+                    "1) කටයුතු සැලසුම් කරන්නේ කෙසේද\n"
+                    "2) මාගේ කටයුතු පරීක්ෂා කළ හැකිද\n"
+                    "3) මාගේ කටයුතු අහෝසි කරන්නේ කෙසේද\n"
+                    "4) මාගේ රියදුරාට අනුග්‍රහය ලබාදීම\n"
+                    "5) නතර කරන්න"
+          });
         } else if (input == '5') {
           resetAssistant();
         } else {
           addMessage("වැරදි තේරීමක්. කරුණාකර හොඳ පිළිතුරක් තෝරන්න.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "ඔබ සිංහල භාෂාව තේරී ඇති අතර, පහත ඇති විකල්ප වලින් යමක් තෝරන්න:\n"
+                    "1) කටයුතු සැලසුම් කරන්නේ කෙසේද\n"
+                    "2) මාගේ කටයුතු පරීක්ෂා කළ හැකිද\n"
+                    "3) මාගේ කටයුතු අහෝසි කරන්නේ කෙසේද\n"
+                    "4) මාගේ රියදුරාට අනුග්‍රහය ලබාදීම\n"
+                    "5) නතර කරන්න"
+          });
         }
         break;
 
@@ -136,19 +241,69 @@ class _WasteAssistantState extends State<WasteAssistant> {
         if (input == '1') {
           addMessage(
               "அனைத்தும் நியமனம் செய்ய, தயவுசெய்து எங்கள் ஆதரவை தொடர்பு கொள்ளவும்.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "நீங்கள் தமிழ் மொழியை தேர்வு செய்துள்ளீர்கள். உங்கள் விருப்பங்களைத் தேர்ந்தெடுக்கவும்:\n"
+                    "1) நியமனம் செய்ய எப்படி\n"
+                    "2) எனது நியமனங்களை எப்படி பார்க்க வேண்டும்\n"
+                    "3) எனது நியமனத்தை எப்படி அகற்றுவது\n"
+                    "4) எனது இயக்குனரை மதிப்பீடு செய்யவும்\n"
+                    "5) வெளியேறு"
+          });
         } else if (input == '2') {
           addMessage(
               "உங்கள் நியமனங்களைப் பார்க்க, தயவுசெய்து பயன்பாட்டில் செல்லவும்.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "நீங்கள் தமிழ் மொழியை தேர்வு செய்துள்ளீர்கள். உங்கள் விருப்பங்களைத் தேர்ந்தெடுக்கவும்:\n"
+                    "1) நியமனம் செய்ய எப்படி\n"
+                    "2) எனது நியமனங்களை எப்படி பார்க்க வேண்டும்\n"
+                    "3) எனது நியமனத்தை எப்படி அகற்றுவது\n"
+                    "4) எனது இயக்குனரை மதிப்பீடு செய்யவும்\n"
+                    "5) வெளியேறு"
+          });
         } else if (input == '3') {
           addMessage(
               "உங்கள் நியமனத்தை அகற்ற, உங்கள் நியமனத்தினை பார்த்து கடைசி முடிவுகள் செய்யவும்.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "நீங்கள் தமிழ் மொழியை தேர்வு செய்துள்ளீர்கள். உங்கள் விருப்பங்களைத் தேர்ந்தெடுக்கவும்:\n"
+                    "1) நியமனம் செய்ய எப்படி\n"
+                    "2) எனது நியமனங்களை எப்படி பார்க்க வேண்டும்\n"
+                    "3) எனது நியமனத்தை எப்படி அகற்றுவது\n"
+                    "4) எனது இயக்குனரை மதிப்பீடு செய்யவும்\n"
+                    "5) வெளியேறு"
+          });
         } else if (input == '4') {
           addMessage(
               "உங்கள் இயக்குனரை மதிப்பீடு செய்ய, பயன்பாட்டின் மூலம் முடிவு செய்யவும்.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "நீங்கள் தமிழ் மொழியை தேர்வு செய்துள்ளீர்கள். உங்கள் விருப்பங்களைத் தேர்ந்தெடுக்கவும்:\n"
+                    "1) நியமனம் செய்ய எப்படி\n"
+                    "2) எனது நியமனங்களை எப்படி பார்க்க வேண்டும்\n"
+                    "3) எனது நியமனத்தை எப்படி அகற்றுவது\n"
+                    "4) எனது இயக்குனரை மதிப்பீடு செய்யவும்\n"
+                    "5) வெளியேறு"
+          });
         } else if (input == '5') {
           resetAssistant();
         } else {
           addMessage("தவறான தேர்வு. சரியான விருப்பத்தைத் தேர்ந்தெடுக்கவும்.");
+          messages.insert(0, {
+            "data": 0,
+            "message":
+                "நீங்கள் தமிழ் மொழியை தேர்வு செய்துள்ளீர்கள். உங்கள் விருப்பங்களைத் தேர்ந்தெடுக்கவும்:\n"
+                    "1) நியமனம் செய்ய எப்படி\n"
+                    "2) எனது நியமனங்களை எப்படி பார்க்க வேண்டும்\n"
+                    "3) எனது நியமனத்தை எப்படி அகற்றுவது\n"
+                    "4) எனது இயக்குனரை மதிப்பீடு செய்யவும்\n"
+                    "5) வெளியேறு"
+          });
         }
         break;
     }
@@ -250,72 +405,36 @@ class _WasteAssistantState extends State<WasteAssistant> {
                     handleInput(messageInsert.text);
                     messageInsert.clear();
                   }
-                  FocusScope.of(context).unfocus();
                 },
               ),
             ),
           ),
-          const SizedBox(height: 15.0),
         ],
       ),
     );
   }
 
+  // Function to create chat bubbles
   Widget chat(String message, int data) {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20),
-      child: Row(
-        mainAxisAlignment:
-            data == 1 ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          data == 0
-              ? SizedBox(
-                  height: 60,
-                  width: 60,
-                  child: const CircleAvatar(
-                    backgroundImage: AssetImage("assets/chatBot/robot.jpg"),
-                  ),
-                )
-              : Container(),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Bubble(
-              radius: const Radius.circular(15.0),
-              color: data == 0
-                  ? const Color.fromRGBO(23, 157, 139, 1)
-                  : Colors.orangeAccent,
-              elevation: 0.0,
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const SizedBox(width: 10.0),
-                    Flexible(
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        child: Text(
-                          message,
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Bubble(
+        radius: const Radius.circular(15.0),
+        color: data == 0 ? Colors.greenAccent : Colors.orangeAccent,
+        elevation: 0.0,
+        alignment: data == 0 ? Alignment.topLeft : Alignment.topRight,
+        nip: data == 0 ? BubbleNip.leftBottom : BubbleNip.rightBottom,
+        child: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Text(
+            message,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 17.0,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          data == 1
-              ? SizedBox(
-                  height: 60,
-                  width: 60,
-                  child: const CircleAvatar(
-                    backgroundImage: AssetImage("assets/chatBot/default.jpg"),
-                  ),
-                )
-              : Container(),
-        ],
+        ),
       ),
     );
   }
