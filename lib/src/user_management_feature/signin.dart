@@ -67,7 +67,7 @@ class _SignInState extends State<SignIn> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       await _storeUserData(data);
-      if(data['userId'] != null && data['userId'] != ""){
+      if (data['userId'] != null && data['userId'] != "") {
         await saveTokenToDatabase(data['userId']);
       }
       if (mounted) {
@@ -268,6 +268,19 @@ class _SignInState extends State<SignIn> {
               ),
               const Spacer(flex: 2),
             ],
+          ),
+          // Chatbot icon at the bottom right
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+              onPressed: () {
+                // Navigate to chatbot or trigger chatbot functionality
+              },
+              child: Image.asset(
+                  'assets/images/ai.png'), // Use the uploaded robot icon
+              backgroundColor: Colors.green[700], // Adjust color as needed
+            ),
           ),
         ],
       ),
