@@ -218,7 +218,7 @@ class _DriverMyAppointmentsViewState extends State<DriverMyAppointmentsView> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 1, 'Driver'),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 3, 'Driver'),
     );
   }
 
