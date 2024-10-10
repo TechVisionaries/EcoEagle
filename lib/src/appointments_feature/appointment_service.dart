@@ -232,7 +232,27 @@ class ApiService {
     }
   }
 
+// delete appointment by id
+  Future<void> deleteAppointment(String appointmentId) async {
+    try {
+      final response = await http
+          .delete(
+        Uri.parse('$baseUrl/appointments/$appointmentId'),
+      )
+          .timeout(const Duration(seconds: 10));
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to delete appointment. Status code: ${response
+                .statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to delete appointment: $e');
+    }
+  }
 
 
 
