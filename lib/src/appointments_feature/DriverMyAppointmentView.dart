@@ -139,7 +139,7 @@ class _DriverMyAppointmentsViewState extends State<DriverMyAppointmentsView> {
             onPressed: () {
               Navigator.pushNamed(
                 context,
-                Constants.appointmentsRoute,
+                Constants.driverAppointmentRoute,
               );
             },
           ),
@@ -218,7 +218,7 @@ class _DriverMyAppointmentsViewState extends State<DriverMyAppointmentsView> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 1, 'Resident'),
+      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 1, 'Driver'),
     );
   }
 
