@@ -18,7 +18,10 @@ extension StringCasingExtension on String {
 }
 
 class AppointmentReportPage extends StatefulWidget {
-  const AppointmentReportPage({Key? key}) : super(key: key);
+
+  final ApiService apiService;
+
+  const AppointmentReportPage({Key? key, required this.apiService}) : super(key: key);
 
   static const routeName = Constants.appointmentReportRoute;
 
@@ -50,6 +53,18 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
       filteredAppointments = appointments; // Initially show all
       isLoading = false; // Stop loading
     });
+  }
+
+  Future<void> _deleteAppointment(String id) async {
+    try {
+      await apiService.deleteAppointment(id);
+      setState(() {
+        appointments.removeWhere((appointment) => appointment.id == id);
+        filteredAppointments = appointments;
+      });
+    } catch (e) {
+      print('Error deleting appointment: $e');
+    }
   }
 
   void _filterAppointments(String status) {
@@ -172,7 +187,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red), // Delete icon
                                 onPressed: () {
-                                  // _deleteAppointment(appointment.id);
+                                  _deleteAppointment(appointment.id!);
                                 },
                               ),
                             ),
