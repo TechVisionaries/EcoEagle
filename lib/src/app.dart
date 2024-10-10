@@ -126,7 +126,7 @@ class MyApp extends StatelessWidget {
                   case Constants.userReportRoute:
                     return const UserReport();
                   case Constants.appointmentReportRoute:
-                    return const AppointmentReportPage();
+                    return  AppointmentReportPage(apiService: ApiService());
                   case Constants.spashScreenRoute:
                     return const SplashScreen();
                   case Constants.signInRoute:
