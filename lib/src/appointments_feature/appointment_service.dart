@@ -20,6 +20,17 @@ class ApiService {
     }
   }
 
+  Future<List<Appointment>> fetchMyDriverAppointments(String driverID) async {
+    final response = await http.get(Uri.parse('$baseUrl/appointments/driver/my/$driverID'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return Appointment.listFromJson(data);
+    } else {
+      throw Exception('Failed to load appointments');
+    }
+  }
+
   // get all appointments
   Future<List<Appointment>> fetchAllAppointments() async {
     final response = await http.get(Uri.parse('$baseUrl/appointments'));
@@ -87,7 +98,7 @@ class ApiService {
     try {
       final response = await http
           .put(
-        Uri.parse('$baseUrl/appointments/$appointmentId'),
+        Uri.parse('$baseUrl/appointments/cancel/$appointmentId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'status': 'cancelled'}),
       )
@@ -103,6 +114,30 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to cancel appointment: $e');
+    }
+  }
+
+  // accept appointment
+  Future<void> acceptAppointment(String appointmentId) async {
+    try {
+      final response = await http
+          .put(
+        Uri.parse('$baseUrl/appointments/accept/$appointmentId'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'status': 'accepted'}),
+      )
+          .timeout(const Duration(seconds: 10));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to accept appointment. Status code: ${response
+                .statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to accept appointment: $e');
     }
   }
 
