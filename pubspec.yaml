@@ -41,6 +41,7 @@ dependencies:
   google_fonts: ^6.2.1
   dialogflow_flutter_plus: ^0.0.1
   bubble: ^1.2.1
+  badges: ^3.0.2
 
 dependency_overrides:
   flutter_compass:
