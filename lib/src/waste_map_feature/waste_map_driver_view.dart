@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -549,12 +550,14 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
     }
   }
   // Add a marker on the map
-  void _addMarker(LatLng position, String label, {double color = BitmapDescriptor.hueCyan}) {
+  void _addMarker(LatLng position, String label, {double color = 0}) async{
+    final ByteData data = await rootBundle.load('assets/images/garbageMarker.png');
+    final Uint8List bytes = data.buffer.asUint8List();
     final marker = Marker(
       markerId: MarkerId(label),
       position: position,
       infoWindow: InfoWindow(title: label),
-      icon: BitmapDescriptor.defaultMarkerWithHue(color),
+      icon: color != 0 ? BitmapDescriptor.defaultMarkerWithHue(color) : BitmapDescriptor.bytes(bytes, height: 50),
     );
 
     setState(() {
@@ -581,10 +584,10 @@ class WasteMapDriverViewState extends State<WasteMapDriverView> {
       );
     });
 
-    mapRoute.appointments.map((appt) async{
+    for(MapAppointment appt in mapRoute.appointments){
       bool success = await notifier.notify(PushNotification(targetUserId: appt.userId ?? "", notificationTitle: 'TrashTrek notification!', notificationBody: 'The trash truck is on its way! ETA ${appt.duration}'));
       print("${appt.userId}: $success");
-    });
+    }
     
     try {
       // Find the marker with MarkerId 'selected'

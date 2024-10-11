@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trashtrek/common/constants.dart';
@@ -55,15 +56,21 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
   }
 
   // Function to update the marker when the driver's location changes
-  void _updateDriverLocation(LatLng newPosition) {
+  void _updateDriverLocation(LatLng newPosition) async {
     try {
     Marker tempDriver;
     Marker tempAppointment;
     MapAppointment tempApt;
     if (_driverMarker == null) {
       // Add the marker for the first time
+      final ByteData data = await rootBundle.load('assets/images/truckIcon.png');
+      final Uint8List bytes = data.buffer.asUint8List();
+      // MapBitmapScaling scale = 
       tempDriver = Marker(
         markerId: const MarkerId('driver_marker'),
+        // icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        icon: BitmapDescriptor.bytes(bytes, height: 50),
+        infoWindow: const InfoWindow(title: 'Driver'),
         position: newPosition,
       );
     } else {
@@ -80,8 +87,13 @@ class WasteMapDriverViewState extends State<WasteMapResidentView> {
       }
       if (_appointmentMarker == null) {
         // Add the marker for the first time
+        final ByteData data = await rootBundle.load('assets/images/garbageMarker.png');
+        final Uint8List bytes = data.buffer.asUint8List();
         tempAppointment = Marker(
           markerId: const MarkerId('appointment'),
+        // icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+        icon: BitmapDescriptor.bytes(bytes, height: 30),
+        infoWindow: const InfoWindow(title: 'Pickup Location'),
           position: tempApt.location,
         );
       }else {
