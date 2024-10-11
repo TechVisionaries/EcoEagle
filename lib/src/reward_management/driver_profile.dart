@@ -103,7 +103,20 @@ class _DriverProfileState extends State<DriverProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar.appBar('My Profile'),
+      appBar: CustomAppBar.appBar(
+        'My Profile',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              // Action when notification icon is pressed
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notifications clicked')),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: isLoading

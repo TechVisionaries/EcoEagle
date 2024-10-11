@@ -162,10 +162,10 @@ class _ChatbotState extends State<Chatbot> {
             data == 1 ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           data == 0
-              ? SizedBox(
+              ? const SizedBox(
                   height: 60,
                   width: 60,
-                  child: const CircleAvatar(
+                  child: CircleAvatar(
                     backgroundImage: AssetImage("assets/chatBot/robot.jpg"),
                   ),
                 )
@@ -200,10 +200,10 @@ class _ChatbotState extends State<Chatbot> {
             ),
           ),
           data == 1
-              ? SizedBox(
+              ? const SizedBox(
                   height: 60,
                   width: 60,
-                  child: const CircleAvatar(
+                  child: CircleAvatar(
                     backgroundImage: AssetImage("assets/chatBot/default.jpg"),
                   ),
                 )

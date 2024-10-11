@@ -10,10 +10,10 @@ import 'package:path_provider/path_provider.dart';
 
 extension StringCasingExtension on String {
   String capitalize() {
-    if (this.isEmpty) {
+    if (isEmpty) {
       return this;
     }
-    return '${this[0].toUpperCase()}${this.substring(1).toLowerCase()}';
+    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
   }
 }
 
@@ -21,7 +21,7 @@ class AppointmentReportPage extends StatefulWidget {
 
   final ApiService apiService;
 
-  const AppointmentReportPage({Key? key, required this.apiService}) : super(key: key);
+  const AppointmentReportPage({super.key, required this.apiService});
 
   static const routeName = Constants.appointmentReportRoute;
 
@@ -83,11 +83,11 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointment Report'),
+        title: const Text('Appointment Report'),
         backgroundColor: const Color(0xFF41A87D),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
           : Container(
         color: const Color(0xFFEFF5E5), // Light background color
         child: Padding(
@@ -102,7 +102,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.filter_list, color: Color(0xFF41A87D)), // Icon for the filter
                       SizedBox(width: 8), // Space between icon and text
@@ -112,7 +112,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 12), // Space between title and radio buttons
+                  const SizedBox(height: 12), // Space between title and radio buttons
                   Center(
                     child: SingleChildScrollView( // Added SingleChildScrollView to make the row scrollable
                       scrollDirection: Axis.horizontal, // Scroll horizontally
@@ -137,10 +137,10 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                                       _filterAppointments(selectedStatus);
                                     });
                                   },
-                                  activeColor: Color(0xFF41A87D),
+                                  activeColor: const Color(0xFF41A87D),
                                 ),
                                 Text(status),
-                                SizedBox(width: 16), // Add spacing between radio buttons
+                                const SizedBox(width: 16), // Add spacing between radio buttons
                               ],
                             ),
                           );
@@ -150,14 +150,14 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                   ),
 
 
-                  SizedBox(height: 16), // Space before data table
+                  const SizedBox(height: 16), // Space before data table
 
                   // Use Flexible with a scrollable DataTable for responsiveness
                   Expanded(
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
-                        columns: [
+                        columns: const [
                           DataColumn(label: Text('Date', style: TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(label: Text('Location', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -175,9 +175,9 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                               ),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return Text('Loading...'); // While loading
+                                  return const Text('Loading...'); // While loading
                                 } else if (snapshot.hasError || !snapshot.hasData) {
-                                  return Text('N/A'); // Error case
+                                  return const Text('N/A'); // Error case
                                 } else {
                                   return Text(snapshot.data ?? 'Unknown');
                                 }
@@ -185,7 +185,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                             )),
                             DataCell(
                               IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red), // Delete icon
+                                icon: const Icon(Icons.delete, color: Colors.red), // Delete icon
                                 onPressed: () {
                                   _deleteAppointment(appointment.id!);
                                 },
@@ -214,7 +214,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                         mainAxisSize: MainAxisSize.min, // Make the button fit its content
                         children: [
                           if (isButtonLoading)
-                            SizedBox(
+                            const SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
@@ -223,9 +223,9 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                               ),
                             )
                           else
-                            Icon(Icons.picture_as_pdf),
-                          SizedBox(width: 8),
-                          Text(
+                            const Icon(Icons.picture_as_pdf),
+                          const SizedBox(width: 8),
+                          const Text(
                             'Generate PDF',
                             style: TextStyle(fontSize: 16), // Adjust font size if needed
                           ),
@@ -266,7 +266,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
         build: (pw.Context context) {
           return pw.Column(
             children: [
-              pw.Text('Appointment Report', style: pw.TextStyle(fontSize: 24)),
+              pw.Text('Appointment Report', style: const pw.TextStyle(fontSize: 24)),
               pw.SizedBox(height: 20),
               pw.Table.fromTextArray(
                 context: context,

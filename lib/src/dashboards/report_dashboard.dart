@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:trashtrek/common/constants.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
 import 'package:trashtrek/src/appointments_feature/AppointmentReportPage.dart';

@@ -21,11 +21,11 @@ Future<void> requestNotificationPermissions() async {
 
 Future<void> saveTokenToDatabase(String uid) async {
   String? token = await FirebaseMessaging.instance.getToken();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   // String uid = FirebaseAuth.instance.currentUser!.uid;
 
   if (token != null) {
-    await _firestore.collection('users').doc(uid).set({
+    await firestore.collection('users').doc(uid).set({
       'fcmToken': token,
     });
   }
