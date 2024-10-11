@@ -22,14 +22,15 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final userType = prefs.getString('userlogtype');
     final uid = prefs.getString('userID');
-    if(uid != null && uid != ""){
+    if (uid != null && uid != "") {
       await saveTokenToDatabase(uid);
     }
 
     await Future.delayed(const Duration(seconds: 4)); // 3-second delay
 
     if (userType == 'Resident') {
-      Navigator.of(context).pushReplacementNamed(Constants.residentDashboardRoute);
+      Navigator.of(context)
+          .pushReplacementNamed(Constants.residentDashboardRoute);
     } else if (userType == 'Driver') {
       Navigator.of(context)
           .pushReplacementNamed(Constants.driverDashboardRoute);
@@ -59,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             const SizedBox(height: 60),
             const Text(
-              'TrashTrek',
+              'EcoEagle',
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
@@ -68,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 2),
             const Text(
-              'v.1.2.0',
+              'v.2.1.0',
               style: TextStyle(
                 fontSize: 15,
                 color: Colors.grey,
