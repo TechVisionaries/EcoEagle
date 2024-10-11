@@ -275,11 +275,20 @@ class _SignInState extends State<SignIn> {
             right: 20,
             child: FloatingActionButton(
               onPressed: () {
-                // Navigate to chatbot or trigger chatbot functionality
+                Navigator.pushNamed(
+                  context,
+                  Constants.chatBotRoute,
+                );
               },
-              child: Image.asset(
-                  'assets/images/ai.png'), // Use the uploaded robot icon
-              backgroundColor: Colors.green[700], // Adjust color as needed
+              backgroundColor: Colors.green[700],
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/ai.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
         ],

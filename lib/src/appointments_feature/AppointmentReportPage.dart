@@ -18,7 +18,10 @@ extension StringCasingExtension on String {
 }
 
 class AppointmentReportPage extends StatefulWidget {
-  const AppointmentReportPage({Key? key}) : super(key: key);
+
+  final ApiService apiService;
+
+  const AppointmentReportPage({Key? key, required this.apiService}) : super(key: key);
 
   static const routeName = Constants.appointmentReportRoute;
 
@@ -50,6 +53,18 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
       filteredAppointments = appointments; // Initially show all
       isLoading = false; // Stop loading
     });
+  }
+
+  Future<void> _deleteAppointment(String id) async {
+    try {
+      await apiService.deleteAppointment(id);
+      setState(() {
+        appointments.removeWhere((appointment) => appointment.id == id);
+        filteredAppointments = appointments;
+      });
+    } catch (e) {
+      print('Error deleting appointment: $e');
+    }
   }
 
   void _filterAppointments(String status) {
@@ -99,40 +114,54 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                   ),
                   SizedBox(height: 12), // Space between title and radio buttons
                   Center(
-                    child: SizedBox(
-                      width: 800,
+                    child: SingleChildScrollView( // Added SingleChildScrollView to make the row scrollable
+                      scrollDirection: Axis.horizontal, // Scroll horizontally
                       child: Row(
-                        children: ['All', 'Pending', 'Accepted', 'Completed']
-                            .map((status) => Expanded(
-                          child: RadioListTile<String>(
-                            title: Text(status),
-                            value: status,
-                            groupValue: selectedStatus,
-                            onChanged: (newValue) {
+                        mainAxisAlignment: MainAxisAlignment.start, // Align buttons at the start
+                        children: ['All', 'Pending', 'Accepted', 'Completed'].map((status) {
+                          return GestureDetector(
+                            onTap: () {
                               setState(() {
-                                selectedStatus = newValue ?? 'All';
+                                selectedStatus = status;
                                 _filterAppointments(selectedStatus);
                               });
                             },
-                            activeColor: Color(0xFF41A87D), // Customize the active color
-                            visualDensity: VisualDensity(horizontal: 0, vertical: -4), // Adjust spacing
-                          ),
-                        ))
-                            .toList(),
+                            child: Row(
+                              children: [
+                                Radio<String>(
+                                  value: status,
+                                  groupValue: selectedStatus,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      selectedStatus = newValue ?? 'All';
+                                      _filterAppointments(selectedStatus);
+                                    });
+                                  },
+                                  activeColor: Color(0xFF41A87D),
+                                ),
+                                Text(status),
+                                SizedBox(width: 16), // Add spacing between radio buttons
+                              ],
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
+
+
                   SizedBox(height: 16), // Space before data table
 
-                  // Center the DataTable
-                  Center(
+                  // Use Flexible with a scrollable DataTable for responsiveness
+                  Expanded(
                     child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columns: [
-                          DataColumn(label: Container(width: 80, child: Text('Date', style: TextStyle(fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Container(width: 100, child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Container(width: 150, child: Text('Location', style: TextStyle(fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Container(width: 50, child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Text('Date', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Location', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Action', style: TextStyle(fontWeight: FontWeight.bold))),
                         ],
                         rows: filteredAppointments
                             .map(
@@ -158,7 +187,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red), // Delete icon
                                 onPressed: () {
-                                  // _deleteAppointment(appointment.id);
+                                  _deleteAppointment(appointment.id!);
                                 },
                               ),
                             ),
@@ -168,9 +197,9 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
                       ),
                     ),
                   ),
-                  Spacer(), // This spacer will push the button to the bottom of the column
 
-                  // Move the Generate PDF button here for better visibility
+
+                  // Generate PDF button
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -213,6 +242,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
     );
   }
 
+
   Future<void> _generatePDF() async {
     setState(() {
       isButtonLoading = true; // Start loading while generating PDF
@@ -241,7 +271,7 @@ class _AppointmentReportPageState extends State<AppointmentReportPage> {
               pw.Table.fromTextArray(
                 context: context,
                 data: <List<String>>[
-                  <String>['Date', 'Time', 'Service Type', 'Status', 'Location'],
+                  <String>['Date', 'Status', 'Location'],
                   ...filteredAppointments.map(
                         (appointment) => [
                       appointment.date,
