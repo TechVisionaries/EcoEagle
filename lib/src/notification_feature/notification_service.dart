@@ -19,7 +19,7 @@ class NotificationService {
           )
           .timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         print('Notification sent successfully!');
         return true;
       } else {

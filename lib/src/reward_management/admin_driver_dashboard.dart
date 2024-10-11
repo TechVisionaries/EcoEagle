@@ -46,25 +46,31 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
 
   Future<void> _sendNotificationsToTop5(List<Rating> topDrivers) async {
     for (var driver in topDrivers) {
-      final driverName =
-          await ratingService.fetchDriverName(driver.driverId.toString());
 
-      if (driverName != null) {
-        final notification = PushNotification(
-          targetUserId: driver.driverId.toString(),
-          notificationTitle: 'Top 5 Driver',
-          notificationBody:
-              'Congratulations!! You are in the top 5 drivers, you won a reward!',
-        );
+      try{
+        final driverName =
+        await ratingService.fetchDriverName(driver.driverId.toString());
 
-        final success = await notificationService.notify(notification);
-        if (!success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Failed to send notification to $driverName')),
+        if (driverName != null) {
+          final notification = PushNotification(
+            targetUserId: driver.driverId.toString(),
+            notificationTitle: 'Top 5 Driver',
+            notificationBody:
+            'Congratulations!! You are in the top 5 drivers, you won a reward!',
           );
+
+          final success = await notificationService.notify(notification);
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Failed to send notification to $driverName')),
+            );
+          }
         }
+      } catch (e) {
+        print('Error sending notification: $e');
       }
+
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
