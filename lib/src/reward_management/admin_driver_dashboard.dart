@@ -1,17 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'package:trashtrek/components/custom_bottom_navigation.dart';
+import 'package:trashtrek/src/notification_feature/notification_service.dart';
+import 'package:trashtrek/src/notification_feature/notification_model.dart';
 import 'package:trashtrek/src/reward_management/admin_driver_profile.dart';
 import 'package:trashtrek/src/user_management_feature/driverRegistration.dart';
 import 'admin_driver_dashboard_service.dart';
 import 'rating_model.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 class AdminDriverDashboard extends StatefulWidget {
   final String driverId;
@@ -28,6 +25,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
   late Future<List<Rating>> futureDriverRatings;
   final AdminDriverDashboardService ratingService =
       AdminDriverDashboardService();
+  final NotificationService notificationService = NotificationService();
 
   @override
   void initState() {
@@ -46,109 +44,33 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
     return await ratingService.fetchDriverRatings(token);
   }
 
-// void _generateReport(List<Rating> topDrivers) async {
-//     final pdf = pw.Document();
-//     final ByteData bytes = await rootBundle.load('assets/images/truck.png');
-//     final image = pw.MemoryImage(bytes.buffer.asUint8List());
+  Future<void> _sendNotificationsToTop5(List<Rating> topDrivers) async {
+    for (var driver in topDrivers) {
+      final driverName =
+          await ratingService.fetchDriverName(driver.driverId.toString());
 
-//     // Get the current date and time
-//     final DateTime now = DateTime.now();
-//     final formattedDate = "${now.year}-${now.month}-${now.day}";
-//     final formattedTime = "${now.hour}:${now.minute}:${now.second}";
+      if (driverName != null) {
+        final notification = PushNotification(
+          targetUserId: driver.driverId.toString(),
+          notificationTitle: 'Top 5 Driver',
+          notificationBody:
+              'Congratulations!! You are in the top 5 drivers; you won a reward!',
+        );
 
-//     // Create a list to hold driver names
-//     final List<String> driverNames = [];
+        final success = await notificationService.notify(notification);
+        if (!success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Failed to send notification to $driverName')),
+          );
+        }
+      }
+    }
 
-//     // Fetch driver names asynchronously for each top driver
-//     for (var driver in topDrivers) {
-//       final driverName =
-//           await ratingService.fetchDriverName(driver.driverId.toString());
-//       driverNames.add(driverName ?? 'Unknown Driver');
-//     }
-
-//     // Adding a title and top drivers table with updated headers and content
-//     pdf.addPage(
-//       pw.Page(
-//         build: (pw.Context context) {
-//           return pw.Column(
-//             children: [
-//               // Header Section
-//               pw.Container(
-//                 color: PdfColor.fromHex('#bfff00'), // Light green color
-//                 padding: const pw.EdgeInsets.all(16),
-//                 child: pw.Row(
-//                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-//                   crossAxisAlignment: pw.CrossAxisAlignment.center,
-//                   children: [
-//                     pw.Text(
-//                       'TrashTrek\n Company',
-//                       style: pw.TextStyle(
-//                         fontSize: 16,
-//                         fontWeight: pw.FontWeight.bold,
-//                       ),
-//                     ),
-//                     // Logo and "Top 5 Drivers" in a centered column
-//                     pw.Column(
-//                       mainAxisAlignment: pw.MainAxisAlignment.center,
-//                       children: [
-//                         pw.Image(image, width: 60, height: 60), // Logo Image
-//                         pw.SizedBox(
-//                             height: 8), // Space between the logo and the text
-//                         pw.Text(
-//                           'Top 5 Drivers',
-//                           style: pw.TextStyle(
-//                             fontSize: 14,
-//                             fontWeight: pw.FontWeight.bold,
-//                             decoration: pw.TextDecoration.underline,
-//                           ),
-//                           textAlign: pw.TextAlign.center,
-//                         ),
-//                       ],
-//                     ),
-//                     pw.Text(
-//                       'Date: $formattedDate\nTime: $formattedTime',
-//                       style: pw.TextStyle(
-//                         fontSize: 12,
-//                         fontWeight: pw.FontWeight.bold,
-//                       ),
-//                       textAlign: pw.TextAlign.right,
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               pw.Divider(
-//                   color: PdfColors.white,
-//                   thickness: 10), // Space after the header
-
-//               // Table Section
-//               pw.Table.fromTextArray(
-//                 headers: ['Rank', 'Driver Name', 'Total Points'],
-//                 data: List.generate(topDrivers.length, (index) {
-//                   final driver = topDrivers[index];
-//                   return [
-//                     driver.rank.toString(),
-//                     driverNames[index], // Use fetched driver name
-//                     driver.totalPoints.toString(),
-//                   ];
-//                 }),
-//               ),
-//             ],
-//           );
-//         },
-//       ),
-//     );
-
-//     // Save the PDF to the Downloads directory
-//   final output = await getTemporaryDirectory();
-//     final file = File("${output.path}/top_drivers_report.pdf");
-//     await file.writeAsBytes(await pdf.save());
-
-//     print("PDF saved to: ${file.path}");
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('PDF Report Generated: ${file.path}')),
-//     );
-//     await Printing.sharePdf(bytes: await pdf.save(), filename: 'top_drivers_report.pdf');
-//   }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Notifications sent to top 5 drivers!')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,10 +79,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
         'Driver Dashboard',
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.add_box_rounded,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.add_box_rounded, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, DriverRegistraion.routeName);
             },
@@ -192,19 +111,15 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                       const Text(
                         'Top 5 Drivers',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          // _generateReport(topDrivers);
-                        },
+                        onPressed: () => _sendNotificationsToTop5(topDrivers),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green, // Background color
-                          foregroundColor: Colors.white, // Text color
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
                         ),
-                        child: const Text('Notification'),
+                        child: const Text('Notify Top 5'),
                       ),
                     ],
                   ),
@@ -248,9 +163,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                         const Text(
                           'All Drivers',
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),
                         for (var driver in allDrivers)
