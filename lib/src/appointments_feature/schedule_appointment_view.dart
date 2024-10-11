@@ -274,7 +274,7 @@ class _ScheduleAppointmentViewState extends State<ScheduleAppointmentView>
                       },
                       controlAffinity: ListTileControlAffinity.leading, // Position the checkbox to the left
                     );
-                  }).toList(),
+                  }),
 
 
                 const SizedBox(height: 16),
