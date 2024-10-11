@@ -92,13 +92,22 @@ class _DriverMyAppointmentsViewState extends State<DriverMyAppointmentsView> {
     try {
       await widget.apiService.acceptAppointment(appointmentId);
       // Notify user about acceptance
-      await widget.notificationService.notify(
+     bool response = await widget.notificationService.notify(
         PushNotification(
           targetUserId: userId,
           notificationTitle: 'Appointment Accepted',
           notificationBody: 'Your appointment has been accepted.',
         ),
       );
+      if(response){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Notification send successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
       setState(() {
         _appointmentsFuture = _loadAppointments();
       });
