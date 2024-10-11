@@ -48,7 +48,7 @@ class ResidentDashboardState extends State<ResidentDashboard> {
               children: [
                 const SizedBox(height: 30),
                 Text(
-                  'Welcome to TrashTrek👋',
+                  'Welcome to EcoEagle👋',
                   softWrap: true,
                   textAlign: TextAlign.left,
                   style: GoogleFonts.andika(

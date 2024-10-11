@@ -72,7 +72,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                 child: Column(
                   children: [
                     Text(
-                      'Welcome to TrashTrek👋',
+                      'Welcome to EcoEagle👋',
                       softWrap: true,
                       textAlign: TextAlign.left,
                       style: GoogleFonts.andika(

@@ -69,3 +69,4 @@ flutter:
     - assets/chatBot/service.json
     - assets/chatBot/default.jpg
     - assets/chatBot/robot.jpg
+    - assets/images/logingbackground.png
