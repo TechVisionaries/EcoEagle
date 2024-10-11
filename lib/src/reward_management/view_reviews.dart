@@ -151,6 +151,29 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
     );
   }
 
+  Future<void> _confirmDeleteReview(Rating review) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Review'),
+        content: const Text('Are you sure you want to delete this review?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // Cancel deletion
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await _deleteReview(review);
+              Navigator.pop(context); // Close the dialog after deletion
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _deleteReview(Rating review) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -254,7 +277,8 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteReview(review),
+                              onPressed: () => _confirmDeleteReview(
+                                  review), // Show confirmation dialog
                             ),
                           ],
                         ),
@@ -267,7 +291,8 @@ class _ViewReviewsScreenState extends State<MyReviewsScreen> {
           }
         },
       ),
-      bottomNavigationBar: CustomBottomNavigation.dynamicNav(context, 2, 'Resident'),
+      bottomNavigationBar:
+          CustomBottomNavigation.dynamicNav(context, 2, 'Resident'),
     );
   }
 }

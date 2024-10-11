@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trashtrek/components/custom_app_bar.dart';
 import 'add_rating_service.dart';
 import 'rating_model.dart';
+import 'package:trashtrek/common/constants.dart'; // Import the constants for route names
 
 class RateDriverScreen extends StatefulWidget {
   final String driverId;
@@ -182,7 +183,8 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushReplacementNamed(
+                          context, Constants.residentDashboardRoute);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[300],

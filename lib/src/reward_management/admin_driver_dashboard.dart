@@ -54,7 +54,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
           targetUserId: driver.driverId.toString(),
           notificationTitle: 'Top 5 Driver',
           notificationBody:
-              'Congratulations!! You are in the top 5 drivers; you won a reward!',
+              'Congratulations!! You are in the top 5 drivers, you won a reward!',
         );
 
         final success = await notificationService.notify(notification);
@@ -119,7 +119,7 @@ class _AdminDriverDashboardState extends State<AdminDriverDashboard> {
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text('Notify Top 5'),
+                        child: const Text('Reward'),
                       ),
                     ],
                   ),
